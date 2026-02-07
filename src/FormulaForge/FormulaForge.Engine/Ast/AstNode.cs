@@ -13,3 +13,11 @@ public abstract record ScalarValueNode : AstNode
     
     public sealed record BooleanScalarValue(bool Value) : ScalarValueNode;
 }
+
+public abstract record LiteralExpressionNode : AstNode
+{
+    public sealed record ConstantValueExpressionNode(ScalarValueNode Value) : LiteralExpressionNode;
+    
+    public sealed record VariableValueExpressionNode(string VariableName) : LiteralExpressionNode;
+}
+

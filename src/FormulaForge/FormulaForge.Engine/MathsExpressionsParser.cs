@@ -40,4 +40,35 @@ public class MathsExpressionsParser
         | DecimalValueParser.Cast<ScalarValueNode.DecimalScalarValue, ScalarValueNode>()
         | IntegerValueParser.Cast<ScalarValueNode.IntegerScalarValue, ScalarValueNode>();
     
+    private static bool IsLetterOrUnderscore(char c) => char.IsLetter(c) || c == '_';
+    
+    private static bool IsLetterOrUnderscoreOrDigit(char c) => char.IsLetterOrDigit(c) || c == '_';
+    
+    private static readonly IParser<LiteralExpressionNode.VariableValueExpressionNode> VariableNameContainingNumbersParser =
+        from start in Parse.ManySatisfy(IsLetterOrUnderscore)
+        from rest in Parse.ManySatisfy(IsLetterOrUnderscoreOrDigit)
+        select new LiteralExpressionNode.VariableValueExpressionNode(new string(start.Concat(rest).ToArray()));
+
+    /// <summary>
+    /// Parses a variable value expression.
+    /// </summary>
+    public static readonly IParser<LiteralExpressionNode.VariableValueExpressionNode> VariableValueExpressionParser =
+        VariableNameContainingNumbersParser 
+            | Parse.ManySatisfy(IsLetterOrUnderscore)
+                .Select(x => new LiteralExpressionNode.VariableValueExpressionNode(x.ToString()));
+    
+    /// <summary>
+    /// Parses a constant value expression.
+    /// </summary>
+    public static readonly IParser<LiteralExpressionNode.ConstantValueExpressionNode> ConstantValueExpressionParser =
+        ScalarValueParser.Select(x => new LiteralExpressionNode.ConstantValueExpressionNode(x));
+    
+    /// <summary>
+    /// Parses a literal expression.
+    /// </summary>
+    public static readonly IParser<LiteralExpressionNode> LiteralExpressionNodeParser =
+        ConstantValueExpressionParser.Cast<LiteralExpressionNode.ConstantValueExpressionNode, LiteralExpressionNode>()
+            | VariableValueExpressionParser.Cast<LiteralExpressionNode.VariableValueExpressionNode, LiteralExpressionNode>();
+    
+    
 }
