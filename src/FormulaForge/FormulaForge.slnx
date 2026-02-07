@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="FormulaForge.ApiService/FormulaForge.ApiService.csproj" />
+  <Project Path="FormulaForge.AppHost/FormulaForge.AppHost.csproj" />
+  <Project Path="FormulaForge.ServiceDefaults/FormulaForge.ServiceDefaults.csproj" />
+  <Project Path="FormulaForge.Web/FormulaForge.Web.csproj" />
+</Solution>
