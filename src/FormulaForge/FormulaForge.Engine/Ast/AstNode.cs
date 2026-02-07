@@ -21,3 +21,16 @@ public abstract record LiteralExpressionNode : AstNode
     public sealed record VariableValueExpressionNode(string VariableName) : LiteralExpressionNode;
 }
 
+public abstract record OperationExpressionNode : AstNode
+{
+    public sealed record BinaryOperationExpressionNode(OperationExpressionNode LeftOperand, OperationExpressionNode RightOperand, string Operator) : OperationExpressionNode;
+    
+    public sealed record UnaryOperationExpressionNode(OperationExpressionNode Operand, string Operator) : OperationExpressionNode;
+    
+    public sealed record ReadExpressionNode(AstNode Address) : OperationExpressionNode;
+}
+
+public abstract record AssignmentExpressionNode : AstNode
+{
+    public sealed record VariableAssignmentExpressionNode(LiteralExpressionNode.VariableValueExpressionNode Variable, OperationExpressionNode Value) : AssignmentExpressionNode;
+}

@@ -71,4 +71,19 @@ public class MathsExpressionsParser
             | VariableValueExpressionParser.Cast<LiteralExpressionNode.VariableValueExpressionNode, LiteralExpressionNode>();
     
     
+    public static readonly IParser<OperationExpressionNode.ReadExpressionNode> ReadExpressionParser =
+        LiteralExpressionNodeParser.Select(x => new OperationExpressionNode.ReadExpressionNode(x));
+
+    private static IParser<OperationExpressionNode.BinaryOperationExpressionNode> BasicBinaryOperationExpressionParser =>
+        from left in ReadExpressionParser
+        from trimLeft in Parse.SkipSpaces()
+        from @operator in Parse.StringMatch("+") | Parse.StringMatch("-") | Parse.StringMatch("*") | Parse.StringMatch("/")
+        from trimOperator in Parse.SkipSpaces()
+        from right in ReadExpressionParser
+        from trimRight in Parse.SkipSpaces()
+        select new OperationExpressionNode.BinaryOperationExpressionNode(left, right, @operator);
+    
+    public static readonly IParser<OperationExpressionNode.BinaryOperationExpressionNode[]> BinaryOperationExpressionParser =
+            Parse.Many(BasicBinaryOperationExpressionParser).Select(x => x.ToArray());
+    
 }
