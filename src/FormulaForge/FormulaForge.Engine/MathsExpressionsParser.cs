@@ -2,6 +2,7 @@
 using EasyParsing;
 using EasyParsing.Dsl;
 using EasyParsing.Dsl.Linq;
+using EasyParsing.Parsers;
 using FormulaForge.Engine.Ast;
 
 namespace FormulaForge.Engine;
@@ -31,6 +32,12 @@ public class MathsExpressionsParser
         from _ in Parse.SkipSpaces()
         select new ScalarValueNode.BooleanScalarValue(bool.Parse(value));
     
-    //public static readonly IParser<ScalarValueNode> ScalarValueParser = Parse.
+    /// <summary>
+    /// Parses a scalar value.
+    /// </summary>
+    public static readonly IParser<ScalarValueNode> ScalarValueParser = 
+        BooleanValueParser.Cast<ScalarValueNode.BooleanScalarValue, ScalarValueNode>() 
+        | DecimalValueParser.Cast<ScalarValueNode.DecimalScalarValue, ScalarValueNode>()
+        | IntegerValueParser.Cast<ScalarValueNode.IntegerScalarValue, ScalarValueNode>();
     
 }

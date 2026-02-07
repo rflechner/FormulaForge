@@ -1,3 +1,5 @@
+using FormulaForge.Engine.Ast;
+
 namespace FormulaForge.Engine.Tests;
 
 public class ScalarValueNodeParserTests
@@ -26,7 +28,7 @@ public class ScalarValueNodeParserTests
     }
     
     [Fact]
-    public void DecimalValueParser_ShouldParseIntegerValues()
+    public void DecimalValueParser_ShouldParseValues()
     {
         var text = "123.456";
 
@@ -38,7 +40,7 @@ public class ScalarValueNodeParserTests
     }
     
     [Fact]
-    public void DecimalValueParser_ShouldNotParseIntegerValues()
+    public void DecimalValueParser_ShouldNotParseValues()
     {
         var text = "123456";
 
@@ -51,13 +53,50 @@ public class ScalarValueNodeParserTests
     [Theory]
     [InlineData("true", true)]
     [InlineData("false", false)]
-    public void BooleanValueParser_ShouldParseIntegerValues(string text, bool expectedValue)
+    public void BooleanValueParser_ShouldParseValues(string text, bool expectedValue)
     {
         var result = MathsExpressionsParser.BooleanValueParser.Parse(text);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
         Assert.Equal(expectedValue, result.Result.Value);
+    }
+
+    [Theory]
+    [InlineData("true", true)]
+    [InlineData("false", false)]
+    public void ScalarValueParser_ShouldParseBooleanValues(string text, bool expectedValue)
+    {
+        var result = MathsExpressionsParser.ScalarValueParser.Parse(text);
+        
+        Assert.True(result.Success);
+        Assert.NotNull(result.Result);
+        Assert.Equal(new ScalarValueNode.BooleanScalarValue(expectedValue), result.Result);
+    }
+
+    [Theory]
+    [InlineData("1", 1)]
+    [InlineData("123456", 123456)]
+    public void ScalarValueParser_ShouldParseIntegerValues(string text, int expectedValue)
+    {
+        var result = MathsExpressionsParser.ScalarValueParser.Parse(text);
+        
+        Assert.True(result.Success);
+        Assert.NotNull(result.Result);
+        Assert.Equal(new ScalarValueNode.IntegerScalarValue(expectedValue), result.Result);
+    }
+
+    [Theory]
+    [InlineData("2.456", 2.456)]
+    [InlineData("4.6", 4.6)]
+    [InlineData("123.456", 123.456)]
+    public void ScalarValueParser_ShouldParseDecimalValues(string text, decimal expectedValue)
+    {
+        var result = MathsExpressionsParser.ScalarValueParser.Parse(text);
+        
+        Assert.True(result.Success);
+        Assert.NotNull(result.Result);
+        Assert.Equal(new ScalarValueNode.DecimalScalarValue(expectedValue), result.Result);
     }
     
 }
