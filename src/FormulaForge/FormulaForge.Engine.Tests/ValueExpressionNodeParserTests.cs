@@ -3,7 +3,7 @@ using FormulaForge.Engine.Ast;
 
 namespace FormulaForge.Engine.Tests;
 
-public class MathsExpressionsParserTests
+public class ValueExpressionNodeParserTests
 {
     [Theory]
     [InlineData("1 + 2", 1, "+", 2)]
@@ -13,7 +13,7 @@ public class MathsExpressionsParserTests
         string text,
         int expectedLeftOperand, string rawOperator, int expectedRightOperand)
     {
-        IParsingResult<OperationExpressionNode.BinaryOperationExpressionNode[]> result = MathsExpressionsParser.BinaryOperationExpressionParser.Parse(text);
+        IParsingResult<OperationExpressionNode> result = ValueExpressionNodeParser.BinaryOperationExpressionParser.Parse(text);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -21,13 +21,13 @@ public class MathsExpressionsParserTests
         var leftOperand = new OperationExpressionNode.ReadExpressionNode(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(expectedLeftOperand)));
         var rightOperand = new OperationExpressionNode.ReadExpressionNode(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(expectedRightOperand)));
         var operation = new OperationExpressionNode.BinaryOperationExpressionNode(leftOperand, rightOperand, rawOperator);
-        Assert.Equal([operation], result.Result);
+        Assert.Equal((OperationExpressionNode)operation, result.Result);
     }
     
     [Fact]
     public void BinaryOperationExpressionParser_ShouldParseAddOperationsOfTreeIntegers()
     {
-        IParsingResult<OperationExpressionNode.BinaryOperationExpressionNode[]> result = MathsExpressionsParser.BinaryOperationExpressionParser.Parse("1 + 20 + 300");
+        IParsingResult<OperationExpressionNode> result = ValueExpressionNodeParser.BinaryOperationExpressionParser.Parse("1 + 20 + 300");
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -41,7 +41,7 @@ public class MathsExpressionsParserTests
             new OperationExpressionNode.ReadExpressionNode(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(300))), 
             "+");
         
-        Assert.Equal([operation2], result.Result);
+        Assert.Equal((OperationExpressionNode)operation2, result.Result);
     }
     
     

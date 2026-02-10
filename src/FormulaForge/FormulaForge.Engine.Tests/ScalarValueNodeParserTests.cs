@@ -9,7 +9,7 @@ public class ScalarValueNodeParserTests
     {
         var text = "123";
 
-        var result = MathsExpressionsParser.IntegerValueParser.Parse(text);
+        var result = ValueExpressionNodeParser.IntegerValueParser.Parse(text);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -21,7 +21,7 @@ public class ScalarValueNodeParserTests
     {
         var text = "hello";
         
-        var result = MathsExpressionsParser.IntegerValueParser.Parse(text);
+        var result = ValueExpressionNodeParser.IntegerValueParser.Parse(text);
         
         Assert.False(result.Success);
         Assert.Null(result.Result);
@@ -32,7 +32,7 @@ public class ScalarValueNodeParserTests
     {
         var text = "123.456";
 
-        var result = MathsExpressionsParser.DecimalValueParser.Parse(text);
+        var result = ValueExpressionNodeParser.DecimalValueParser.Parse(text);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -44,7 +44,7 @@ public class ScalarValueNodeParserTests
     {
         var text = "123456";
 
-        var result = MathsExpressionsParser.DecimalValueParser.Parse(text);
+        var result = ValueExpressionNodeParser.DecimalValueParser.Parse(text);
         
         Assert.False(result.Success);
         Assert.Null(result.Result);
@@ -55,7 +55,7 @@ public class ScalarValueNodeParserTests
     [InlineData("false", false)]
     public void BooleanValueParser_ShouldParseValues(string text, bool expectedValue)
     {
-        var result = MathsExpressionsParser.BooleanValueParser.Parse(text);
+        var result = ValueExpressionNodeParser.BooleanValueParser.Parse(text);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -67,7 +67,7 @@ public class ScalarValueNodeParserTests
     [InlineData("false", false)]
     public void ScalarValueParser_ShouldParseBooleanValues(string text, bool expectedValue)
     {
-        var result = MathsExpressionsParser.ScalarValueParser.Parse(text);
+        var result = ValueExpressionNodeParser.ScalarValueParser.Parse(text);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -79,7 +79,7 @@ public class ScalarValueNodeParserTests
     [InlineData("123456", 123456)]
     public void ScalarValueParser_ShouldParseIntegerValues(string text, int expectedValue)
     {
-        var result = MathsExpressionsParser.ScalarValueParser.Parse(text);
+        var result = ValueExpressionNodeParser.ScalarValueParser.Parse(text);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -92,7 +92,7 @@ public class ScalarValueNodeParserTests
     [InlineData("123.456", 123.456)]
     public void ScalarValueParser_ShouldParseDecimalValues(string text, decimal expectedValue)
     {
-        var result = MathsExpressionsParser.ScalarValueParser.Parse(text);
+        var result = ValueExpressionNodeParser.ScalarValueParser.Parse(text);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);

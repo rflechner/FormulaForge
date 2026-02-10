@@ -17,7 +17,7 @@ public class LiteralExpressionNodeParserTests
     [InlineData("_test")]
     public void VariableValueExpressionParser_ShouldParseDecimalValues(string variableName)
     {
-        var result = MathsExpressionsParser.VariableValueExpressionParser.Parse(variableName);
+        var result = ValueExpressionNodeParser.VariableValueExpressionParser.Parse(variableName);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -32,7 +32,7 @@ public class LiteralExpressionNodeParserTests
     [InlineData("_test_variable2")]
     public void LiteralExpressionNodeParser_ShouldParseVariableName(string variableName)
     {
-        var result = MathsExpressionsParser.LiteralExpressionNodeParser.Parse(variableName);
+        var result = ValueExpressionNodeParser.LiteralExpressionNodeParser.Parse(variableName);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -44,7 +44,7 @@ public class LiteralExpressionNodeParserTests
     [InlineData("false", false)]
     public void LiteralExpressionNodeParser_ShouldParseBooleanValues(string text, bool expectedValue)
     {
-        var result = MathsExpressionsParser.LiteralExpressionNodeParser.Parse(text);
+        var result = ValueExpressionNodeParser.LiteralExpressionNodeParser.Parse(text);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -56,7 +56,7 @@ public class LiteralExpressionNodeParserTests
     [InlineData("123.987", 123.987)]
     public void LiteralExpressionNodeParser_ShouldParseDecimalValues(string text, decimal expectedValue)
     {
-        var result = MathsExpressionsParser.LiteralExpressionNodeParser.Parse(text);
+        var result = ValueExpressionNodeParser.LiteralExpressionNodeParser.Parse(text);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
@@ -68,7 +68,7 @@ public class LiteralExpressionNodeParserTests
     [InlineData("123", 123)]
     public void LiteralExpressionNodeParser_ShouldParseIntegerValues(string text, int expectedValue)
     {
-        var result = MathsExpressionsParser.LiteralExpressionNodeParser.Parse(text);
+        var result = ValueExpressionNodeParser.LiteralExpressionNodeParser.Parse(text);
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
