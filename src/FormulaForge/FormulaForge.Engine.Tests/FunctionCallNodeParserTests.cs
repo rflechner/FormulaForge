@@ -78,10 +78,10 @@ public class FunctionCallNodeParserTests
         
         Assert.Equal("testFunction", result.Result.FunctionName);
         Assert.Equal(4, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
-        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(1234)));
-        Assert.Equal(result.Result.Arguments[2], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)));
-        Assert.Equal(result.Result.Arguments[3], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(21)));
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)), result.Result.Arguments[0]);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(1234)), result.Result.Arguments[1]);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)), result.Result.Arguments[2]);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(21)), result.Result.Arguments[3]);
     }
 
     [Fact]
