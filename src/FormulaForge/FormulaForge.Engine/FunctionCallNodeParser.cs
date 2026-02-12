@@ -27,17 +27,17 @@ public class FunctionCallNodeParser
         from sp2 in Parse.SkipSpaces()
         select sep;
 
-    internal static readonly IParser<ValueExpressionNode> ParametersValueParser =
-        new LazyParser<ValueExpressionNode>(() => FunctionCall | ValueExpressionNodeParser.ValueExpression);
+    internal static readonly IParser<ValueExpressionNode> ValueAccessParser =
+        new LazyParser<ValueExpressionNode>(() => FunctionCall! | ValueExpressionNodeParser.ValueExpression);
         
     internal static readonly IParser<ValueExpressionNode[]> FunctionCallMultipleParametersParser = 
         from sp1 in Parse.SkipSpaces()
-        from values in ParametersValueParser.SeparatedBy(FunctionCallParameterSeparatorParser)
+        from values in ValueAccessParser.SeparatedBy(FunctionCallParameterSeparatorParser)
         from sp2 in Parse.SkipSpaces()
         select values;
 
     internal static readonly IParser<ValueExpressionNode[]> FunctionCallSingleParameterParser =
-        ParametersValueParser.Select(r => new[] { r });
+        ValueAccessParser.Select(r => new[] { r });
     
     public static readonly IParser<FunctionCallExpressionNode> FunctionCallWithParameters =
         from name in FunctionNameParser
