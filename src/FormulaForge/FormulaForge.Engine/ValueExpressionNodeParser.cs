@@ -3,6 +3,7 @@ using EasyParsing;
 using EasyParsing.Dsl;
 using EasyParsing.Dsl.Linq;
 using EasyParsing.Parsers;
+using EasyParsing.Parsers.Maths;
 using FormulaForge.Engine.Ast;
 
 namespace FormulaForge.Engine;
@@ -69,45 +70,34 @@ public class ValueExpressionNodeParser
     
     public static readonly IParser<OperationExpressionNode.ReadExpressionNode> ReadExpressionParser =
         LiteralExpressionNodeParser.Select(x => new OperationExpressionNode.ReadExpressionNode(x));
+    
+    public static IParser<ComputedExpressionNode> OperationsParser
+    {
+        get
+        {
+            var operandParser =
+                from _ in Parse.SkipSpaces()
+                from n in FunctionCallNodeParser.ValueAccessParser
+                from __ in Parse.SkipSpaces()
+                select new BinaryOperationOperandValue<ValueExpressionNode>(n);
 
-    private static IParser<OperationExpressionNode> TermParser =>
-        (from lparen in Parse.OneChar('(')
-         from expr in ExpressionParser
-         from rparen in Parse.OneChar(')')
-         select expr).Cast<OperationExpressionNode, OperationExpressionNode>()
-        | ReadExpressionParser.Cast<OperationExpressionNode.ReadExpressionNode, OperationExpressionNode>();
-
-    private static IParser<OperationExpressionNode> MultiplicationParser =>
-        from left in TermParser
-        from rest in Parse.Many(
-            from _1 in Parse.SkipSpaces()
-            from op in (Parse.StringMatch("*") | Parse.StringMatch("/"))
-            from _2 in Parse.SkipSpaces()
-            from right in TermParser
-            select (op, right)
-        )
-        select rest.Aggregate(left, (acc, next) => new OperationExpressionNode.BinaryOperationExpressionNode(acc, next.right, next.op));
-
-    private static IParser<OperationExpressionNode> AdditionParser =>
-        from left in MultiplicationParser
-        from rest in Parse.Many(
-            from _1 in Parse.SkipSpaces()
-            from op in (Parse.StringMatch("+") | Parse.StringMatch("-") )
-            from _2 in Parse.SkipSpaces()
-            from right in MultiplicationParser
-            select (op, right)
-        )
-        select rest.Aggregate(left, (acc, next) => new OperationExpressionNode.BinaryOperationExpressionNode(acc, next.right, next.op));
-
-    private static IParser<OperationExpressionNode> ExpressionParser => AdditionParser;
-
-    public static readonly IParser<OperationExpressionNode> BinaryOperationExpressionParser = 
-        from _1 in Parse.SkipSpaces()
-        from expr in ExpressionParser
-        from _2 in Parse.SkipSpaces()
-        select expr;
-
-    public static readonly IParser<ValueExpressionNode> ValueExpression =
-        ScalarValueParser.Cast<ScalarValueNode, ValueExpressionNode>()
-        | VariableValueExpressionParser.Cast<LiteralExpressionNode, ValueExpressionNode>();
+            var subOperationStart = Parse.SkipSpaces() << Parse.StringMatch("(") >> Parse.SkipSpaces();
+            var subOperationEnd   = Parse.SkipSpaces() << Parse.StringMatch(")") >> Parse.SkipSpaces();
+        
+            return MathsParser.ParseAlgebraicExpression(
+                operandParser,
+                subOperationStart, subOperationEnd,
+                [
+                    new Operator<string>(OperatorKind.Infix, "+", 10),
+                    new Operator<string>(OperatorKind.Infix, "-", 10),
+                    new Operator<string>(OperatorKind.Infix, "*", 20),
+                    new Operator<string>(OperatorKind.Infix, "/", 20),
+                ]).Select(o => new ComputedExpressionNode(o));            
+        }
+    }
+    
+    public static readonly IParser<ValueExpressionNode> ValueExpression = 
+        // OperationsParser.Cast<ComputedExpressionNode, ValueExpressionNode>() | 
+        ScalarValueParser.Select(x => new LiteralExpressionNode.ConstantValueExpressionNode(x)) | 
+        LiteralExpressionNodeParser.Cast<LiteralExpressionNode, ValueExpressionNode>();
 }

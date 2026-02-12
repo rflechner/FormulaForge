@@ -1,3 +1,5 @@
+using EasyParsing.Parsers.Maths;
+
 namespace FormulaForge.Engine.Ast;
 
 public abstract record AstNode
@@ -7,7 +9,7 @@ public abstract record AstNode
 
 public abstract record ValueExpressionNode : AstNode;
 
-public abstract record ScalarValueNode : ValueExpressionNode
+public abstract record ScalarValueNode
 {
     public sealed record IntegerScalarValue(int Value) : ScalarValueNode;
     
@@ -23,13 +25,13 @@ public abstract record LiteralExpressionNode : ValueExpressionNode
     public sealed record VariableValueExpressionNode(string VariableName) : LiteralExpressionNode;
 }
 
+public sealed record ComputedExpressionNode(BinaryOperationOperand<ValueExpressionNode> Expression) : ValueExpressionNode;
+
 public abstract record OperationExpressionNode : ValueExpressionNode
 {
-    public sealed record BinaryOperationExpressionNode(OperationExpressionNode LeftOperand, OperationExpressionNode RightOperand, string Operator) : OperationExpressionNode;
-    
-    public sealed record UnaryOperationExpressionNode(OperationExpressionNode Operand, string Operator) : OperationExpressionNode;
-    
     public sealed record ReadExpressionNode(ValueExpressionNode Address) : OperationExpressionNode;
+    
+    public sealed record ComputedExpressionNode(OperationExpressionNode Expression) : OperationExpressionNode;
 }
 
 public abstract record AssignmentExpressionNode : AstNode

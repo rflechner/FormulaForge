@@ -30,7 +30,7 @@ public class FunctionCallNodeParserTests
         
         Assert.Equal("testFunction", result.Result.FunctionName);
         Assert.Single(result.Result.Arguments);
-        Assert.Equal(result.Result.Arguments[0], new ScalarValueNode.IntegerScalarValue(12));
+        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
     }
 
     [Fact]
@@ -45,8 +45,8 @@ public class FunctionCallNodeParserTests
         
         Assert.Equal("testFunction", result.Result.FunctionName);
         Assert.Equal(2, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new ScalarValueNode.IntegerScalarValue(12));
-        Assert.Equal(result.Result.Arguments[1], new ScalarValueNode.IntegerScalarValue(21));
+        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
+        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(21)));
     }
 
     [Fact]
@@ -61,9 +61,9 @@ public class FunctionCallNodeParserTests
         
         Assert.Equal("testFunction", result.Result.FunctionName);
         Assert.Equal(3, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new ScalarValueNode.IntegerScalarValue(12));
-        Assert.Equal(result.Result.Arguments[1], new ScalarValueNode.IntegerScalarValue(1234));
-        Assert.Equal(result.Result.Arguments[2], new ScalarValueNode.IntegerScalarValue(21));
+        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
+        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(1234)));
+        Assert.Equal(result.Result.Arguments[2], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(21)));
     }
 
     [Fact]
@@ -78,10 +78,10 @@ public class FunctionCallNodeParserTests
         
         Assert.Equal("testFunction", result.Result.FunctionName);
         Assert.Equal(4, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new ScalarValueNode.IntegerScalarValue(12));
-        Assert.Equal(result.Result.Arguments[1], new ScalarValueNode.IntegerScalarValue(1234));
-        Assert.Equal(result.Result.Arguments[2], new ScalarValueNode.IntegerScalarValue(9));
-        Assert.Equal(result.Result.Arguments[3], new ScalarValueNode.IntegerScalarValue(21));
+        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
+        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(1234)));
+        Assert.Equal(result.Result.Arguments[2], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)));
+        Assert.Equal(result.Result.Arguments[3], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(21)));
     }
 
     [Fact]
@@ -96,10 +96,10 @@ public class FunctionCallNodeParserTests
         
         Assert.Equal("test_function", result.Result.FunctionName);
         Assert.Equal(4, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new ScalarValueNode.IntegerScalarValue(12));
-        Assert.Equal(result.Result.Arguments[1], new ScalarValueNode.DecimalScalarValue(99.2324m));
-        Assert.Equal(result.Result.Arguments[2], new ScalarValueNode.IntegerScalarValue(9));
-        Assert.Equal(result.Result.Arguments[3], new ScalarValueNode.IntegerScalarValue(22341));
+        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
+        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.DecimalScalarValue(99.2324m)));
+        Assert.Equal(result.Result.Arguments[2], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)));
+        Assert.Equal(result.Result.Arguments[3], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(22341)));
     }
 
     [Fact]
@@ -114,13 +114,13 @@ public class FunctionCallNodeParserTests
         
         Assert.Equal("test_function", result.Result.FunctionName);
         Assert.Equal(5, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new ScalarValueNode.IntegerScalarValue(12));
-        Assert.Equal(result.Result.Arguments[1], new ScalarValueNode.DecimalScalarValue(99.2324m));
+        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
+        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.DecimalScalarValue(99.2324m)));
         
         Assert.Equal(result.Result.Arguments[2], new FunctionCallExpressionNode("count", []));
         
-        Assert.Equal(result.Result.Arguments[3], new ScalarValueNode.IntegerScalarValue(9));
-        Assert.Equal(result.Result.Arguments[4], new ScalarValueNode.IntegerScalarValue(22341));
+        Assert.Equal(result.Result.Arguments[3], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)));
+        Assert.Equal(result.Result.Arguments[4], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(22341)));
     }
 
     [Fact]
@@ -135,8 +135,8 @@ public class FunctionCallNodeParserTests
         
         Assert.Equal("test_function", result.Result.FunctionName);
         Assert.Equal(5, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new ScalarValueNode.IntegerScalarValue(12));
-        Assert.Equal(result.Result.Arguments[1], new ScalarValueNode.DecimalScalarValue(99.2324m));
+        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
+        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.DecimalScalarValue(99.2324m)));
 
         var funcParam = (FunctionCallExpressionNode) result.Result.Arguments[2];
         Assert.Equal("count", funcParam.FunctionName);
@@ -145,8 +145,8 @@ public class FunctionCallNodeParserTests
         var variable = (LiteralExpressionNode.VariableValueExpressionNode)(funcParam.Arguments[0]);
         Assert.Equal("collection", variable.VariableName);
 
-        Assert.Equal(result.Result.Arguments[3], new ScalarValueNode.IntegerScalarValue(9));
-        Assert.Equal(result.Result.Arguments[4], new ScalarValueNode.IntegerScalarValue(22341));
+        Assert.Equal(result.Result.Arguments[3], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)));
+        Assert.Equal(result.Result.Arguments[4], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(22341)));
     }
 
     [Fact]
@@ -161,8 +161,8 @@ public class FunctionCallNodeParserTests
         
         Assert.Equal("test_function", result.Result.FunctionName);
         Assert.Equal(5, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new ScalarValueNode.IntegerScalarValue(12));
-        Assert.Equal(result.Result.Arguments[1], new ScalarValueNode.DecimalScalarValue(99.2324m));
+        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
+        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.DecimalScalarValue(99.2324m)));
 
         var funcParam = (FunctionCallExpressionNode) result.Result.Arguments[2];
         Assert.Equal("big_call", funcParam.FunctionName);
@@ -172,8 +172,9 @@ public class FunctionCallNodeParserTests
         var p1 = (LiteralExpressionNode.VariableValueExpressionNode)funcParam.Arguments[0];
         Assert.Equal("collection", p1.VariableName);
 
-        Assert.IsType<ScalarValueNode.IntegerScalarValue>(funcParam.Arguments[1]);
-        var p2 = (ScalarValueNode.IntegerScalarValue)funcParam.Arguments[1];
+        Assert.IsType<LiteralExpressionNode.ConstantValueExpressionNode>(funcParam.Arguments[1]);
+        var c2 = (LiteralExpressionNode.ConstantValueExpressionNode)funcParam.Arguments[1];
+        var p2 = (ScalarValueNode.IntegerScalarValue)c2.Value;
         Assert.Equal(789, p2.Value);
 
         Assert.IsType<FunctionCallExpressionNode>(funcParam.Arguments[2]);
@@ -181,8 +182,8 @@ public class FunctionCallNodeParserTests
         Assert.Equal("count", p3.FunctionName);
         Assert.Empty(p3.Arguments);
 
-        Assert.Equal(result.Result.Arguments[3], new ScalarValueNode.IntegerScalarValue(9));
-        Assert.Equal(result.Result.Arguments[4], new ScalarValueNode.IntegerScalarValue(22341));
+        Assert.Equal(result.Result.Arguments[3], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)));
+        Assert.Equal(result.Result.Arguments[4], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(22341)));
     }
     
 }
