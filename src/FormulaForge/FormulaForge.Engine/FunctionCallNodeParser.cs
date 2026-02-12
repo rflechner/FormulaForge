@@ -47,5 +47,4 @@ public class FunctionCallNodeParser
 
     public static readonly IParser<FunctionCallExpressionNode> FunctionCall =
         FunctionCallWithParameters | FunctionCallWithoutParameters;
-    
 }

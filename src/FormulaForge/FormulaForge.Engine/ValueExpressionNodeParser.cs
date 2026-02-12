@@ -41,18 +41,22 @@ public class ValueExpressionNodeParser
         | DecimalValueParser.Cast<ScalarValueNode.DecimalScalarValue, ScalarValueNode>()
         | IntegerValueParser.Cast<ScalarValueNode.IntegerScalarValue, ScalarValueNode>();
     
-    private static readonly IParser<LiteralExpressionNode.VariableValueExpressionNode> VariableNameContainingNumbersParser =
+    private static readonly IParser<VariableName> VariableNameContainingNumbersParser =
         from start in Parse.ManySatisfy(c => c.IsLetterOrUnderscore)
         from rest in Parse.ManySatisfy(c => c.IsLetterOrUnderscoreOrDigit)
-        select new LiteralExpressionNode.VariableValueExpressionNode(new string(start.Concat(rest).ToArray()));
+        select new VariableName($"{start}{rest}");
 
     /// <summary>
     /// Parses a variable value expression.
     /// </summary>
-    public static readonly IParser<LiteralExpressionNode.VariableValueExpressionNode> VariableValueExpressionParser =
+    public static readonly IParser<VariableName> VariableNameParser =
         VariableNameContainingNumbersParser 
             | Parse.ManySatisfy(c => c.IsLetterOrUnderscore)
-                .Select(x => new LiteralExpressionNode.VariableValueExpressionNode(x.ToString()));
+                .Select(x => new VariableName(x));
+    
+    public static readonly IParser<LiteralExpressionNode.VariableValueExpressionNode> VariableValueExpressionParser =
+        VariableNameParser
+                .Select(x => new LiteralExpressionNode.VariableValueExpressionNode(x));
     
     /// <summary>
     /// Parses a constant value expression.
@@ -66,10 +70,6 @@ public class ValueExpressionNodeParser
     public static readonly IParser<LiteralExpressionNode> LiteralExpressionNodeParser =
         ConstantValueExpressionParser.Cast<LiteralExpressionNode.ConstantValueExpressionNode, LiteralExpressionNode>()
             | VariableValueExpressionParser.Cast<LiteralExpressionNode.VariableValueExpressionNode, LiteralExpressionNode>();
-    
-    
-    public static readonly IParser<OperationExpressionNode.ReadExpressionNode> ReadExpressionParser =
-        LiteralExpressionNodeParser.Select(x => new OperationExpressionNode.ReadExpressionNode(x));
     
     public static IParser<ComputedExpressionNode> OperationsParser
     {

@@ -153,7 +153,7 @@ public class ValueExpressionNodeParserTests
         Assert.Single(countFunc.Arguments);
         Assert.IsType<LiteralExpressionNode.VariableValueExpressionNode>(countFunc.Arguments[0]);
         var collectionVar = (LiteralExpressionNode.VariableValueExpressionNode)countFunc.Arguments[0];
-        Assert.Equal("collection", collectionVar.VariableName);
+        Assert.Equal(new VariableName("collection"), collectionVar.VariableName);
 
         Assert.IsType<ComputedExpressionNode>(addNumbersFunc.Arguments[1]);
         var divisionExpr = (ComputedExpressionNode)addNumbersFunc.Arguments[1];

@@ -1,0 +1,106 @@
+using EasyParsing;
+using FormulaForge.Engine.Ast;
+
+namespace FormulaForge.Engine.Tests;
+
+public class StatementNodeParserTests
+{
+    [Fact]
+    public void AssignmentParserWithConstantInt_ShouldSuccess()
+    {
+        var parser = StatementsParser.AssignmentParser;
+        
+        IParsingResult<StatementNode.AssignmentExpressionNode> result = parser.Parse("toto = 234");
+        
+        Assert.True(result.Success);
+        Assert.NotNull(result.Result);
+        
+        Assert.IsType<StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode>(result.Result);
+        
+        var variableAssignment = (StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode)result.Result;
+        
+        Assert.Equal("toto", variableAssignment.Variable.Name);
+        Assert.IsType<LiteralExpressionNode.ConstantValueExpressionNode>(variableAssignment.Value);
+        Assert.Equal(new ScalarValueNode.IntegerScalarValue(234), ((LiteralExpressionNode.ConstantValueExpressionNode)variableAssignment.Value).Value);
+    }
+    
+    [Fact]
+    public void AssignmentParserWithVariable_ShouldSuccess()
+    {
+        var parser = StatementsParser.AssignmentParser;
+        
+        IParsingResult<StatementNode.AssignmentExpressionNode> result = parser.Parse("toto = tata");
+        
+        Assert.True(result.Success);
+        Assert.NotNull(result.Result);
+        
+        Assert.IsType<StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode>(result.Result);
+        
+        var variableAssignment = (StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode)result.Result;
+        
+        Assert.Equal("toto", variableAssignment.Variable.Name);
+        Assert.IsType<LiteralExpressionNode.VariableValueExpressionNode>(variableAssignment.Value);
+        Assert.Equal(new VariableName("tata"), ((LiteralExpressionNode.VariableValueExpressionNode)variableAssignment.Value).VariableName);
+    }
+
+    [Fact]
+    public void AssignmentParser_ShouldParseComplexExpressionWithFunctionAndVariable()
+    {
+        var parser = StatementsParser.AssignmentParser;
+
+        var text = "total_count = 43 + add(29, 34.2) * other_var";
+
+        var result = parser.Parse(text);
+
+        Assert.True(result.Success);
+        Assert.NotNull(result.Result);
+
+        Assert.IsType<StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode>(result.Result);
+        var assignment = (StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode)result.Result;
+
+        // Vérifier le nom de variable assignée
+        Assert.Equal("total_count", assignment.Variable.Name);
+
+        // Vérifier que la valeur est une expression calculée
+        Assert.IsType<ComputedExpressionNode>(assignment.Value);
+        var computedExpr = (ComputedExpressionNode)assignment.Value;
+
+        // L'expression : 43 + add(29, 34.2) * other_var
+        // Structure: BinaryOperation(+) avec
+        //   - Left: 43
+        //   - Right: BinaryOperation(*) avec Left=add(29, 34.2), Right=other_var
+
+        Assert.IsType<EasyParsing.Parsers.Maths.BinaryOperation<ValueExpressionNode>>(computedExpr.Expression);
+        var rootOp = (EasyParsing.Parsers.Maths.BinaryOperation<ValueExpressionNode>)computedExpr.Expression;
+
+        // Vérifier l'opérateur racine (+)
+        Assert.Equal("+", rootOp.Operator.Text);
+
+        // Vérifier l'opérande gauche : 43
+        Assert.IsType<EasyParsing.Parsers.Maths.BinaryOperationOperandValue<ValueExpressionNode>>(rootOp.Left);
+        var left43 = ((EasyParsing.Parsers.Maths.BinaryOperationOperandValue<ValueExpressionNode>)rootOp.Left).Value;
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(43)), left43);
+
+        // Vérifier l'opérande droite : add(29, 34.2) * other_var
+        Assert.IsType<EasyParsing.Parsers.Maths.BinaryOperation<ValueExpressionNode>>(rootOp.Right);
+        var multiplyOp = (EasyParsing.Parsers.Maths.BinaryOperation<ValueExpressionNode>)rootOp.Right;
+        Assert.Equal("*", multiplyOp.Operator.Text);
+
+        // Vérifier add(29, 34.2)
+        Assert.IsType<EasyParsing.Parsers.Maths.BinaryOperationOperandValue<ValueExpressionNode>>(multiplyOp.Left);
+        var addFuncValue = ((EasyParsing.Parsers.Maths.BinaryOperationOperandValue<ValueExpressionNode>)multiplyOp.Left).Value;
+        Assert.IsType<FunctionCallExpressionNode>(addFuncValue);
+        var addFunc = (FunctionCallExpressionNode)addFuncValue;
+        Assert.Equal("add", addFunc.FunctionName);
+        Assert.Equal(2, addFunc.Arguments.Length);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(29)), addFunc.Arguments[0]);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.DecimalScalarValue(34.2m)), addFunc.Arguments[1]);
+
+        // Vérifier other_var
+        Assert.IsType<EasyParsing.Parsers.Maths.BinaryOperationOperandValue<ValueExpressionNode>>(multiplyOp.Right);
+        var otherVarValue = ((EasyParsing.Parsers.Maths.BinaryOperationOperandValue<ValueExpressionNode>)multiplyOp.Right).Value;
+        Assert.IsType<LiteralExpressionNode.VariableValueExpressionNode>(otherVarValue);
+        var otherVar = (LiteralExpressionNode.VariableValueExpressionNode)otherVarValue;
+        Assert.Equal("other_var", otherVar.VariableName.Name);
+    }
+}

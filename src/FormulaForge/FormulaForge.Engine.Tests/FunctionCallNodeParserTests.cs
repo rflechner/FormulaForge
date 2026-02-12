@@ -143,7 +143,7 @@ public class FunctionCallNodeParserTests
         Assert.Single(funcParam.Arguments);
         Assert.IsType<LiteralExpressionNode.VariableValueExpressionNode>(funcParam.Arguments[0]);
         var variable = (LiteralExpressionNode.VariableValueExpressionNode)(funcParam.Arguments[0]);
-        Assert.Equal("collection", variable.VariableName);
+        Assert.Equal(new VariableName("collection"), variable.VariableName);
 
         Assert.Equal(result.Result.Arguments[3], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)));
         Assert.Equal(result.Result.Arguments[4], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(22341)));
@@ -170,7 +170,7 @@ public class FunctionCallNodeParserTests
         
         Assert.IsType<LiteralExpressionNode.VariableValueExpressionNode>(funcParam.Arguments[0]);
         var p1 = (LiteralExpressionNode.VariableValueExpressionNode)funcParam.Arguments[0];
-        Assert.Equal("collection", p1.VariableName);
+        Assert.Equal(new VariableName("collection"), p1.VariableName);
 
         Assert.IsType<LiteralExpressionNode.ConstantValueExpressionNode>(funcParam.Arguments[1]);
         var c2 = (LiteralExpressionNode.ConstantValueExpressionNode)funcParam.Arguments[1];

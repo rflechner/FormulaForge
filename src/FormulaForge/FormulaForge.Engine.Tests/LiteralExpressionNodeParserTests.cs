@@ -21,7 +21,7 @@ public class LiteralExpressionNodeParserTests
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
-        Assert.Equal(new LiteralExpressionNode.VariableValueExpressionNode(variableName), result.Result);
+        Assert.Equal(new LiteralExpressionNode.VariableValueExpressionNode(new VariableName(variableName)), result.Result);
     }
     
     [Theory]
@@ -36,7 +36,7 @@ public class LiteralExpressionNodeParserTests
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
-        Assert.Equal(new LiteralExpressionNode.VariableValueExpressionNode(variableName), result.Result);
+        Assert.Equal(new LiteralExpressionNode.VariableValueExpressionNode(new VariableName(variableName)), result.Result);
     }
     
     [Theory]
