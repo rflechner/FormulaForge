@@ -38,5 +38,5 @@ public abstract record AssignmentExpressionNode : AstNode
 }
 
 
-public record FunctionCallExpressionNode(string FunctionName, List<ValueExpressionNode> Arguments) : OperationExpressionNode;
+public record FunctionCallExpressionNode(string FunctionName, ValueExpressionNode[] Arguments) : OperationExpressionNode;
 

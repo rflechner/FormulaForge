@@ -106,5 +106,8 @@ public class ValueExpressionNodeParser
         from expr in ExpressionParser
         from _2 in Parse.SkipSpaces()
         select expr;
-    
+
+    public static readonly IParser<ValueExpressionNode> ValueExpression =
+        ScalarValueParser.Cast<ScalarValueNode, ValueExpressionNode>()
+        | VariableValueExpressionParser.Cast<LiteralExpressionNode, ValueExpressionNode>();
 }

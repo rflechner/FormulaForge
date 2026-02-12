@@ -19,5 +19,26 @@ public class FunctionCallNodeParser
         from sp2 in Parse.SkipSpaces()
         from p2 in Parse.OneChar(')')
         select new FunctionCallExpressionNode(name, []);
+
+    private static readonly IParser<string> FunctionCallParameterSeparatorParser =
+        from sp1 in Parse.SkipSpaces()
+        from sep in Parse.StringMatch(",")
+        from sp2 in Parse.SkipSpaces()
+        select sep;
+    
+    internal static readonly IParser<ValueExpressionNode[]> FunctionCallMultipleParametersParser = 
+        from sp1 in Parse.SkipSpaces()
+        from values in ValueExpressionNodeParser.ValueExpression.SeparatedBy(FunctionCallParameterSeparatorParser)
+        from sp2 in Parse.SkipSpaces()
+        select values;
+
+    internal static readonly IParser<ValueExpressionNode[]> FunctionCallSingleParameterParser =
+        ValueExpressionNodeParser.ValueExpression.Select(r => new[] { r });
+    
+    public static readonly IParser<FunctionCallExpressionNode> FunctionCallWithParameters =
+        from name in FunctionNameParser
+        from sp1 in Parse.SkipSpaces()
+        from parameters in Parse.Between(Parse.OneChar('('), FunctionCallMultipleParametersParser | FunctionCallSingleParameterParser,  Parse.OneChar(')'))
+        select new FunctionCallExpressionNode(name, parameters.Item);
     
 }
