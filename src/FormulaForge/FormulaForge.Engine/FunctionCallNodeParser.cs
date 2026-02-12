@@ -1,6 +1,7 @@
 using EasyParsing;
 using EasyParsing.Dsl;
 using EasyParsing.Dsl.Linq;
+using EasyParsing.Parsers;
 using FormulaForge.Engine.Ast;
 
 namespace FormulaForge.Engine;
@@ -25,20 +26,26 @@ public class FunctionCallNodeParser
         from sep in Parse.StringMatch(",")
         from sp2 in Parse.SkipSpaces()
         select sep;
-    
+
+    internal static readonly IParser<ValueExpressionNode> ParametersValueParser =
+        new LazyParser<ValueExpressionNode>(() => FunctionCall | ValueExpressionNodeParser.ValueExpression);
+        
     internal static readonly IParser<ValueExpressionNode[]> FunctionCallMultipleParametersParser = 
         from sp1 in Parse.SkipSpaces()
-        from values in ValueExpressionNodeParser.ValueExpression.SeparatedBy(FunctionCallParameterSeparatorParser)
+        from values in ParametersValueParser.SeparatedBy(FunctionCallParameterSeparatorParser)
         from sp2 in Parse.SkipSpaces()
         select values;
 
     internal static readonly IParser<ValueExpressionNode[]> FunctionCallSingleParameterParser =
-        ValueExpressionNodeParser.ValueExpression.Select(r => new[] { r });
+        ParametersValueParser.Select(r => new[] { r });
     
     public static readonly IParser<FunctionCallExpressionNode> FunctionCallWithParameters =
         from name in FunctionNameParser
         from sp1 in Parse.SkipSpaces()
         from parameters in Parse.Between(Parse.OneChar('('), FunctionCallMultipleParametersParser | FunctionCallSingleParameterParser,  Parse.OneChar(')'))
         select new FunctionCallExpressionNode(name, parameters.Item);
+
+    public static readonly IParser<FunctionCallExpressionNode> FunctionCall =
+        FunctionCallWithParameters | FunctionCallWithoutParameters;
     
 }
