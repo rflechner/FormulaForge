@@ -1,8 +1,12 @@
 <Solution>
+  <Folder Name="/docs/">
+    <File Path="..\..\docs\language.md" />
+  </Folder>
   <Folder Name="/externals/">
     <Project Path="../../externals/EasyParsing/src/EasyParsing/EasyParsing.csproj" />
   </Folder>
   <Folder Name="/solution/">
+    <File Path="..\..\README.md" />
     <File Path="global.json" />
   </Folder>
   <Project Path="FormulaForge.ApiService/FormulaForge.ApiService.csproj" />
