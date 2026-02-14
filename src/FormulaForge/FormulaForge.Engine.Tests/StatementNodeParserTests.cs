@@ -103,4 +103,33 @@ public class StatementNodeParserTests
         var otherVar = (LiteralExpressionNode.VariableValueExpressionNode)otherVarValue;
         Assert.Equal("other_var", otherVar.VariableName.Name);
     }
+
+    [Fact]
+    public void AssignmentParser_ShouldParseFunctionCallAssignment()
+    {
+        var parser = StatementsParser.AssignmentParser;
+
+        var text = "x = add(1,2)";
+
+        var result = parser.Parse(text);
+
+        Assert.True(result.Success);
+        Assert.NotNull(result.Result);
+
+        Assert.IsType<StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode>(result.Result);
+        var assignment = (StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode)result.Result;
+
+        // Vérifier le nom de variable assignée
+        Assert.Equal("x", assignment.Variable.Name);
+
+        // Vérifier que la valeur est un appel de fonction
+        Assert.IsType<FunctionCallExpressionNode>(assignment.Value);
+        var funcCall = (FunctionCallExpressionNode)assignment.Value;
+
+        // Vérifier le nom de la fonction et les arguments
+        Assert.Equal("add", funcCall.FunctionName);
+        Assert.Equal(2, funcCall.Arguments.Length);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(1)), funcCall.Arguments[0]);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(2)), funcCall.Arguments[1]);
+    }
 }

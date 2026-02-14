@@ -22,4 +22,12 @@
       <ProjectReference Include="..\FormulaForge.Engine\FormulaForge.Engine.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="FormulaProgramScriptParserTests_program1.formula" />
+      <Content Include="FormulaProgramScriptParserTests_program1.formula">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <DependentUpon>FormulaProgramScriptParserTests.cs</DependentUpon>
+      </Content>
+    </ItemGroup>
+
 </Project>

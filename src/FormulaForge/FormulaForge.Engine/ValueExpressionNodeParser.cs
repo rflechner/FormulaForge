@@ -103,6 +103,7 @@ public class ValueExpressionNodeParser
     
     public static readonly IParser<ValueExpressionNode> ValueExpression = 
         OperationsParser.Cast<ComputedExpressionNode, ValueExpressionNode>()
+        | FunctionCallNodeParser.FunctionCall
         | ValueAccessExpression;
     
 }
