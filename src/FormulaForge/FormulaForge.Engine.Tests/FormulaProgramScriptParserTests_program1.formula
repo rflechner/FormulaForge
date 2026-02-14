@@ -1,5 +1,3 @@
 
-add(a, b) = a + b
-
 x = add(1,2)
 y = mul(x,3)
