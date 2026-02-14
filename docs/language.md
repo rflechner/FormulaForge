@@ -45,6 +45,18 @@ Arithmetics operators supported:
 - `/`: division
 - `%`: modulo
 
+#### Behavior of division
+
+When dividing two integers, the result is not an integer.
+The result is a decimal.
+
+Example:
+
+```bash
+x = 12 / 3 # x is a decimal = 4.333333333333333
+```
+
+
 ### Functions
 
 #### Declaration
