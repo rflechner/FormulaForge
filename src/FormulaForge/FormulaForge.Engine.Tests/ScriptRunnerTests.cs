@@ -63,4 +63,48 @@ public class ScriptRunnerTests
         Assert.Equal(new ScalarValueNode.BooleanScalarValue(false), cValue);
     }
     
+    [Theory]
+    [InlineData("x = 180 + 20", 180 + 20)]
+    [InlineData("x = 12234 + 5 * 9 / (9 - 3 * (4+7))", 12234 + 5 * 9 / (9 - 3 * (4+7)))]
+    public void AssignSumOfIntsToVariableX_ShouldCompileAndSetValueInContext(string program, int expectedValue)
+    {
+        var dataContext = new CustomerDataContext
+        {
+            CustomerId = "123456789",
+            ReferenceMonth = new YearMonth(2022, 12),
+            AccountBalanceByMonth = new MonthlySeries<decimal>([]),
+            AssetsCountByMonth = new MonthlySeries<int>([]),
+        };
+        var context = new CustomerDslContext(dataContext);
+        var runner = new ScriptRunner(context);
+        
+        runner.Run(program);
+        
+        var variableExists = context.TryGetScalar("x", out var xValue);
+        Assert.True(variableExists);
+        Assert.Equal(new ScalarValueNode.IntegerScalarValue(expectedValue), xValue);
+    }
+    
+    [Fact]
+    public void AssignSumOfDecimalsToVariableX_ShouldCompileAndSetValueInContext()
+    {
+        var dataContext = new CustomerDataContext
+        {
+            CustomerId = "123456789",
+            ReferenceMonth = new YearMonth(2022, 12),
+            AccountBalanceByMonth = new MonthlySeries<decimal>([]),
+            AssetsCountByMonth = new MonthlySeries<int>([]),
+        };
+        var context = new CustomerDslContext(dataContext);
+        var runner = new ScriptRunner(context);
+
+        string program = "x = 12234.0 + 5.2 * 9.5 / (9.1 - 9.3 * (4+7))";
+        decimal expectedValue = 12234.0m + 5.2m * 9.5m / (9.1m - 9.3m * (4+7));
+        runner.Run(program);
+        
+        var variableExists = context.TryGetScalar("x", out var xValue);
+        Assert.True(variableExists);
+        Assert.Equal(new ScalarValueNode.DecimalScalarValue(expectedValue), xValue);
+    }
+    
 }
