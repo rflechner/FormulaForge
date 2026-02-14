@@ -6,9 +6,9 @@ using FormulaForge.Engine.DomainSpecificLanguage.Ast;
 
 namespace FormulaForge.Engine.DomainSpecificLanguage;
 
-public class FormulaProgramScriptParser
+public static class FormulaProgramScriptParser
 {
-    public static readonly IParser<AstNode[]> ProgramParser = 
+    public static readonly IParser<StatementNode[]> ProgramParser = 
         Parse
             .Many(
                 StatementsParser.AssignmentParser.Cast<StatementNode.VariableAssignmentExpressionNode, StatementNode>()
