@@ -75,7 +75,7 @@ public class ValueExpressionNodeParser
     {
         get
         {
-            var operandBody = new LazyParser<ValueExpressionNode>(() => FunctionCallNodeParser.FunctionCall! | ValueAccessExpression);
+            var operandBody = new LazyParser<ValueExpressionNode>(() => FunctionsNodesParser.FunctionCall! | ValueAccessExpression);
             var operandParser =
                 from _ in Parse.SkipSpaces()
                 from n in operandBody
@@ -103,7 +103,7 @@ public class ValueExpressionNodeParser
     
     public static readonly IParser<ValueExpressionNode> ValueExpression = 
         OperationsParser.Cast<ComputedExpressionNode, ValueExpressionNode>()
-        | FunctionCallNodeParser.FunctionCall
+        | FunctionsNodesParser.FunctionCall
         | ValueAccessExpression;
     
 }

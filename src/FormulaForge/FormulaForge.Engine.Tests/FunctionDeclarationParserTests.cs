@@ -7,8 +7,8 @@ public class FunctionDeclarationParserTests
     [Fact]
     public void InlineFunctionWithOneParam_ShouldParseFunctionDeclaration()
     {
-        var code = @"add(a, b) = a + b";
-        var parser = FunctionCallNodeParser.FunctionDeclarationParser;
+        var code = "add(a, b) = a + b";
+        var parser = StatementsParser.FunctionDeclarationParser;
 
         var result = parser.Parse(code);
         

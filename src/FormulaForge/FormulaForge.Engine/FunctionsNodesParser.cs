@@ -6,7 +6,7 @@ using FormulaForge.Engine.Ast;
 
 namespace FormulaForge.Engine;
 
-public class FunctionCallNodeParser
+public class FunctionsNodesParser
 {
     public static readonly IParser<string> FunctionNameParser =
         from start in Parse.Satisfy(c => c.IsLetterOrUnderscore)
@@ -60,11 +60,4 @@ public class FunctionCallNodeParser
         from parameters in Parse.Between(Parse.OneChar('('), FunctionSignatureMultipleParametersParser,  Parse.OneChar(')'))
         select new FunctionSignatureExpressionNode(name, parameters.Item);
     
-    public static IParser<StatementNode.FunctionDeclarationNode> FunctionDeclarationParser =
-        from signature in FunctionSignatureParser
-        from sp1 in Parse.SkipSpaces()
-        from eq in Parse.StringMatch("=")
-        from sp2 in Parse.SkipSpaces()
-        from body in ValueExpressionNodeParser.ValueExpression
-        select new StatementNode.FunctionDeclarationNode(signature.FunctionName, signature.Parameters, body);
 }

@@ -2,12 +2,12 @@ using FormulaForge.Engine.Ast;
 
 namespace FormulaForge.Engine.Tests;
 
-public class FunctionCallNodeParserTests
+public class FunctionsNodesParserTests
 {
     [Fact]
     public void FunctionCallWithoutParameters_ShouldParseFunctionCalls()
     {
-        var parser = FunctionCallNodeParser.FunctionCall;
+        var parser = FunctionsNodesParser.FunctionCall;
 
         var result = parser.Parse("testFunction()");
         
@@ -21,7 +21,7 @@ public class FunctionCallNodeParserTests
     [Fact]
     public void FunctionCallWithOneIntParameter_ShouldParseFunctionCalls()
     {
-        var parser = FunctionCallNodeParser.FunctionCall;
+        var parser = FunctionsNodesParser.FunctionCall;
 
         var result = parser.Parse("testFunction(12)");
         
@@ -36,7 +36,7 @@ public class FunctionCallNodeParserTests
     [Fact]
     public void FunctionCallWithTwoIntParameters_ShouldParseFunctionCalls()
     {
-        var parser = FunctionCallNodeParser.FunctionCall;
+        var parser = FunctionsNodesParser.FunctionCall;
 
         var result = parser.Parse("testFunction(12, 21)");
         
@@ -52,7 +52,7 @@ public class FunctionCallNodeParserTests
     [Fact]
     public void FunctionCallWithTreeIntParameters_ShouldParseFunctionCalls()
     {
-        var parser = FunctionCallNodeParser.FunctionCall;
+        var parser = FunctionsNodesParser.FunctionCall;
 
         var result = parser.Parse("testFunction(12, 1234, 21)");
         
@@ -69,7 +69,7 @@ public class FunctionCallNodeParserTests
     [Fact]
     public void FunctionCallWithFourIntParameters_ShouldParseFunctionCalls()
     {
-        var parser = FunctionCallNodeParser.FunctionCall;
+        var parser = FunctionsNodesParser.FunctionCall;
 
         var result = parser.Parse("testFunction(12, 1234, 9, 21)");
         
@@ -87,7 +87,7 @@ public class FunctionCallNodeParserTests
     [Fact]
     public void FunctionCallWithTreeIntAndOneDecimalParameters_ShouldParseFunctionCalls()
     {
-        var parser = FunctionCallNodeParser.FunctionCall;
+        var parser = FunctionsNodesParser.FunctionCall;
 
         var result = parser.Parse(@"test_function(12, 99.2324, 9, 22341)");
         
@@ -105,7 +105,7 @@ public class FunctionCallNodeParserTests
     [Fact]
     public void FunctionCallWithTreeIntAndOneDecimalAndOneFuncCallAsParameters_ShouldParseFunctionCalls()
     {
-        var parser = FunctionCallNodeParser.FunctionCall;
+        var parser = FunctionsNodesParser.FunctionCall;
 
         var result = parser.Parse(@"test_function(12, 99.2324, count(), 9, 22341)");
         
@@ -126,7 +126,7 @@ public class FunctionCallNodeParserTests
     [Fact]
     public void FunctionCallWithTreeIntAndOneDecimalAndOneFuncCallWithOneParamAsParameters_ShouldParseFunctionCalls()
     {
-        var parser = FunctionCallNodeParser.FunctionCall;
+        var parser = FunctionsNodesParser.FunctionCall;
 
         var result = parser.Parse(@"test_function(12, 99.2324, count(collection), 9, 22341)");
         
@@ -152,7 +152,7 @@ public class FunctionCallNodeParserTests
     [Fact]
     public void FunctionCallWithTreeIntAndOneDecimalAndOneFuncCallWithLotOfParamsAsParameters_ShouldParseFunctionCalls()
     {
-        var parser = FunctionCallNodeParser.FunctionCall;
+        var parser = FunctionsNodesParser.FunctionCall;
 
         var result = parser.Parse(@"test_function(12, 99.2324, big_call(collection, 789, count()), 9, 22341)");
         
