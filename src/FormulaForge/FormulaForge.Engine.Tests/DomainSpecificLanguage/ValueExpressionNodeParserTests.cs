@@ -1,11 +1,8 @@
-﻿using EasyParsing;
-using EasyParsing.Dsl;
-using EasyParsing.Dsl.Linq;
-using EasyParsing.Parsers.Maths;
+﻿using EasyParsing.Parsers.Maths;
 using FormulaForge.Engine.DomainSpecificLanguage;
 using FormulaForge.Engine.DomainSpecificLanguage.Ast;
 
-namespace FormulaForge.Engine.Tests;
+namespace FormulaForge.Engine.Tests.DomainSpecificLanguage;
 
 public class ValueExpressionNodeParserTests
 {
