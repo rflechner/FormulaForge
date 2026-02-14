@@ -1,6 +1,6 @@
 using EasyParsing.Parsers.Maths;
 
-namespace FormulaForge.Engine.Ast;
+namespace FormulaForge.Engine.DomainSpecificLanguage.Ast;
 
 public abstract record AstNode;
 

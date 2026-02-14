@@ -2,9 +2,9 @@ using EasyParsing;
 using EasyParsing.Dsl;
 using EasyParsing.Dsl.Linq;
 using EasyParsing.Parsers;
-using FormulaForge.Engine.Ast;
+using FormulaForge.Engine.DomainSpecificLanguage.Ast;
 
-namespace FormulaForge.Engine;
+namespace FormulaForge.Engine.DomainSpecificLanguage;
 
 public class FormulaProgramScriptParser
 {
