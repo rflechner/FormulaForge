@@ -10,14 +10,14 @@ public class StatementNodeParserTests
     {
         var parser = StatementsParser.AssignmentParser;
         
-        IParsingResult<StatementNode.AssignmentExpressionNode> result = parser.Parse("toto = 234");
+        IParsingResult<StatementNode.VariableAssignmentExpressionNode> result = parser.Parse("toto = 234");
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
         
-        Assert.IsType<StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode>(result.Result);
+        Assert.IsType<StatementNode.VariableAssignmentExpressionNode>(result.Result);
         
-        var variableAssignment = (StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode)result.Result;
+        var variableAssignment = result.Result;
         
         Assert.Equal("toto", variableAssignment.Variable.Name);
         Assert.IsType<LiteralExpressionNode.ConstantValueExpressionNode>(variableAssignment.Value);
@@ -29,14 +29,14 @@ public class StatementNodeParserTests
     {
         var parser = StatementsParser.AssignmentParser;
         
-        IParsingResult<StatementNode.AssignmentExpressionNode> result = parser.Parse("toto = tata");
+        IParsingResult<StatementNode.VariableAssignmentExpressionNode> result = parser.Parse("toto = tata");
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
         
-        Assert.IsType<StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode>(result.Result);
+        Assert.IsType<StatementNode.VariableAssignmentExpressionNode>(result.Result);
         
-        var variableAssignment = (StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode)result.Result;
+        var variableAssignment = result.Result;
         
         Assert.Equal("toto", variableAssignment.Variable.Name);
         Assert.IsType<LiteralExpressionNode.VariableValueExpressionNode>(variableAssignment.Value);
@@ -55,8 +55,8 @@ public class StatementNodeParserTests
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
 
-        Assert.IsType<StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode>(result.Result);
-        var assignment = (StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode)result.Result;
+        Assert.IsType<StatementNode.VariableAssignmentExpressionNode>(result.Result);
+        var assignment = result.Result;
 
         // Vérifier le nom de variable assignée
         Assert.Equal("total_count", assignment.Variable.Name);
@@ -116,8 +116,8 @@ public class StatementNodeParserTests
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
 
-        Assert.IsType<StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode>(result.Result);
-        var assignment = (StatementNode.AssignmentExpressionNode.VariableAssignmentExpressionNode)result.Result;
+        Assert.IsType<StatementNode.VariableAssignmentExpressionNode>(result.Result);
+        var assignment = result.Result;
 
         // Vérifier le nom de variable assignée
         Assert.Equal("x", assignment.Variable.Name);

@@ -12,6 +12,5 @@ public class FormulaProgramScriptParserTests
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
-        
     }
 }

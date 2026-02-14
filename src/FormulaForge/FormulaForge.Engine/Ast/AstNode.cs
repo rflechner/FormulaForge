@@ -26,14 +26,13 @@ public abstract record LiteralExpressionNode : ValueExpressionNode
 
 public sealed record ComputedExpressionNode(BinaryOperationOperand<ValueExpressionNode> Expression) : ValueExpressionNode;
 
+public record FunctionSignatureExpressionNode(string FunctionName, VariableName[] Parameters) : AstNode;
+
 public record FunctionCallExpressionNode(string FunctionName, ValueExpressionNode[] Arguments) : ValueExpressionNode;
 
 public abstract record StatementNode : AstNode
 {
-    public sealed record ExpressionStatementNode(ValueExpressionNode Expression) : StatementNode;
-    
-    public abstract record AssignmentExpressionNode : StatementNode
-    {
-        public sealed record VariableAssignmentExpressionNode(VariableName Variable, ValueExpressionNode Value) : AssignmentExpressionNode;
-    }
+    public sealed record VariableAssignmentExpressionNode(VariableName Variable, ValueExpressionNode Value) : StatementNode;
+
+    public sealed record FunctionDeclarationNode(string FunctionName, VariableName[] Parameters, ValueExpressionNode Body) : StatementNode;
 }
