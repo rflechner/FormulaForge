@@ -1,9 +1,8 @@
-using FormulaForge.Engine.DomainSpecificLanguage;
 using FormulaForge.Engine.DomainSpecificLanguage.Ast;
 using FormulaForge.Engine.Runtime;
 using FormulaForge.Engine.Time;
 
-namespace FormulaForge.Engine.Tests;
+namespace FormulaForge.Engine.Tests.Runtime;
 
 public class ScriptInterpreterTests
 {
