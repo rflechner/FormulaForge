@@ -3,6 +3,7 @@
 public enum CodeRunResult
 {
     Success,
+    VariableNotFound,
     VariableOverwriteNotAllowed,
     BuiltInVariableOverwriteNotAllowed,
     FunctionNotFound,

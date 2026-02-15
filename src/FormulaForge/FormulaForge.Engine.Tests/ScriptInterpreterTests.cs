@@ -138,6 +138,33 @@ public class ScriptInterpreterTests
         Assert.Equal(new ScalarValueNode.IntegerScalarValue(3), xValue);
         
         Assert.Equal(2, context.GlobalScope.Variables.Count);
+    }    
+    [Fact]
+    public void AssignVariableYToVariableX_ShouldCompileAndSetValueInContext()
+    {
+        var dataContext = new CustomerDataContext
+        {
+            CustomerId = "123456789",
+            ReferenceMonth = new YearMonth(2022, 12),
+            AccountBalanceByMonth = new MonthlySeries<decimal>([]),
+            AssetsCountByMonth = new MonthlySeries<int>([]),
+        };
+        var context = new CustomerDslContext(dataContext);
+        var runner = new ScriptInterpreter(context);
+
+        string program = """
+                         y = 1 + 1
+                         x = y
+                         """;
+        runner.Run(program);
+        
+        Assert.True(context.GlobalScope.TryGetScalar("y", out var yValue));
+        Assert.Equal(new ScalarValueNode.IntegerScalarValue(2), yValue);
+        
+        Assert.True(context.GlobalScope.TryGetScalar("x", out var xValue));
+        Assert.Equal(new ScalarValueNode.IntegerScalarValue(2), xValue);
+        
+        Assert.Equal(2, context.GlobalScope.Variables.Count);
     }
     
 }

@@ -18,7 +18,7 @@ public sealed class ScriptInterpreter(IDslContext context)
 
         foreach (var statement in astNodes)
         {
-            var result = ProcessStatement(context.GlobalScope, statement);
+            var result = ProcessStatement(statement);
             if (result != CodeRunResult.Success)
                 return result;
         }
@@ -26,6 +26,11 @@ public sealed class ScriptInterpreter(IDslContext context)
         return CodeRunResult.Success;
     }
 
+    public CodeRunResult ProcessStatement(StatementNode statement)
+    {
+        return ProcessStatement(context.GlobalScope, statement);
+    }
+    
     private CodeRunResult ProcessStatement(Scope scope, StatementNode statement)
     {
         var result = CodeRunResult.Success;
@@ -38,7 +43,7 @@ public sealed class ScriptInterpreter(IDslContext context)
                 break;
             case StatementNode.VariableAssignmentExpressionNode variableAssignment:
                 var variableName = variableAssignment.Variable.Name;
-                result = RunVariableAssignment(scope, variableAssignment, result, variableName);
+                result = RunVariableAssignment(scope, variableAssignment, variableName);
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(statement));
@@ -47,26 +52,25 @@ public sealed class ScriptInterpreter(IDslContext context)
         return result;
     }
 
-    private CodeRunResult RunVariableAssignment(Scope scope, StatementNode.VariableAssignmentExpressionNode variableAssignment,
-        CodeRunResult result, string variableName)
+    private CodeRunResult RunVariableAssignment(Scope scope, StatementNode.VariableAssignmentExpressionNode variableAssignment, string variableName)
     {
-        ScalarValueNode? value;
+        var result = CodeRunResult.Success;
+        ScalarValueNode? value = null;
         
         switch (variableAssignment.Value)
         {
             case ComputedExpressionNode computedExpressionNode:
                 value = Evaluate(scope, computedExpressionNode.Expression);
-                result = scope.TrySetScalar(variableName, value);
                 break;
             case FunctionCallExpressionNode functionCallExpressionNode:
                 result = CallFunction(scope, functionCallExpressionNode, out value);
                 if (result != CodeRunResult.Success) return result;
-                result = scope.TrySetScalar(variableName, value!);
                 break;
             case LiteralExpressionNode.ConstantValueExpressionNode constantValueExpressionNode:
-                result = scope.TrySetScalar(variableName, constantValueExpressionNode.Value);
+                value = constantValueExpressionNode.Value;
                 break;
             case LiteralExpressionNode.VariableValueExpressionNode variableValueExpressionNode:
+                result = scope.TryGetScalar(variableValueExpressionNode.VariableName.Name, out value) ? CodeRunResult.Success : CodeRunResult.VariableNotFound;
                 break;
             case LiteralExpressionNode literalExpressionNode:
 
@@ -85,6 +89,9 @@ public sealed class ScriptInterpreter(IDslContext context)
             default:
                 throw new ArgumentOutOfRangeException();
         }
+        
+        if (value != null)
+            return scope.TrySetScalar(variableName, value);
 
         return result;
     }
@@ -149,7 +156,8 @@ public sealed class ScriptInterpreter(IDslContext context)
                 return true;
             
             case FunctionCallExpressionNode functionCallExpressionNode:
-                break;
+                var codeRunResult = CallFunction(scope, functionCallExpressionNode, out result);
+                return codeRunResult == CodeRunResult.Success;
             
             case LiteralExpressionNode.ConstantValueExpressionNode constantValueExpressionNode:
                 result = constantValueExpressionNode.Value;
