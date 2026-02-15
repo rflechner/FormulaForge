@@ -9,17 +9,10 @@ public sealed class CustomerDataContext
 {
     public required string CustomerId { get; init; }
 
-    public required YearMonth ReferenceMonth { get; init; }
+    public required TimeSeries<decimal> AccountBalanceByMonth { get; init; }
 
-    public required MonthlySeries<decimal> AccountBalanceByMonth { get; init; }
+    public required TimeSeries<int> AssetsCountByMonth { get; init; }
 
-    public required MonthlySeries<int> AssetsCountByMonth { get; init; }
-
-    public decimal Balance(int monthOffset = 0)
-        => AccountBalanceByMonth.GetOrThrow(ReferenceMonth.AddMonths(monthOffset), "Balance");
-
-    public int Assets(int monthOffset = 0)
-        => AssetsCountByMonth.GetOrThrow(ReferenceMonth.AddMonths(monthOffset), "AssetsCount");
 }
 
 public sealed class CustomerDslContext(CustomerDataContext c) : IDslContext
@@ -29,7 +22,7 @@ public sealed class CustomerDslContext(CustomerDataContext c) : IDslContext
     
     private readonly Dictionary<FunctionRegistryId, StatementNode.FunctionDeclarationNode> _functions = new();
     
-    public IEnumerable<YearMonth> Months => c.AccountBalanceByMonth.Months.Concat(c.AssetsCountByMonth.Months).Distinct();
+    public IEnumerable<Period> Months => c.AccountBalanceByMonth.FullPeriod.GetMonths().Concat(c.AssetsCountByMonth.FullPeriod.GetMonths()).Distinct();
     
     public HashSet<string> BuiltInVariableNames => [
         "balance", 
@@ -48,7 +41,7 @@ public sealed class CustomerDslContext(CustomerDataContext c) : IDslContext
         ]
     };
 
-    public bool TryGetSeries(string name, out ITimeSeries<decimal> series)
+    public bool TryGetSeries(string name, out TimeSeries<decimal> series)
     {
         series = null!;
         return name switch

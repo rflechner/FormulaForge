@@ -12,9 +12,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            ReferenceMonth = new YearMonth(2022, 12),
-            AccountBalanceByMonth = new MonthlySeries<decimal>([]),
-            AssetsCountByMonth = new MonthlySeries<int>([]),
+            AccountBalanceByMonth = new TimeSeries<decimal>(),
+            AssetsCountByMonth = new TimeSeries<int>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -33,9 +32,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            ReferenceMonth = new YearMonth(2022, 12),
-            AccountBalanceByMonth = new MonthlySeries<decimal>([]),
-            AssetsCountByMonth = new MonthlySeries<int>([]),
+            AccountBalanceByMonth = new TimeSeries<decimal>(),
+            AssetsCountByMonth = new TimeSeries<int>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -71,9 +69,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            ReferenceMonth = new YearMonth(2022, 12),
-            AccountBalanceByMonth = new MonthlySeries<decimal>([]),
-            AssetsCountByMonth = new MonthlySeries<int>([]),
+            AccountBalanceByMonth = new TimeSeries<decimal>(),
+            AssetsCountByMonth = new TimeSeries<int>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -91,9 +88,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            ReferenceMonth = new YearMonth(2022, 12),
-            AccountBalanceByMonth = new MonthlySeries<decimal>([]),
-            AssetsCountByMonth = new MonthlySeries<int>([]),
+            AccountBalanceByMonth = new TimeSeries<decimal>(),
+            AssetsCountByMonth = new TimeSeries<int>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -113,9 +109,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            ReferenceMonth = new YearMonth(2022, 12),
-            AccountBalanceByMonth = new MonthlySeries<decimal>([]),
-            AssetsCountByMonth = new MonthlySeries<int>([]),
+            AccountBalanceByMonth = new TimeSeries<decimal>(),
+            AssetsCountByMonth = new TimeSeries<int>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -144,9 +139,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            ReferenceMonth = new YearMonth(2022, 12),
-            AccountBalanceByMonth = new MonthlySeries<decimal>([]),
-            AssetsCountByMonth = new MonthlySeries<int>([]),
+            AccountBalanceByMonth = new TimeSeries<decimal>(),
+            AssetsCountByMonth = new TimeSeries<int>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);

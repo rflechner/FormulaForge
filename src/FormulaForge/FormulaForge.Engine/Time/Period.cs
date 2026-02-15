@@ -6,6 +6,21 @@
 public record Period(DateTimeOffset InclusiveStart, DateTimeOffset ExclusiveEnd)
 {
     /// <summary>
+    /// The duration of the period.
+    /// </summary>
+    public TimeSpan Duration => ExclusiveEnd - InclusiveStart;
+    
+    /// <summary>
+    /// Returns true if the period is empty, i.e. its duration is zero.
+    /// </summary>
+    public bool IsEmpty => Duration == TimeSpan.Zero;
+    
+    /// <summary>
+    /// Creates an empty period.
+    /// </summary>
+    public static Period Empty => new(DateTimeOffset.MinValue, DateTimeOffset.MinValue);
+    
+    /// <summary>
     /// Returns true if the period contains the specified date.
     /// </summary>
     /// <param name="value"></param>

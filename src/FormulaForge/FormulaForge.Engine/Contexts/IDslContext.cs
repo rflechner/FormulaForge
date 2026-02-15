@@ -6,11 +6,11 @@ namespace FormulaForge.Engine.Contexts;
 
 public interface IDslContext
 {
-    bool TryGetSeries(string name, out ITimeSeries<decimal> series);
+    bool TryGetSeries(string name, out TimeSeries<decimal> series);
 
     Scope GetScope(FunctionRegistryId scope);
     
-    IEnumerable<YearMonth> Months { get; }
+    IEnumerable<Period> Months { get; }
     
     Scope GlobalScope { get; }
 

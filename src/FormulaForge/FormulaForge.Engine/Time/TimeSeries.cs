@@ -40,7 +40,7 @@ public class TimeSeries<T> : IEnumerable<TimeSeriesValue<T>>
         }
 
         var boundaryList = boundaries.ToList();
-        for (int i = 0; i < boundaryList.Count - 1; i++)
+        for (var i = 0; i < boundaryList.Count - 1; i++)
         {
             var segment = new Period(boundaryList[i], boundaryList[i + 1]);
             
@@ -63,6 +63,8 @@ public class TimeSeries<T> : IEnumerable<TimeSeriesValue<T>>
                 _data.Add(segment, value);
             }
         }
+        
+        FullPeriod = new Period(boundaries.Min, boundaries.Max);
     }
 
     public T GetValue(Period period) => _data[period];
@@ -76,6 +78,8 @@ public class TimeSeries<T> : IEnumerable<TimeSeriesValue<T>>
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    
+    public Period FullPeriod { get; private set; } = Period.Empty;
 }
 
 public record TimeSeriesValue<T>(Period Period, T Value);
