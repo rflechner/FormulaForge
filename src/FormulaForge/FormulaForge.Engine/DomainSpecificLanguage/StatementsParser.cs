@@ -26,4 +26,9 @@ public static class StatementsParser
         from body in ValueExpressionNodeParser.ValueExpression
         select new StatementNode.FunctionDeclarationNode(signature.FunctionName, signature.Parameters, body);
     
+    public static readonly IParser<CommentNode> CommentParser =
+        from sp1 in Parse.SkipSpaces() 
+        from c in Parse.OneChar('#')
+        from text in Parse.ManySatisfy(c => c != '\n')
+        select new CommentNode(text.Trim());
 }

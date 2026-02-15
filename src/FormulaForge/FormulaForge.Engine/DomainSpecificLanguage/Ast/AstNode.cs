@@ -4,6 +4,8 @@ namespace FormulaForge.Engine.DomainSpecificLanguage.Ast;
 
 public abstract record AstNode;
 
+public sealed record CommentNode(string Text) : AstNode;
+
 public abstract record ValueExpressionNode : AstNode;
 
 public abstract record ScalarValueNode

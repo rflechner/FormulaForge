@@ -120,6 +120,7 @@ public class ScriptInterpreterTests
                          add(a, b) = a + b
                          
                          y = 1+1
+                         # calling add function
                          x = add(1, 2)
                          
                          """;

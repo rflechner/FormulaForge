@@ -16,8 +16,9 @@ public sealed class ScriptInterpreter(IDslContext context)
 
         var astNodes = parsingResult.Result!;
 
-        foreach (var statement in astNodes)
+        foreach (var node in astNodes)
         {
+            if (node is not StatementNode statement) continue;
             var result = ProcessStatement(statement);
             if (result != CodeRunResult.Success)
                 return result;
