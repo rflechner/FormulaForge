@@ -31,6 +31,34 @@ public sealed class Scope
         return false;
     }
     
+    public bool TryGetTimeSeries(string name, out RuntimeVariableValue.RuntimeTimeSeriesValue? value)
+    {
+        if (BuiltInVariables.TryGetValue(name, out var builtInValue))
+        {
+            if (builtInValue is not RuntimeVariableValue.RuntimeTimeSeriesValue timeSeriesValue)
+            {
+                value = null;
+                return false;
+            }
+            value = timeSeriesValue;
+            return true;
+        }
+
+        if (Variables.TryGetValue(name, out var variableValue))
+        {
+            if (variableValue is not RuntimeVariableValue.RuntimeTimeSeriesValue timeSeriesValue)
+            {
+                value = null;
+                return false;
+            }
+            value = timeSeriesValue;
+            return true;
+        }
+        
+        value = null;
+        return false;
+    }
+    
     public CodeRunResult TrySetScalar(string name, RuntimeVariableValue value)
     {
         if (BuiltInVariables.ContainsKey(name))

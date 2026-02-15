@@ -12,8 +12,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalance = new TimeSeries<decimal>(),
-            AssetsCount = new TimeSeries<int>(),
+            AccountBalance = new TimeSeries<ScalarValueNode.DecimalScalarValue>(),
+            AssetsCount = new TimeSeries<ScalarValueNode.IntegerScalarValue>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -32,8 +32,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalance = new TimeSeries<decimal>(),
-            AssetsCount = new TimeSeries<int>(),
+            AccountBalance = new TimeSeries<ScalarValueNode.DecimalScalarValue>(),
+            AssetsCount = new TimeSeries<ScalarValueNode.IntegerScalarValue>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -69,8 +69,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalance = new TimeSeries<decimal>(),
-            AssetsCount = new TimeSeries<int>(),
+            AccountBalance = new TimeSeries<ScalarValueNode.DecimalScalarValue>(),
+            AssetsCount = new TimeSeries<ScalarValueNode.IntegerScalarValue>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -88,8 +88,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalance = new TimeSeries<decimal>(),
-            AssetsCount = new TimeSeries<int>(),
+            AccountBalance = new TimeSeries<ScalarValueNode.DecimalScalarValue>(),
+            AssetsCount = new TimeSeries<ScalarValueNode.IntegerScalarValue>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -109,8 +109,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalance = new TimeSeries<decimal>(),
-            AssetsCount = new TimeSeries<int>(),
+            AccountBalance = new TimeSeries<ScalarValueNode.DecimalScalarValue>(),
+            AssetsCount = new TimeSeries<ScalarValueNode.IntegerScalarValue>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -141,8 +141,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalance = new TimeSeries<decimal>(),
-            AssetsCount = new TimeSeries<int>(),
+            AccountBalance = new TimeSeries<ScalarValueNode.DecimalScalarValue>(),
+            AssetsCount = new TimeSeries<ScalarValueNode.IntegerScalarValue>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);

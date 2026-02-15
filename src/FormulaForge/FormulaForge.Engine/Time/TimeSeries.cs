@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Numerics;
 
 namespace FormulaForge.Engine.Time;
 
@@ -18,7 +19,7 @@ public static class TimeSeries
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public static TimeSeries<T> Create<T>(IEnumerable<TimeSeriesValue<T>> values)
+    public static TimeSeries<T> CreateTimeSeries<T>(this IEnumerable<TimeSeriesValue<T>> values)
     {
         var timeSeries = new TimeSeries<T>();
         
@@ -50,6 +51,70 @@ public static class TimeSeries
         }
         
         return timeSeries;
+    }
+
+    /// <summary>
+    /// Multiplies the values of two TimeSeries instances element-wise over their common periods.
+    /// </summary>
+    /// <param name="a">The first TimeSeries instance.</param>
+    /// <param name="b">The second TimeSeries instance.</param>
+    /// <typeparam name="T">The numeric type of the values in the TimeSeries.</typeparam>
+    /// <returns>A new TimeSeries instance containing the element-wise multiplied values of the two input TimeSeries.</returns>
+    public static TimeSeries<T> Multiply<T>(this TimeSeries<T> a, TimeSeries<T> b) where T : INumber<T>
+    {
+        TimeSeries<T>[] sources = [a, b];
+        return sources.Aggregate((x,y) => x.Value * y.Value);
+    }
+
+    /// <summary>
+    /// Divides the corresponding values of two TimeSeries instances.
+    /// </summary>
+    /// <param name="a">The first TimeSeries instance.</param>
+    /// <param name="b">The second TimeSeries instance.</param>
+    /// <typeparam name="T">The numeric type of the values in the TimeSeries.</typeparam>
+    /// <returns>A new TimeSeries containing the result of the division for each corresponding value in the input TimeSeries instances.</returns>
+    public static TimeSeries<T> Divide<T>(this TimeSeries<T> a, TimeSeries<T> b) where T : INumber<T>
+    {
+        TimeSeries<T>[] sources = [a, b];
+        return sources.Aggregate((x,y) => x.Value / y.Value);
+    }
+
+    /// <summary>
+    /// Adds the values of two TimeSeries instances element-wise for matching periods using the specified numeric type T.
+    /// </summary>
+    /// <param name="a">The first TimeSeries instance to add.</param>
+    /// <param name="b">The second TimeSeries instance to add.</param>
+    /// <typeparam name="T">The numeric type of the values in the TimeSeries, which must implement INumber&lt;T&gt;.</typeparam>
+    /// <returns>A new TimeSeries instance containing the summed values for matching periods from the input TimeSeries instances.</returns>
+    public static TimeSeries<T> Add<T>(this TimeSeries<T> a, TimeSeries<T> b) where T : INumber<T>
+    {
+        TimeSeries<T>[] sources = [a, b];
+        return sources.Aggregate((x,y) => x.Value + y.Value);
+    }
+
+    /// <summary>
+    /// Subtracts the values of one TimeSeries from another.
+    /// </summary>
+    /// <param name="a">The first TimeSeries.</param>
+    /// <param name="b">The second TimeSeries to subtract from the first.</param>
+    /// <typeparam name="T">The numeric type used in the TimeSeries.</typeparam>
+    /// <returns>A new TimeSeries representing the result of subtraction.</returns>
+    public static TimeSeries<T> Subtract<T>(this TimeSeries<T> a, TimeSeries<T> b) where T : INumber<T>
+    {
+        TimeSeries<T>[] sources = [a, b];
+        return sources.Aggregate((x,y) => x.Value - y.Value);
+    }
+
+    /// <summary>
+    /// Casts a TimeSeries from one type to another type, ensuring compatibility between the types.
+    /// </summary>
+    /// <param name="timeSeries">The input TimeSeries to be cast.</param>
+    /// <typeparam name="TIn">The type of the input TimeSeries values.</typeparam>
+    /// <typeparam name="TOut">The type to which the TimeSeries values will be cast.</typeparam>
+    /// <returns>A new TimeSeries with values cast to the specified type.</returns>
+    public static TimeSeries<TOut> Cast<TOut, TIn>(this TimeSeries<TIn> timeSeries) where TIn : TOut
+    {
+        return CreateTimeSeries(timeSeries.Select(value => new TimeSeriesValue<TOut>(value.Period, value.Value)));
     }
 }
 

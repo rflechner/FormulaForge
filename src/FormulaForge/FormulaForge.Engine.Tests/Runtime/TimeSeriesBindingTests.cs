@@ -15,9 +15,9 @@ public class TimeSeriesBindingTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalance = TimeSeries.Create(months.Select((period, i) => new TimeSeriesValue<decimal>(period, i * 100m))),
-            AssetsCount = TimeSeries.Create(months.Select((period, i) => new TimeSeriesValue<int>(period, i + 2))),
-            ChangeRate = TimeSeries.Create(months.Select((period, i) => new TimeSeriesValue<decimal>(period, 0.9m + i * 0.01m)))
+            AccountBalance = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(i * 100m))).CreateTimeSeries(),
+            AssetsCount = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(period, new ScalarValueNode.IntegerScalarValue(i + 2))).CreateTimeSeries(),
+            ChangeRate = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(0.9m + i * 0.01m))).CreateTimeSeries()
         };
         var context = new CustomerDslContext(dataContext)
         {
@@ -26,7 +26,7 @@ public class TimeSeriesBindingTests
         
         var expectedBalanceInCurrency = TimeSeries.Aggregate
             ([dataContext.AccountBalance, dataContext.ChangeRate], 
-                (oldVal, newVal) => oldVal.Value * newVal.Value);
+                (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value * newVal.Value.Value));
         
         var runner = new ScriptInterpreter(context);
 
@@ -53,7 +53,15 @@ public class TimeSeriesBindingTests
 
         Assert.True(context.GlobalScope.TryGetScalar("last_year", out var lastYearValue));
         Assert.Equal(new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2025)), lastYearValue);
-        
+
+        Assert.True(context.GlobalScope.TryGetScalar("balance_in_currency", out var balanceInCurrencyValue));
+        TimeSeries<ScalarValueNode> balanceInCurrencyTimeSeries = Assert.IsType<RuntimeVariableValue.RuntimeTimeSeriesValue>(balanceInCurrencyValue).Value;
+        var decimalScalarValues = balanceInCurrencyTimeSeries
+            .Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value))
+            .CreateTimeSeries();
+
+        Assert.Equal(expectedBalanceInCurrency, decimalScalarValues);
+
         Assert.Equal(4, context.GlobalScope.Variables.Count);
     }
 }

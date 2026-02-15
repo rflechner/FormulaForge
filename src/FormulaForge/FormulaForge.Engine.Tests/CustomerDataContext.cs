@@ -9,29 +9,50 @@ public sealed class CustomerDataContext
 {
     public required string CustomerId { get; init; }
 
-    public required TimeSeries<decimal> AccountBalance { get; init; }
+    public required TimeSeries<ScalarValueNode.DecimalScalarValue> AccountBalance { get; init; }
 
-    public required TimeSeries<int> AssetsCount { get; init; }
+    public required TimeSeries<ScalarValueNode.IntegerScalarValue> AssetsCount { get; init; }
 
-    public TimeSeries<decimal> ChangeRate { get; init; } = new();
+    public TimeSeries<ScalarValueNode.DecimalScalarValue> ChangeRate { get; init; } = new();
 }
 
-public sealed class CustomerDslContext(CustomerDataContext c) : IDslContext
+public sealed class CustomerDslContext : IDslContext
 {
+    private readonly Lazy<Scope> _globalScopeFactory;
+    private readonly CustomerDataContext _c;
+
     private readonly Dictionary<FunctionRegistryId, StatementNode.FunctionDeclarationNode> _functions = new();
     
     public IEnumerable<Period> Months { get; init; } = [];
     
-    public Scope GlobalScope { get; } = new()
+
+    public CustomerDslContext(CustomerDataContext c)
     {
-        BuiltInVariables = new Dictionary<string, RuntimeVariableValue>
+        _c = c;
+        _globalScopeFactory = new Lazy<Scope>(CreateGlobalScope);
+    }
+
+    public Scope GlobalScope => _globalScopeFactory.Value;
+
+    private Scope CreateGlobalScope()
+    {
+        var accountBalance = _c.AccountBalance
+            .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>();
+
+        var changeRate = _c.ChangeRate
+            .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>();
+            
+        return new()
         {
-            ["current_month"] = new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2)),
-            ["current_year"] = new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2026)),
-            ["balance"] = new RuntimeVariableValue.RuntimeComplexValue(c.AccountBalance),
-            ["change_rate"] = new RuntimeVariableValue.RuntimeComplexValue(c.ChangeRate),
-        },
-    };
+            BuiltInVariables = new Dictionary<string, RuntimeVariableValue>
+            {
+                ["current_month"] = new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2)),
+                ["current_year"] = new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2026)),
+                ["account_balance"] = new RuntimeVariableValue.RuntimeTimeSeriesValue(accountBalance),
+                ["change_rate"] = new RuntimeVariableValue.RuntimeTimeSeriesValue(changeRate),
+            },
+        };
+    }
 
     public bool TryGetSeries(string name, out TimeSeries<decimal> series)
     {

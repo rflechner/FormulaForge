@@ -2,6 +2,7 @@ using EasyParsing.Parsers.Maths;
 using FormulaForge.Engine.Contexts;
 using FormulaForge.Engine.DomainSpecificLanguage;
 using FormulaForge.Engine.DomainSpecificLanguage.Ast;
+using FormulaForge.Engine.Time;
 
 namespace FormulaForge.Engine.Runtime;
 
@@ -34,7 +35,7 @@ public sealed class ScriptInterpreter(IDslContext context)
     
     private CodeRunResult ProcessStatement(Scope scope, StatementNode statement)
     {
-        var result = CodeRunResult.Success;
+        CodeRunResult result;
 
         switch (statement)
         {
@@ -184,9 +185,19 @@ public sealed class ScriptInterpreter(IDslContext context)
             (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeScalarValue scalarB) =>
                 new RuntimeVariableValue.RuntimeScalarValue(Add(scalarA.Value, scalarB.Value)),
 
+            (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
+                Add(complexA, complexB),
+            
             _ => throw new Exception("Unsupported types for addition: " + a.GetType() + ", " + b.GetType() + "")
         };
 
+    private RuntimeVariableValue Add(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
+    {
+        
+        throw new NotImplementedException();
+        
+    }
+    
     private ScalarValueNode Add(ScalarValueNode a, ScalarValueNode b)
     {
         switch (a, b)
@@ -245,8 +256,24 @@ public sealed class ScriptInterpreter(IDslContext context)
             (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeScalarValue scalarB) => 
                 new RuntimeVariableValue.RuntimeScalarValue(Multiply(scalarA.Value, scalarB.Value)),
             
+            (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
+                Multiply(complexA, complexB),
+            
             _ => throw new Exception("Unsupported types for multiplication: " + a.GetType() + ", " + b.GetType() + "")
         };
+    
+    private RuntimeVariableValue Multiply(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
+    {
+        TimeSeries<ScalarValueNode.DecimalScalarValue> x = a.Value.Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value)).CreateTimeSeries();
+        var y = b.Value.Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value)).CreateTimeSeries();
+        
+        TimeSeries<ScalarValueNode.DecimalScalarValue>[] sources = [x, y];
+        var timeSeriesValues = sources
+            .Aggregate((oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value * newVal.Value.Value))
+            .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>();
+        
+        return new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSeriesValues);
+    }
     
     private ScalarValueNode Multiply(ScalarValueNode a, ScalarValueNode b)
     {
