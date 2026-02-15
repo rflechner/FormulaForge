@@ -2,6 +2,57 @@
 
 namespace FormulaForge.Engine.Time;
 
+public static class TimeSeries
+{
+    /// <summary>
+    /// Creates an empty TimeSeries.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static TimeSeries<T> Empty<T>() => new();
+    
+    /// <summary>
+    /// Creates a TimeSeries from the specified values.
+    /// </summary>
+    /// <param name="values"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public static TimeSeries<T> Create<T>(IEnumerable<TimeSeriesValue<T>> values)
+    {
+        var timeSeries = new TimeSeries<T>();
+        
+        foreach (var value in values)
+        {
+            timeSeries.Add(value.Period, value.Value, (o, n) => throw new Exception("Cannot merge values in a TimeSeries during creation."));
+        }
+        
+        return timeSeries;
+    }
+
+    /// <summary>
+    /// Aggregates the specified TimeSeries values using the specified merge function.
+    /// </summary>
+    /// <param name="sources"></param>
+    /// <param name="mergeFunction"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public static TimeSeries<T> Aggregate<T>(this IReadOnlyCollection<TimeSeries<T>> sources, Func<TimeSeriesValue<T>, TimeSeriesValue<T>, T> mergeFunction)
+    {
+        var timeSeries = new TimeSeries<T>();
+        
+        foreach (var series in sources)
+        {
+            foreach (var value in series)
+            {
+                timeSeries.Add(value.Period, value.Value, mergeFunction);
+            }
+        }
+        
+        return timeSeries;
+    }
+}
+
 public class TimeSeries<T> : IEnumerable<TimeSeriesValue<T>>
 {
     private readonly SortedList<Period, T> _data = new(new PeriodStartComparer());

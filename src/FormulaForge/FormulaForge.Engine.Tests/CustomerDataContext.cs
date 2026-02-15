@@ -9,36 +9,28 @@ public sealed class CustomerDataContext
 {
     public required string CustomerId { get; init; }
 
-    public required TimeSeries<decimal> AccountBalanceByMonth { get; init; }
+    public required TimeSeries<decimal> AccountBalance { get; init; }
 
-    public required TimeSeries<int> AssetsCountByMonth { get; init; }
+    public required TimeSeries<int> AssetsCount { get; init; }
 
+    public TimeSeries<decimal> ChangeRate { get; init; } = new();
 }
 
 public sealed class CustomerDslContext(CustomerDataContext c) : IDslContext
 {
-    
-    private readonly Dictionary<FunctionRegistryId, Dictionary<string, ScalarValueNode>> _scopedVariables = new();
-    
     private readonly Dictionary<FunctionRegistryId, StatementNode.FunctionDeclarationNode> _functions = new();
     
-    public IEnumerable<Period> Months => c.AccountBalanceByMonth.FullPeriod.GetMonths().Concat(c.AssetsCountByMonth.FullPeriod.GetMonths()).Distinct();
+    public IEnumerable<Period> Months { get; init; } = [];
     
-    public HashSet<string> BuiltInVariableNames => [
-        "balance", 
-        "assets",
-        "current_month",
-        "current_year"
-    ];
-
     public Scope GlobalScope { get; } = new()
     {
-        BuiltInVariableNames = [
-            "balance", 
-            "assets",
-            "current_month",
-            "current_year"
-        ]
+        BuiltInVariables = new Dictionary<string, RuntimeVariableValue>
+        {
+            ["current_month"] = new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2)),
+            ["current_year"] = new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2026)),
+            ["balance"] = new RuntimeVariableValue.RuntimeComplexValue(c.AccountBalance),
+            ["change_rate"] = new RuntimeVariableValue.RuntimeComplexValue(c.ChangeRate),
+        },
     };
 
     public bool TryGetSeries(string name, out TimeSeries<decimal> series)

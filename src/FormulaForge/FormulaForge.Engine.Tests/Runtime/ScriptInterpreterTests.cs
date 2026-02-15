@@ -12,8 +12,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalanceByMonth = new TimeSeries<decimal>(),
-            AssetsCountByMonth = new TimeSeries<int>(),
+            AccountBalance = new TimeSeries<decimal>(),
+            AssetsCount = new TimeSeries<int>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -23,7 +23,7 @@ public class ScriptInterpreterTests
         
         var variableExists = context.GlobalScope.TryGetScalar("x", out var xValue);
         Assert.True(variableExists);
-        Assert.Equal(new ScalarValueNode.IntegerScalarValue(123), xValue);
+        Assert.Equal(new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(123)), xValue);
     }
     
     [Fact]
@@ -32,8 +32,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalanceByMonth = new TimeSeries<decimal>(),
-            AssetsCountByMonth = new TimeSeries<int>(),
+            AccountBalance = new TimeSeries<decimal>(),
+            AssetsCount = new TimeSeries<int>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -49,16 +49,16 @@ public class ScriptInterpreterTests
         runner.Run(program);
         
         Assert.True(context.GlobalScope.TryGetScalar("x", out var xValue));
-        Assert.Equal(new ScalarValueNode.IntegerScalarValue(123), xValue);
+        Assert.Equal(new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(123)), xValue);
         
         Assert.True(context.GlobalScope.TryGetScalar("y", out var yValue));
-        Assert.Equal(new ScalarValueNode.DecimalScalarValue(456.789m), yValue);
+        Assert.Equal(new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.DecimalScalarValue(456.789m)), yValue);
         
         Assert.True(context.GlobalScope.TryGetScalar("b", out var bValue));
-        Assert.Equal(new ScalarValueNode.BooleanScalarValue(true), bValue);
+        Assert.Equal(new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.BooleanScalarValue(true)), bValue);
         
         Assert.True(context.GlobalScope.TryGetScalar("c", out var cValue));
-        Assert.Equal(new ScalarValueNode.BooleanScalarValue(false), cValue);
+        Assert.Equal(new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.BooleanScalarValue(false)), cValue);
     }
     
     [Theory]
@@ -69,8 +69,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalanceByMonth = new TimeSeries<decimal>(),
-            AssetsCountByMonth = new TimeSeries<int>(),
+            AccountBalance = new TimeSeries<decimal>(),
+            AssetsCount = new TimeSeries<int>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -79,7 +79,7 @@ public class ScriptInterpreterTests
         
         var variableExists = context.GlobalScope.TryGetScalar("x", out var xValue);
         Assert.True(variableExists);
-        Assert.Equal(new ScalarValueNode.IntegerScalarValue(expectedValue), xValue);
+        Assert.Equal(new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(expectedValue)), xValue);
     }
     
     [Fact]
@@ -88,8 +88,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalanceByMonth = new TimeSeries<decimal>(),
-            AssetsCountByMonth = new TimeSeries<int>(),
+            AccountBalance = new TimeSeries<decimal>(),
+            AssetsCount = new TimeSeries<int>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -100,7 +100,7 @@ public class ScriptInterpreterTests
         
         var variableExists = context.GlobalScope.TryGetScalar("x", out var xValue);
         Assert.True(variableExists);
-        Assert.Equal(new ScalarValueNode.DecimalScalarValue(expectedValue), xValue);
+        Assert.Equal(new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.DecimalScalarValue(expectedValue)), xValue);
     }
     
     [Fact]
@@ -109,8 +109,8 @@ public class ScriptInterpreterTests
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalanceByMonth = new TimeSeries<decimal>(),
-            AssetsCountByMonth = new TimeSeries<int>(),
+            AccountBalance = new TimeSeries<decimal>(),
+            AssetsCount = new TimeSeries<int>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -127,21 +127,22 @@ public class ScriptInterpreterTests
         runner.Run(program);
         
         Assert.True(context.GlobalScope.TryGetScalar("y", out var yValue));
-        Assert.Equal(new ScalarValueNode.IntegerScalarValue(2), yValue);
+        Assert.Equal(new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2)), yValue);
         
         Assert.True(context.GlobalScope.TryGetScalar("x", out var xValue));
-        Assert.Equal(new ScalarValueNode.IntegerScalarValue(3), xValue);
+        Assert.Equal(new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(3)), xValue);
         
         Assert.Equal(2, context.GlobalScope.Variables.Count);
-    }    
+    }
+    
     [Fact]
     public void AssignVariableYToVariableX_ShouldCompileAndSetValueInContext()
     {
         var dataContext = new CustomerDataContext
         {
             CustomerId = "123456789",
-            AccountBalanceByMonth = new TimeSeries<decimal>(),
-            AssetsCountByMonth = new TimeSeries<int>(),
+            AccountBalance = new TimeSeries<decimal>(),
+            AssetsCount = new TimeSeries<int>(),
         };
         var context = new CustomerDslContext(dataContext);
         var runner = new ScriptInterpreter(context);
@@ -153,10 +154,10 @@ public class ScriptInterpreterTests
         runner.Run(program);
         
         Assert.True(context.GlobalScope.TryGetScalar("y", out var yValue));
-        Assert.Equal(new ScalarValueNode.IntegerScalarValue(2), yValue);
+        Assert.Equal(new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2)), yValue);
         
         Assert.True(context.GlobalScope.TryGetScalar("x", out var xValue));
-        Assert.Equal(new ScalarValueNode.IntegerScalarValue(2), xValue);
+        Assert.Equal(new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2)), xValue);
         
         Assert.Equal(2, context.GlobalScope.Variables.Count);
     }

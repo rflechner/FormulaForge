@@ -5,29 +5,35 @@ namespace FormulaForge.Engine.Contexts;
 
 public sealed class Scope
 {
-    public HashSet<string> BuiltInVariableNames { get; init; } = new();
+    public Dictionary<string, RuntimeVariableValue> BuiltInVariables { get; init; } = new();
     
-    public Dictionary<string, ScalarValueNode> Variables { get; } = new();
+    public Dictionary<string, RuntimeVariableValue> Variables { get; } = new();
     
     public Scope? Parent { get; init; }
     
     public Scope CreateChild() => new()
     {
         Parent = this,
-        BuiltInVariableNames = Parent?.BuiltInVariableNames ?? BuiltInVariableNames,
+        BuiltInVariables = Parent?.BuiltInVariables ?? BuiltInVariables,
     };
     
-    public bool TryGetScalar(string name, out ScalarValueNode? value)
+    public bool TryGetScalar(string name, out RuntimeVariableValue? value)
     {
+        if (BuiltInVariables.TryGetValue(name, out var builtInValue))
+        {
+            value = builtInValue;
+            return true;
+        }
+        
         if (Variables.TryGetValue(name, out value)) return true;
         
         value = null;
         return false;
     }
     
-    public CodeRunResult TrySetScalar(string name, ScalarValueNode value)
+    public CodeRunResult TrySetScalar(string name, RuntimeVariableValue value)
     {
-        if (BuiltInVariableNames.Contains(name))
+        if (BuiltInVariables.ContainsKey(name))
             return CodeRunResult.BuiltInVariableOverwriteNotAllowed;
         
         if (!Variables.TryAdd(name, value))
