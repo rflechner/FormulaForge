@@ -1,7 +1,8 @@
 using EasyParsing;
-using FormulaForge.Engine.Ast;
+using FormulaForge.Engine.DomainSpecificLanguage;
+using FormulaForge.Engine.DomainSpecificLanguage.Ast;
 
-namespace FormulaForge.Engine.Tests;
+namespace FormulaForge.Engine.Tests.DomainSpecificLanguage;
 
 public class StatementNodeParserTests
 {

@@ -2,13 +2,13 @@ using EasyParsing;
 using EasyParsing.Dsl;
 using EasyParsing.Dsl.Linq;
 using EasyParsing.Parsers;
-using FormulaForge.Engine.Ast;
+using FormulaForge.Engine.DomainSpecificLanguage.Ast;
 
-namespace FormulaForge.Engine;
+namespace FormulaForge.Engine.DomainSpecificLanguage;
 
-public class FormulaProgramScriptParser
+public static class FormulaProgramScriptParser
 {
-    public static readonly IParser<AstNode[]> ProgramParser = 
+    public static readonly IParser<StatementNode[]> ProgramParser = 
         Parse
             .Many(
                 StatementsParser.AssignmentParser.Cast<StatementNode.VariableAssignmentExpressionNode, StatementNode>()

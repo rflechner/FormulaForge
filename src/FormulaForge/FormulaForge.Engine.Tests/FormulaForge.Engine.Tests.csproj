@@ -23,11 +23,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="FormulaProgramScriptParserTests_program1.formula" />
-      <Content Include="FormulaProgramScriptParserTests_program1.formula">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <None Update="DomainSpecificLanguage\FormulaProgramScriptParserTests_program1.formula">
         <DependentUpon>FormulaProgramScriptParserTests.cs</DependentUpon>
-      </Content>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-namespace FormulaForge.Engine;
+namespace FormulaForge.Engine.DomainSpecificLanguage;
 
 public static class TextHelpers
 {

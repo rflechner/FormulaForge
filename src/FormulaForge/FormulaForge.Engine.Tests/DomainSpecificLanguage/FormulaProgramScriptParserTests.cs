@@ -1,13 +1,14 @@
-using FormulaForge.Engine.Ast;
+using FormulaForge.Engine.DomainSpecificLanguage;
+using FormulaForge.Engine.DomainSpecificLanguage.Ast;
 
-namespace FormulaForge.Engine.Tests;
+namespace FormulaForge.Engine.Tests.DomainSpecificLanguage;
 
 public class FormulaProgramScriptParserTests
 {
     [Fact]
     public void FunctionCallWithoutParameters_ShouldParseFunctionCalls()
     {
-        var code = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "FormulaProgramScriptParserTests_program1.formula"));
+        var code = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "DomainSpecificLanguage", "FormulaProgramScriptParserTests_program1.formula"));
         var parser = FormulaProgramScriptParser.ProgramParser;
 
         var result = parser.Parse(code);
