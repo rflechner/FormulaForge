@@ -6,6 +6,61 @@
 public record Period(DateTimeOffset InclusiveStart, DateTimeOffset ExclusiveEnd)
 {
     /// <summary>
+    /// The duration of the period.
+    /// </summary>
+    public TimeSpan Duration => ExclusiveEnd - InclusiveStart;
+    
+    /// <summary>
+    /// Returns true if the period is empty, i.e. its duration is zero.
+    /// </summary>
+    public bool IsEmpty => Duration == TimeSpan.Zero;
+    
+    /// <summary>
+    /// Creates an empty period.
+    /// </summary>
+    public static Period Empty => new(DateTimeOffset.MinValue, DateTimeOffset.MinValue);
+    
+    /// <summary>
+    /// Creates a period that spans a single day.
+    /// </summary>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    public static Period OneDay(DateOnly date)
+    {
+        var start = new DateTimeOffset(date, TimeOnly.MinValue, TimeSpan.Zero);
+        return new(start, start.AddDays(1));
+    }
+    
+    /// <summary>
+    /// Creates a period that spans a single month.
+    /// </summary>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    public static Period OneMonth(DateOnly date)
+    {
+        var start = new DateTimeOffset(date, TimeOnly.MinValue, TimeSpan.Zero);
+        return new(start, start.AddMonths(1));
+    }
+    
+    /// <summary>
+    /// Creates a period that spans a single year.
+    /// </summary>
+    /// <param name="date"></param>
+    /// <returns></returns>
+    public static Period OneYear(DateOnly date)
+    {
+        var start = new DateTimeOffset(date, TimeOnly.MinValue, TimeSpan.Zero);
+        return new(start, start.AddYears(1));
+    }
+
+    /// <summary>
+    /// Creates a period that spans a single year.
+    /// </summary>
+    /// <param name="year">The year for which the period should be created.</param>
+    /// <returns>A period representing the entire specified year.</returns>
+    public static Period OfYear(int year) => OneYear(new DateOnly(year, 1, 1));
+
+    /// <summary>
     /// Returns true if the period contains the specified date.
     /// </summary>
     /// <param name="value"></param>

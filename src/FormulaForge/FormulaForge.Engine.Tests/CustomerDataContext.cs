@@ -9,46 +9,52 @@ public sealed class CustomerDataContext
 {
     public required string CustomerId { get; init; }
 
-    public required YearMonth ReferenceMonth { get; init; }
+    public required TimeSeries<ScalarValueNode.DecimalScalarValue> AccountBalance { get; init; }
 
-    public required MonthlySeries<decimal> AccountBalanceByMonth { get; init; }
+    public required TimeSeries<ScalarValueNode.IntegerScalarValue> AssetsCount { get; init; }
 
-    public required MonthlySeries<int> AssetsCountByMonth { get; init; }
-
-    public decimal Balance(int monthOffset = 0)
-        => AccountBalanceByMonth.GetOrThrow(ReferenceMonth.AddMonths(monthOffset), "Balance");
-
-    public int Assets(int monthOffset = 0)
-        => AssetsCountByMonth.GetOrThrow(ReferenceMonth.AddMonths(monthOffset), "AssetsCount");
+    public TimeSeries<ScalarValueNode.DecimalScalarValue> ChangeRate { get; init; } = new();
 }
 
-public sealed class CustomerDslContext(CustomerDataContext c) : IDslContext
+public sealed class CustomerDslContext : IDslContext
 {
-    
-    private readonly Dictionary<FunctionRegistryId, Dictionary<string, ScalarValueNode>> _scopedVariables = new();
-    
+    private readonly Lazy<Scope> _globalScopeFactory;
+    private readonly CustomerDataContext _c;
+
     private readonly Dictionary<FunctionRegistryId, StatementNode.FunctionDeclarationNode> _functions = new();
     
-    public IEnumerable<YearMonth> Months => c.AccountBalanceByMonth.Months.Concat(c.AssetsCountByMonth.Months).Distinct();
+    public IEnumerable<Period> Months { get; init; } = [];
     
-    public HashSet<string> BuiltInVariableNames => [
-        "balance", 
-        "assets",
-        "current_month",
-        "current_year"
-    ];
 
-    public Scope GlobalScope { get; } = new()
+    public CustomerDslContext(CustomerDataContext c)
     {
-        BuiltInVariableNames = [
-            "balance", 
-            "assets",
-            "current_month",
-            "current_year"
-        ]
-    };
+        _c = c;
+        _globalScopeFactory = new Lazy<Scope>(CreateGlobalScope);
+    }
 
-    public bool TryGetSeries(string name, out ITimeSeries<decimal> series)
+    public Scope GlobalScope => _globalScopeFactory.Value;
+
+    private Scope CreateGlobalScope()
+    {
+        var accountBalance = _c.AccountBalance
+            .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>();
+
+        var changeRate = _c.ChangeRate
+            .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>();
+            
+        return new()
+        {
+            BuiltInVariables = new Dictionary<string, RuntimeVariableValue>
+            {
+                ["current_month"] = new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2)),
+                ["current_year"] = new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2026)),
+                ["account_balance"] = new RuntimeVariableValue.RuntimeTimeSeriesValue(accountBalance),
+                ["change_rate"] = new RuntimeVariableValue.RuntimeTimeSeriesValue(changeRate),
+            },
+        };
+    }
+
+    public bool TryGetSeries(string name, out TimeSeries<decimal> series)
     {
         series = null!;
         return name switch

@@ -8,10 +8,11 @@ namespace FormulaForge.Engine.DomainSpecificLanguage;
 
 public static class FormulaProgramScriptParser
 {
-    public static readonly IParser<StatementNode[]> ProgramParser = 
+    public static readonly IParser<AstNode[]> ProgramParser = 
         Parse
             .Many(
-                StatementsParser.AssignmentParser.Cast<StatementNode.VariableAssignmentExpressionNode, StatementNode>()
+                StatementsParser.CommentParser.Cast<CommentNode, AstNode>()
+                | StatementsParser.AssignmentParser.Cast<StatementNode.VariableAssignmentExpressionNode, StatementNode>()
                 | StatementsParser.FunctionDeclarationParser.Cast<StatementNode.FunctionDeclarationNode, StatementNode>()
                 )
             .Select(statements => statements.ToArray());

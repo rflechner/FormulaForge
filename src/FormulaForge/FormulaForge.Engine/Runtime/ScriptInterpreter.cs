@@ -2,6 +2,7 @@ using EasyParsing.Parsers.Maths;
 using FormulaForge.Engine.Contexts;
 using FormulaForge.Engine.DomainSpecificLanguage;
 using FormulaForge.Engine.DomainSpecificLanguage.Ast;
+using FormulaForge.Engine.Time;
 
 namespace FormulaForge.Engine.Runtime;
 
@@ -16,8 +17,9 @@ public sealed class ScriptInterpreter(IDslContext context)
 
         var astNodes = parsingResult.Result!;
 
-        foreach (var statement in astNodes)
+        foreach (var node in astNodes)
         {
+            if (node is not StatementNode statement) continue;
             var result = ProcessStatement(statement);
             if (result != CodeRunResult.Success)
                 return result;
@@ -33,7 +35,7 @@ public sealed class ScriptInterpreter(IDslContext context)
     
     private CodeRunResult ProcessStatement(Scope scope, StatementNode statement)
     {
-        var result = CodeRunResult.Success;
+        CodeRunResult result;
 
         switch (statement)
         {
@@ -55,7 +57,7 @@ public sealed class ScriptInterpreter(IDslContext context)
     private CodeRunResult RunVariableAssignment(Scope scope, StatementNode.VariableAssignmentExpressionNode variableAssignment, string variableName)
     {
         var result = CodeRunResult.Success;
-        ScalarValueNode? value = null;
+        RuntimeVariableValue? value = null;
         
         switch (variableAssignment.Value)
         {
@@ -67,7 +69,7 @@ public sealed class ScriptInterpreter(IDslContext context)
                 if (result != CodeRunResult.Success) return result;
                 break;
             case LiteralExpressionNode.ConstantValueExpressionNode constantValueExpressionNode:
-                value = constantValueExpressionNode.Value;
+                value = new RuntimeVariableValue.RuntimeScalarValue(constantValueExpressionNode.Value);
                 break;
             case LiteralExpressionNode.VariableValueExpressionNode variableValueExpressionNode:
                 result = scope.TryGetScalar(variableValueExpressionNode.VariableName.Name, out value) ? CodeRunResult.Success : CodeRunResult.VariableNotFound;
@@ -77,7 +79,7 @@ public sealed class ScriptInterpreter(IDslContext context)
                 switch (literalExpressionNode)
                 {
                     case LiteralExpressionNode.ConstantValueExpressionNode constantValueExpressionNode:
-                        result = scope.TrySetScalar(variableName, constantValueExpressionNode.Value);
+                        result = scope.TrySetScalar(variableName, new RuntimeVariableValue.RuntimeScalarValue(constantValueExpressionNode.Value));
                         break;
                     case LiteralExpressionNode.VariableValueExpressionNode variableValueExpressionNode:
                         break;
@@ -96,7 +98,7 @@ public sealed class ScriptInterpreter(IDslContext context)
         return result;
     }
 
-    private CodeRunResult CallFunction(Scope scope, FunctionCallExpressionNode functionCallExpressionNode, out ScalarValueNode? result)
+    private CodeRunResult CallFunction(Scope scope, FunctionCallExpressionNode functionCallExpressionNode, out RuntimeVariableValue? result)
     {
         var functionId = new FunctionRegistryId(functionCallExpressionNode.FunctionName, functionCallExpressionNode.Arguments.Length);
         if (!context.TryGetFunction(functionId, out var function) || function == null)
@@ -123,16 +125,19 @@ public sealed class ScriptInterpreter(IDslContext context)
         return CodeRunResult.Success;
     }
 
-    private ScalarValueNode Evaluate(Scope scope, BinaryOperationOperand<ValueExpressionNode> operand)
+    private RuntimeVariableValue Evaluate(Scope scope, BinaryOperationOperand<ValueExpressionNode> operand)
     {
         switch (operand)
         {
             case BinaryOperationOperandValue<ValueExpressionNode> binaryOperationOperandValue:
 
                 var valueExpressionNode = binaryOperationOperandValue.Value;
-                if (TryEvaluateValueExpression(scope, valueExpressionNode, out var result)) return result!;
-                throw new Exception("Failed to evaluate operand value");
                 
+                if (!TryEvaluateValueExpression(scope, valueExpressionNode, out var result) || result == null)
+                    throw new Exception("Failed to evaluate operand value");
+                
+                return result;
+
             case BinaryOperation<ValueExpressionNode> binaryOperation:
                 return binaryOperation.Operator.Text switch
                 {
@@ -147,7 +152,7 @@ public sealed class ScriptInterpreter(IDslContext context)
         }
     }
 
-    private bool TryEvaluateValueExpression(Scope scope, ValueExpressionNode valueExpressionNode, out ScalarValueNode? result)
+    private bool TryEvaluateValueExpression(Scope scope, ValueExpressionNode valueExpressionNode, out RuntimeVariableValue? result)
     {
         switch (valueExpressionNode)
         {
@@ -160,7 +165,7 @@ public sealed class ScriptInterpreter(IDslContext context)
                 return codeRunResult == CodeRunResult.Success;
             
             case LiteralExpressionNode.ConstantValueExpressionNode constantValueExpressionNode:
-                result = constantValueExpressionNode.Value;
+                result = new RuntimeVariableValue.RuntimeScalarValue(constantValueExpressionNode.Value);
                 return true;
             
             case LiteralExpressionNode.VariableValueExpressionNode variableValueExpressionNode:
@@ -172,17 +177,33 @@ public sealed class ScriptInterpreter(IDslContext context)
             default:
                 throw new ArgumentOutOfRangeException();
         }
-
-        result = null;
-        return false;
     }
 
+    private RuntimeVariableValue Add(RuntimeVariableValue a, RuntimeVariableValue b) =>
+        (a, b) switch
+        {
+            (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeScalarValue scalarB) =>
+                new RuntimeVariableValue.RuntimeScalarValue(Add(scalarA.Value, scalarB.Value)),
+
+            (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
+                Add(complexA, complexB),
+            
+            _ => throw new Exception("Unsupported types for addition: " + a.GetType() + ", " + b.GetType() + "")
+        };
+
+    private RuntimeVariableValue Add(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
+    {
+        
+        throw new NotImplementedException();
+        
+    }
+    
     private ScalarValueNode Add(ScalarValueNode a, ScalarValueNode b)
     {
         switch (a, b)
         {
             case (ScalarValueNode.BooleanScalarValue aBool, ScalarValueNode.BooleanScalarValue bBool):
-                return new ScalarValueNode.BooleanScalarValue(aBool.Value || bBool.Value);
+                return (new ScalarValueNode.BooleanScalarValue(aBool.Value || bBool.Value));
             
             case (ScalarValueNode.DecimalScalarValue aDec, ScalarValueNode.DecimalScalarValue bDec):
                 return new ScalarValueNode.DecimalScalarValue(aDec.Value + bDec.Value);
@@ -200,6 +221,15 @@ public sealed class ScriptInterpreter(IDslContext context)
         }
     }
 
+    private RuntimeVariableValue Subtract(RuntimeVariableValue a, RuntimeVariableValue b) =>
+        (a, b) switch
+        {
+            (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeScalarValue scalarB) =>
+                new RuntimeVariableValue.RuntimeScalarValue(Subtract(scalarA.Value, scalarB.Value)),
+            
+            _ => throw new Exception("Unsupported types for subtraction: " + a.GetType() + ", " + b.GetType() + "")
+        };
+
     private ScalarValueNode Subtract(ScalarValueNode a, ScalarValueNode b)
     {
         switch (a, b)
@@ -216,10 +246,35 @@ public sealed class ScriptInterpreter(IDslContext context)
                 return new ScalarValueNode.DecimalScalarValue(aInt.Value - bDec.Value);
             
             default:
-                throw new Exception("Unsupported types for addition: " + a.GetType() + ", " + b.GetType() + "");
+                throw new Exception("Unsupported types for subtraction: " + a.GetType() + ", " + b.GetType() + "");
         }
     }
 
+    private RuntimeVariableValue Multiply(RuntimeVariableValue a, RuntimeVariableValue b) =>
+        (a, b) switch
+        {
+            (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeScalarValue scalarB) => 
+                new RuntimeVariableValue.RuntimeScalarValue(Multiply(scalarA.Value, scalarB.Value)),
+            
+            (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
+                Multiply(complexA, complexB),
+            
+            _ => throw new Exception("Unsupported types for multiplication: " + a.GetType() + ", " + b.GetType() + "")
+        };
+    
+    private RuntimeVariableValue Multiply(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
+    {
+        TimeSeries<ScalarValueNode.DecimalScalarValue> x = a.Value.Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value)).CreateTimeSeries();
+        var y = b.Value.Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value)).CreateTimeSeries();
+        
+        TimeSeries<ScalarValueNode.DecimalScalarValue>[] sources = [x, y];
+        var timeSeriesValues = sources
+            .Aggregate((oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value * newVal.Value.Value))
+            .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>();
+        
+        return new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSeriesValues);
+    }
+    
     private ScalarValueNode Multiply(ScalarValueNode a, ScalarValueNode b)
     {
         switch (a, b)
@@ -236,10 +291,19 @@ public sealed class ScriptInterpreter(IDslContext context)
                 return new ScalarValueNode.DecimalScalarValue(aInt.Value * bDec.Value);
             
             default:
-                throw new Exception("Unsupported types for addition: " + a.GetType() + ", " + b.GetType() + "");
+                throw new Exception("Unsupported types for multiplication: " + a.GetType() + ", " + b.GetType() + "");
         }
     }
 
+    private RuntimeVariableValue Divide(RuntimeVariableValue a, RuntimeVariableValue b) =>
+        (a, b) switch
+        {
+            (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeScalarValue scalarB) => 
+                new RuntimeVariableValue.RuntimeScalarValue(Divide(scalarA.Value, scalarB.Value)),
+            
+            _ => throw new Exception("Unsupported types for multiplication: " + a.GetType() + ", " + b.GetType() + "")
+        };
+    
     private ScalarValueNode Divide(ScalarValueNode a, ScalarValueNode b)
     {
         switch (a, b)
@@ -256,7 +320,7 @@ public sealed class ScriptInterpreter(IDslContext context)
                 return new ScalarValueNode.DecimalScalarValue(aInt.Value / bDec.Value);
             
             default:
-                throw new Exception("Unsupported types for addition: " + a.GetType() + ", " + b.GetType() + "");
+                throw new Exception("Unsupported types for division: " + a.GetType() + ", " + b.GetType() + "");
         }
     }
 
