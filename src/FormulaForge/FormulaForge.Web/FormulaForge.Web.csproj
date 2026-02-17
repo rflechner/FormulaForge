@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\FormulaForge.Engine\FormulaForge.Engine.csproj" />
         <ProjectReference Include="..\FormulaForge.ServiceDefaults\FormulaForge.ServiceDefaults.csproj"/>
     </ItemGroup>
 
