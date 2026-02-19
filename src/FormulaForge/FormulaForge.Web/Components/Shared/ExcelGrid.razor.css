@@ -22,12 +22,16 @@
     padding: 0;
     height: 28px;
     min-width: 80px;
+    max-width: 80px;
+    width: 80px;
     position: relative;
     cursor: cell;
+    box-sizing: border-box;
 }
 
 .excel-grid td.editing {
-    border: 2px solid #0078d4;
+    outline: 2px solid #0078d4;
+    outline-offset: -1px;
     z-index: 10;
 }
 
@@ -41,6 +45,7 @@
     font-family: inherit;
     font-size: inherit;
     background: white;
+    box-sizing: border-box;
 }
 
 .sticky-col {
@@ -66,6 +71,9 @@
     align-items: center;
     justify-content: flex-end;
     text-align: center;
+    box-sizing: border-box;
+    padding: 0 8px;
+    display: flex;
 }
 
 .cell-content > input {
