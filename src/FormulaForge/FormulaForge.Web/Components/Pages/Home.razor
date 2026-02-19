@@ -29,14 +29,19 @@
         
         _dslContext.GlobalScope.Variables.Add("x", new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(10)));
 
+        var random = new Random();
         var balance = new TimeSeries<ScalarValueNode>();
+        var changeRate = new TimeSeries<ScalarValueNode>();
+        
         for (var index = 0; index < months.Length; index++)
         {
             var month = months[index];
             balance.Add(month, new ScalarValueNode.IntegerScalarValue(index * 100), (a, b) => a.Value);
+            changeRate.Add(month, new ScalarValueNode.DecimalScalarValue((decimal)random.NextDouble()), (a, b) => a.Value);
         }
         
         _dslContext.GlobalScope.Variables.Add("balance", new RuntimeVariableValue.RuntimeTimeSeriesValue(balance));
+        _dslContext.GlobalScope.Variables.Add("change_rate", new RuntimeVariableValue.RuntimeTimeSeriesValue(changeRate));
         
         LoadRows();
     }

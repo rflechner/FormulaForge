@@ -83,7 +83,7 @@
         }
     }
 
-    private string FormatValue(decimal val) => val == 0 ? "-" : val.ToString("N0");
+    private string FormatValue(decimal val) => val == 0 ? "-" : val.ToString("N2");
 
     private void HandleKeyDown(KeyboardEventArgs e, RowData row, DateTime month)
     {
