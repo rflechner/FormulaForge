@@ -1,3 +1,7 @@
+.excel-grid-container {
+    overflow-x: auto;
+    width: 100%;
+}
 
 .excel-grid {
     border-collapse: collapse;

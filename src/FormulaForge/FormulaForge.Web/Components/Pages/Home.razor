@@ -23,29 +23,9 @@
 
     protected override void OnInitialized()
     {
-        var months = Period.OfYear(2026).GetMonths().ToArray();
+        var period = new Period(new DateTime(2024, 1, 1), new DateTime(2027, 1, 1));
+        var months = period.GetMonths().ToArray();
         _months = months.Select(m => m.InclusiveStart.DateTime).ToList();
-        
-        /*
-        _rows = new List<ExcelGrid.RowData>
-        {
-            new ExcelGrid.RowData
-            {
-                Name = "Revenue",
-                Values = new() { {1, 10000}, {2, 12000}, {3, 15000} }
-            },
-            new ExcelGrid.RowData
-            {
-                Name = "Costs",
-                Values = new() { {1, 5000}, {2, 6000}, {3, 7000} }
-            },
-            new ExcelGrid.RowData
-            {
-                Name = "Profit",
-                Values = new() { {1, 5000}, {2, 6000}, {3, 8000} }
-            }
-        };
-        */
         
         _dslContext.GlobalScope.Variables.Add("x", new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(10)));
 

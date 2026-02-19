@@ -1,12 +1,13 @@
 @rendermode InteractiveServer
 
-<table class="excel-grid">
+<div class="excel-grid-container">
+    <table class="excel-grid">
     <thead>
         <tr>
             <th class="sticky-col">Variable</th>
             @foreach (var month in Months)
             {
-                <th>@month.ToString("MMM")</th>
+                <th>@month.ToString("MMM yyyy")</th>
             }
         </tr>
     </thead>
@@ -47,6 +48,7 @@
         }
     </tbody>
 </table>
+</div>
 
 @code {
     [Parameter] public List<DateTime> Months { get; set; } = new();
