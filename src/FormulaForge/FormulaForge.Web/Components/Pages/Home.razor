@@ -1,5 +1,8 @@
 ﻿@page "/"
+@using FormulaForge.Engine.DomainSpecificLanguage.Ast
+@using FormulaForge.Engine.Runtime
 @using FormulaForge.Engine.Time
+@using FormulaForge.Web.Contexts
 
 <PageTitle>Home</PageTitle>
 
@@ -10,17 +13,20 @@
 
 <FluentCard>
     <h3>Excel Grid Example</h3>
-    <ExcelGrid @rendermode="InteractiveServer" Months="@_months" Rows="@_rows" />
+    <ExcelGrid Months="@_months" Rows="@_rows" />
 </FluentCard>
 
 @code {
     private List<DateTime> _months = new();
-    private List<ExcelGrid.RowData> _rows = new();
+    private readonly List<ExcelGrid.RowData> _rows = new();
+    private readonly DynamicDslContext _dslContext = new(new DynamicDataContext());
 
     protected override void OnInitialized()
     {
-        _months = Period.OfYear(2026).GetMonths().Select(m => m.InclusiveStart.DateTime).ToList();
-
+        var months = Period.OfYear(2026).GetMonths().ToArray();
+        _months = months.Select(m => m.InclusiveStart.DateTime).ToList();
+        
+        /*
         _rows = new List<ExcelGrid.RowData>
         {
             new ExcelGrid.RowData
@@ -39,5 +45,74 @@
                 Values = new() { {1, 5000}, {2, 6000}, {3, 8000} }
             }
         };
+        */
+        
+        _dslContext.GlobalScope.Variables.Add("x", new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(10)));
+
+        var balance = new TimeSeries<ScalarValueNode>();
+        for (var index = 0; index < months.Length; index++)
+        {
+            var month = months[index];
+            balance.Add(month, new ScalarValueNode.IntegerScalarValue(index * 100), (a, b) => a.Value);
+        }
+        
+        _dslContext.GlobalScope.Variables.Add("balance", new RuntimeVariableValue.RuntimeTimeSeriesValue(balance));
+        
+        LoadRows();
     }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        LoadRows();
+    }
+
+    private void LoadRows()
+    {
+        _rows.Clear();
+        
+        foreach (var (variableName, variableValue) in _dslContext.GlobalScope.Variables)
+        {
+            _rows.Add(new ExcelGrid.RowData
+            {
+                Name = variableName,
+                Values = Map(variableValue)
+            });
+        }
+        
+        StateHasChanged();
+    }
+
+    private Dictionary<int, decimal> Map(RuntimeVariableValue variableValue)
+    {
+        switch (variableValue)
+        {
+            case RuntimeVariableValue.RuntimeScalarValue runtimeScalarValue:
+                var value = Map(runtimeScalarValue.Value);
+                return new Dictionary<int, decimal> { { 0, value } };
+
+            case RuntimeVariableValue.RuntimeTimeSeriesValue runtimeTimeSeriesValue:
+                return runtimeTimeSeriesValue.Value
+                    .Select((v,i) => new
+                    {
+                        Value = Map(v.Value),
+                        Index = i
+                    })
+                    .ToDictionary(v => v.Index, v => v.Value);
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(variableValue));
+        }
+    }
+
+    private static decimal Map(ScalarValueNode scalarValue) =>
+        scalarValue switch
+        {
+            ScalarValueNode.BooleanScalarValue booleanScalarValue => booleanScalarValue.Value ? 1 : 0,
+            ScalarValueNode.DecimalScalarValue decimalScalarValue => decimalScalarValue.Value,
+            ScalarValueNode.IntegerScalarValue integerScalarValue => integerScalarValue.Value,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
 }

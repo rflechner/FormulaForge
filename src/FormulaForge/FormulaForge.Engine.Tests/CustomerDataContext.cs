@@ -16,25 +16,19 @@ public sealed class CustomerDataContext
     public TimeSeries<ScalarValueNode.DecimalScalarValue> ChangeRate { get; init; } = new();
 }
 
-public sealed class CustomerDslContext : IDslContext
+public sealed class CustomerDslContext : DslContextBase
 {
-    private readonly Lazy<Scope> _globalScopeFactory;
+    
     private readonly CustomerDataContext _c;
-
-    private readonly Dictionary<FunctionRegistryId, StatementNode.FunctionDeclarationNode> _functions = new();
-    
-    public IEnumerable<Period> Months { get; init; } = [];
-    
 
     public CustomerDslContext(CustomerDataContext c)
     {
         _c = c;
-        _globalScopeFactory = new Lazy<Scope>(CreateGlobalScope);
     }
-
-    public Scope GlobalScope => _globalScopeFactory.Value;
-
-    private Scope CreateGlobalScope()
+    
+    public IEnumerable<Period> Months { get; init; } = [];
+    
+    protected override Scope CreateGlobalScope()
     {
         var accountBalance = _c.AccountBalance
             .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>();
@@ -54,7 +48,7 @@ public sealed class CustomerDslContext : IDslContext
         };
     }
 
-    public bool TryGetSeries(string name, out TimeSeries<decimal> series)
+    public override bool TryGetSeries(string name, out TimeSeries<decimal>? series)
     {
         series = null!;
         return name switch
@@ -63,20 +57,5 @@ public sealed class CustomerDslContext : IDslContext
             //"assets"  => Wrap(c.AssetsCountByMonth, out series), // convert int->decimal
             _ => false
         };
-    }
-
-    public Scope GetScope(FunctionRegistryId scope)
-    {
-        return new Scope();
-    }
-    
-    public bool TryGetFunction(FunctionRegistryId id, out StatementNode.FunctionDeclarationNode? function)
-    {
-        return _functions.TryGetValue(id, out function);
-    }
-
-    public CodeRunResult RegisterFunction(FunctionRegistryId id, StatementNode.FunctionDeclarationNode function)
-    {
-        return _functions.TryAdd(id, function) ? CodeRunResult.Success : CodeRunResult.FunctionOverwriteNotAllowed;
     }
 }
