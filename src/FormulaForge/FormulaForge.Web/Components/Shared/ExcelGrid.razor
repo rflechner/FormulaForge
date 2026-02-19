@@ -21,7 +21,7 @@
 
                 @foreach (var month in Months)
                 {
-                    var cellId = $"{row.Id}-{month.Month}";
+                    var cellId = $"{row.Id}-{month.Ticks}";
                     var isEditing = _editingCellId == cellId;
 
                     <td class="@(isEditing ? "editing" : "")">
