@@ -1,8 +1,10 @@
 ﻿@page "/"
+@using System.Text.Json
 @using FormulaForge.Engine.DomainSpecificLanguage.Ast
 @using FormulaForge.Engine.Runtime
 @using FormulaForge.Engine.Time
 @using FormulaForge.Web.Contexts
+@using KeyCode = BlazorMonaco.KeyCode
 
 <PageTitle>Home</PageTitle>
 
@@ -16,11 +18,33 @@
     <ExcelGrid Months="@_months" Rows="@_rows" />
 </FluentCard>
 
+<FluentCard>
+    <StandaloneCodeEditor Id="my-editor-id" CssClass="my-editor-class" ConstructionOptions="EditorConstructionOptions" />
+</FluentCard>
+
 @code {
     private List<DateTime> _months = new();
     private readonly List<ExcelGrid.RowData> _rows = new();
     private readonly DynamicDslContext _dslContext = new(new DynamicDataContext());
-
+    
+    private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
+    {
+        return new StandaloneEditorConstructionOptions
+        {
+            Language = "javascript",
+            AutomaticLayout = true,
+            Value = "\"use strict\";\n" +
+                    "function Person(age) {\n" +
+                    "	if (age) {\n" +
+                    "		this.age = age;\n" +
+                    "	}\n" +
+                    "}\n" +
+                    "Person.prototype.getAge = function () {\n" +
+                    "	return this.age;\n" +
+                    "};\n"
+        };
+    }
+    
     protected override void OnInitialized()
     {
         var period = new Period(new DateTime(2024, 1, 1), new DateTime(2027, 1, 1));

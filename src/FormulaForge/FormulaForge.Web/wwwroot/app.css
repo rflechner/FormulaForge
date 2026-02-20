@@ -54,3 +54,17 @@ h1:focus {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+
+#my-editor-id { /* applies to a specific editor instance */
+    height: 300px;
+}
+
+.my-editor-class { /* applies to all editor instances with this class */
+    height: 300px;
+    background-color: #ffc107;
+}
+
+.monaco-editor-container { /* applies to all editor instances */
+    height: 300px;
+}
