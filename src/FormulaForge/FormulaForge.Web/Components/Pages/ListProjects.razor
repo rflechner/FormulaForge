@@ -1,0 +1,44 @@
+@page "/list-projects"
+@using FormulaForge.Domain.Entities
+@using FormulaForge.Domain.Services
+@inject IProjectManagementService ProjectManagementService
+@implements IDisposable
+
+<PageTitle>Projects list</PageTitle>
+
+<FluentCard>
+    
+    <FluentListbox Items="@ProjectsItems" 
+                   TOption="Option<Project>"
+                   OptionText="@(i => i.Value?.Name)" 
+                   OptionSelected="@(i => i.Selected)"
+                   @bind-SelectedOption="@SelectedProject" />
+    
+</FluentCard>
+
+@code {
+    
+    private readonly CancellationTokenSource _cts = new();
+
+    public Project[] Projects { get; set; } = [];
+
+    public Option<Project>[] ProjectsItems => Projects
+        .Select(p => new Option<Project>
+        {
+            Value = p,
+            Text = p.Name,
+        }).ToArray();
+
+    public Option<Project>? SelectedProject { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Projects = await ProjectManagementService.GetProjectsAsync().ToArrayAsync(_cts.Token);
+    }
+
+    public void Dispose()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+    }
+}

@@ -2,6 +2,28 @@
 
 <PageTitle>Computation script</PageTitle>
 
+<FluentAppBar PopoverShowSearch="false" Orientation="Orientation.Horizontal">
+    
+    <FluentAppBarItem OnClick="@RunScript"
+                      Style="cursor: pointer;"
+                      Match="NavLinkMatch.All"
+                      IconRest="PlayIcon()"
+                      IconActive="PlayIcon(active: true)"
+                      Text="Run script" />
+    
+    <FluentAppBarItem OnClick="@SaveProject"
+                      Style="cursor: pointer;"
+                      Match="NavLinkMatch.All"
+                      IconRest="SaveIcon()"
+                      IconActive="SaveIcon(active: true)"
+                      Text="Save" />
+    
+</FluentAppBar>
+
+<FluentCard>
+    <FluentTextField @bind-Value="ProjectName" Label="Project name"></FluentTextField>
+</FluentCard>
+
 <FluentCard>
     <h3>Inputs</h3>
     <ExcelGrid Months="@_months" Rows="@_inputsRows" />
@@ -11,13 +33,6 @@
     <StandaloneCodeEditor Id="my-editor-id" CssClass="my-editor-class" 
                           @ref="_editor"
                           ConstructionOptions="EditorConstructionOptions" />
-</FluentCard>
-
-<FluentCard>
-    <FluentStack>
-        <FluentButton @onclick="RunScript">Run Program</FluentButton>
-        <p>@ScriptRunResult</p>
-    </FluentStack>
 </FluentCard>
 
 <FluentCard>

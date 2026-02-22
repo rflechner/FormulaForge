@@ -16,6 +16,7 @@
   <Project Path="FormulaForge.ApiService.Persistence/FormulaForge.ApiService.Persistence.csproj" />
   <Project Path="FormulaForge.ApiService/FormulaForge.ApiService.csproj" />
   <Project Path="FormulaForge.AppHost/FormulaForge.AppHost.csproj" />
+  <Project Path="FormulaForge.Domain.Services/FormulaForge.Domain.Services.csproj" />
   <Project Path="FormulaForge.Domain/FormulaForge.Domain.csproj" />
   <Project Path="FormulaForge.Engine/FormulaForge.Engine.csproj" />
   <Project Path="FormulaForge.ServiceDefaults/FormulaForge.ServiceDefaults.csproj" />

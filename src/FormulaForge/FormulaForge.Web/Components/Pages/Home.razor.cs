@@ -1,9 +1,15 @@
 using BlazorMonaco.Editor;
+using FormulaForge.Domain.Entities;
+using FormulaForge.Domain.Services;
 using FormulaForge.Engine.DomainSpecificLanguage.Ast;
 using FormulaForge.Engine.Runtime;
 using FormulaForge.Engine.Time;
 using FormulaForge.Web.Components.Shared;
 using FormulaForge.Web.Contexts;
+using Microsoft.AspNetCore.Components;
+using Microsoft.FluentUI.AspNetCore.Components;
+using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular;
+using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons;
 
 namespace FormulaForge.Web.Components.Pages;
 
@@ -16,6 +22,16 @@ public partial class Home
     private ScriptInterpreter? _interpreter;
     private StandaloneCodeEditor? _editor;
     public CodeRunResult? ScriptRunResult { get; set; }
+    
+    public string ProjectName { get; set; } = "Untitled";
+    
+    public Project? Project { get; set; }
+    
+    [Inject] public required IDialogService DialogService { get; init; }
+    
+    [Inject] public required IProjectManagementService ProjectManagement { get; init; }
+    
+    [Parameter] public Guid? ProjectId { get; set; }
 
     private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
     {
@@ -93,6 +109,12 @@ public partial class Home
 
             var code = await _editor.GetValue();
             ScriptRunResult = _interpreter.Run(code);
+
+            if (ScriptRunResult != null && ScriptRunResult != CodeRunResult.Success)
+            {
+                await DialogService.ShowErrorAsync(ScriptRunResult?.ToString() ?? "", "Error running script");
+                StateHasChanged();
+            }
         }
         catch (Exception e)
         {
@@ -132,4 +154,32 @@ public partial class Home
             ScalarValueNode.IntegerScalarValue integerScalarValue => integerScalarValue.Value,
             _ => throw new ArgumentOutOfRangeException()
         };
+    
+    private static Icon PlayIcon(bool active = false) =>
+        active ? new Size20.PlaySettings()
+            : new Icons.Regular.Size20.PlaySettings();
+    
+    private static Icon SaveIcon(bool active = false) =>
+        active ? new Size20.Save()
+            : new Icons.Regular.Size20.Save();
+
+    private async Task SaveProject()
+    {
+        if (string.IsNullOrWhiteSpace(ProjectName))
+        {
+            await DialogService.ShowErrorAsync("Project name cannot be empty", "Error saving project");
+            return;
+        }
+
+        if (Project == null)
+        {
+            Project = new Project
+            {
+                Name = ProjectName
+            };
+            await ProjectManagement.CreateProjectAsync(Project);
+        }
+        else
+            await ProjectManagement.UpdateProjectAsync(Project);
+    }
 }

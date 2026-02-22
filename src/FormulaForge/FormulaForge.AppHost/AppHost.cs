@@ -16,6 +16,8 @@ builder.AddProject<Projects.FormulaForge_Web>("webfrontend")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WithReference(apiService)
+    .WithReference(db)
+    .WaitFor(db)
     .WaitFor(apiService);
 
 builder.Build().Run();
