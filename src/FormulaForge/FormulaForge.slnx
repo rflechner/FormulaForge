@@ -13,6 +13,7 @@
     <Project Path="FormulaForge.Engine.Tests/FormulaForge.Engine.Tests.csproj" />
   </Folder>
   <Project Path="FormulaForge.ApiService.Persistence.Postgres\FormulaForge.ApiService.Persistence.Postgres.csproj" />
+  <Project Path="FormulaForge.ApiService.Persistence/FormulaForge.ApiService.Persistence.csproj" />
   <Project Path="FormulaForge.ApiService/FormulaForge.ApiService.csproj" />
   <Project Path="FormulaForge.AppHost/FormulaForge.AppHost.csproj" />
   <Project Path="FormulaForge.Domain/FormulaForge.Domain.csproj" />

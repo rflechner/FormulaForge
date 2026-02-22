@@ -1,11 +1,13 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
 var postgres = builder.AddPostgres("postgres")
+    .WithDataVolume("formulaforgestorage")
     .WithPgAdmin();
 
 var db = postgres.AddDatabase("formulaforge", databaseName: "formulaforge");
 
-var apiService = builder.AddProject<Projects.FormulaForge_ApiService>("apiservice")
+var apiService = builder
+    .AddProject<Projects.FormulaForge_ApiService>("apiservice")
     .WithReference(db)
     .WaitFor(db)
     .WithHttpHealthCheck("/health");

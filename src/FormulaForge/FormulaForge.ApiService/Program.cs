@@ -1,9 +1,14 @@
+using FormulaForge.ApiService.Persistence;
+using FormulaForge.ApiService.Persistence.Postgres;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
 
-builder.AddNpgsqlDataSource("formulaforge");
+builder.AddNpgsqlDbContext<FormulaForgeDbContext>("formulaforge");
+builder.Services.AddScoped<IProjectRepository, PostgresProjectRepository>();
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
@@ -12,6 +17,13 @@ builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+
+// Appliquer les migrations au démarrage
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<FormulaForgeDbContext>();
+    dbContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();

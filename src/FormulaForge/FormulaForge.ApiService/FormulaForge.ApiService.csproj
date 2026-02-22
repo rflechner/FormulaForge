@@ -7,6 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\FormulaForge.ApiService.Persistence.Postgres\FormulaForge.ApiService.Persistence.Postgres.csproj" />
+        <ProjectReference Include="..\FormulaForge.ApiService.Persistence\FormulaForge.ApiService.Persistence.csproj" />
         <ProjectReference Include="..\FormulaForge.Domain\FormulaForge.Domain.csproj" />
         <ProjectReference Include="..\FormulaForge.ServiceDefaults\FormulaForge.ServiceDefaults.csproj" />
     </ItemGroup>
@@ -14,6 +16,10 @@
     <ItemGroup>
         <PackageReference Include="Aspire.Npgsql" Version="13.1.1" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
