@@ -191,13 +191,6 @@ public sealed class ScriptInterpreter(IDslContext context)
             _ => throw new Exception("Unsupported types for addition: " + a.GetType() + ", " + b.GetType() + "")
         };
 
-    private RuntimeVariableValue Add(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
-    {
-        
-        throw new NotImplementedException();
-        
-    }
-    
     private ScalarValueNode Add(ScalarValueNode a, ScalarValueNode b)
     {
         switch (a, b)
@@ -226,6 +219,9 @@ public sealed class ScriptInterpreter(IDslContext context)
         {
             (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeScalarValue scalarB) =>
                 new RuntimeVariableValue.RuntimeScalarValue(Subtract(scalarA.Value, scalarB.Value)),
+            
+            (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
+                Subtract(complexA, complexB),
             
             _ => throw new Exception("Unsupported types for subtraction: " + a.GetType() + ", " + b.GetType() + "")
         };
@@ -264,6 +260,29 @@ public sealed class ScriptInterpreter(IDslContext context)
     
     private RuntimeVariableValue Multiply(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
     {
+        return ComputeTimeSeries(a, b, (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value * newVal.Value.Value));
+    }
+    
+    private RuntimeVariableValue Add(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
+    {
+        return ComputeTimeSeries(a, b, 
+            (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value + newVal.Value.Value));
+    }
+    
+    private RuntimeVariableValue Subtract(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
+    {
+        return ComputeTimeSeries(a, b, 
+            (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value - newVal.Value.Value));
+    }
+    
+    private RuntimeVariableValue Divide(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
+    {
+        return ComputeTimeSeries(a, b, 
+            (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value / newVal.Value.Value));
+    }
+
+    private RuntimeVariableValue ComputeTimeSeries(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b, Func<TimeSeriesValue<ScalarValueNode.DecimalScalarValue>, TimeSeriesValue<ScalarValueNode.DecimalScalarValue>, ScalarValueNode.DecimalScalarValue> compute)
+    {
         var x = a.Value
             .Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, AsDecimal(t.Value)))
             .CreateTimeSeries();
@@ -274,7 +293,7 @@ public sealed class ScriptInterpreter(IDslContext context)
         
         TimeSeries<ScalarValueNode.DecimalScalarValue>[] sources = [x, y];
         var timeSeriesValues = sources
-            .Aggregate((oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value * newVal.Value.Value))
+            .Aggregate(compute)
             .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>();
         
         return new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSeriesValues);
@@ -317,6 +336,9 @@ public sealed class ScriptInterpreter(IDslContext context)
         {
             (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeScalarValue scalarB) => 
                 new RuntimeVariableValue.RuntimeScalarValue(Divide(scalarA.Value, scalarB.Value)),
+            
+            (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
+                Divide(complexA, complexB),
             
             _ => throw new Exception("Unsupported types for multiplication: " + a.GetType() + ", " + b.GetType() + "")
         };
