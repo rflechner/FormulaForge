@@ -1,10 +1,8 @@
 ﻿@page "/"
-@using System.Text.Json
 @using FormulaForge.Engine.DomainSpecificLanguage.Ast
 @using FormulaForge.Engine.Runtime
 @using FormulaForge.Engine.Time
 @using FormulaForge.Web.Contexts
-@using KeyCode = BlazorMonaco.KeyCode
 
 <PageTitle>Home</PageTitle>
 
@@ -15,37 +13,46 @@
 
 <FluentCard>
     <h3>Excel Grid Example</h3>
-    <ExcelGrid Months="@_months" Rows="@_rows" />
+    <ExcelGrid Months="@_months" Rows="@_inputsRows" />
 </FluentCard>
 
 <FluentCard>
-    <StandaloneCodeEditor Id="my-editor-id" CssClass="my-editor-class" ConstructionOptions="EditorConstructionOptions" />
+    <StandaloneCodeEditor Id="my-editor-id" CssClass="my-editor-class" 
+                          @ref="_editor"
+                          ConstructionOptions="EditorConstructionOptions" />
 </FluentCard>
+
+<FluentCard>
+    <FluentStack>
+        <FluentButton @onclick="RunScript">Run Program</FluentButton>
+    </FluentStack>
+</FluentCard>
+
+<FluentCard>
+    <ExcelGrid Months="@_months" Rows="@_outputsRows" />
+</FluentCard>
+
 
 @code {
     private List<DateTime> _months = new();
-    private readonly List<ExcelGrid.RowData> _rows = new();
+    private readonly List<ExcelGrid.RowData> _inputsRows = new();
+    private readonly List<ExcelGrid.RowData> _outputsRows = new();
     private readonly DynamicDslContext _dslContext = new(new DynamicDataContext());
-    
+    private ScriptInterpreter? _interpreter;
+    private StandaloneCodeEditor? _editor;
+
     private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
     {
         return new StandaloneEditorConstructionOptions
         {
             Language = "javascript",
             AutomaticLayout = true,
-            Value = "\"use strict\";\n" +
-                    "function Person(age) {\n" +
-                    "	if (age) {\n" +
-                    "		this.age = age;\n" +
-                    "	}\n" +
-                    "}\n" +
-                    "Person.prototype.getAge = function () {\n" +
-                    "	return this.age;\n" +
-                    "};\n"
+            Value = "\n" +
+                    "\n"
         };
     }
     
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         var period = new Period(new DateTime(2024, 1, 1), new DateTime(2027, 1, 1));
         var months = period.GetMonths().ToArray();
@@ -67,23 +74,24 @@
         _dslContext.GlobalScope.Variables.Add("balance", new RuntimeVariableValue.RuntimeTimeSeriesValue(balance));
         _dslContext.GlobalScope.Variables.Add("change_rate", new RuntimeVariableValue.RuntimeTimeSeriesValue(changeRate));
         
-        LoadRows();
+        await LoadRows();
     }
 
-    protected async override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
 
-        LoadRows();
+        await LoadRows();
     }
 
-    private void LoadRows()
+    private async Task LoadRows()
     {
-        _rows.Clear();
-        
+        _inputsRows.Clear();
+        _outputsRows.Clear();
+
         foreach (var (variableName, variableValue) in _dslContext.GlobalScope.Variables)
         {
-            _rows.Add(new ExcelGrid.RowData
+            _inputsRows.Add(new ExcelGrid.RowData
             {
                 Name = variableName,
                 Values = Map(variableValue)
@@ -91,6 +99,31 @@
         }
         
         StateHasChanged();
+    }
+
+    private async Task RunScript()
+    {
+        if (_editor == null)
+        {
+            StateHasChanged();
+            return;
+        }
+
+        try
+        {
+            _interpreter = new ScriptInterpreter(_dslContext);
+        
+            var code = await _editor.GetValue();
+
+            var result = _interpreter.Run(code);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
+        await LoadRows();
     }
 
     private Dictionary<int, decimal> Map(RuntimeVariableValue variableValue)

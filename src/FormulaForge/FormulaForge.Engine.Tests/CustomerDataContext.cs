@@ -35,7 +35,10 @@ public sealed class CustomerDslContext : DslContextBase
 
         var changeRate = _c.ChangeRate
             .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>();
-            
+
+        var assetsCount = _c.AssetsCount
+            .Cast<ScalarValueNode, ScalarValueNode.IntegerScalarValue>();
+
         return new()
         {
             BuiltInVariables = new Dictionary<string, RuntimeVariableValue>
@@ -44,6 +47,7 @@ public sealed class CustomerDslContext : DslContextBase
                 ["current_year"] = new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(2026)),
                 ["account_balance"] = new RuntimeVariableValue.RuntimeTimeSeriesValue(accountBalance),
                 ["change_rate"] = new RuntimeVariableValue.RuntimeTimeSeriesValue(changeRate),
+                ["assets_count"] = new RuntimeVariableValue.RuntimeTimeSeriesValue(assetsCount),
             },
         };
     }
