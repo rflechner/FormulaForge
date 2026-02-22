@@ -1,7 +1,26 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Computation script</PageTitle>
 
-<h1>Hello, world!</h1>
+<FluentCard>
+    <h3>Inputs</h3>
+    <ExcelGrid Months="@_months" Rows="@_inputsRows" />
+</FluentCard>
 
-Welcome to your new app.
+<FluentCard>
+    <StandaloneCodeEditor Id="my-editor-id" CssClass="my-editor-class" 
+                          @ref="_editor"
+                          ConstructionOptions="EditorConstructionOptions" />
+</FluentCard>
+
+<FluentCard>
+    <FluentStack>
+        <FluentButton @onclick="RunScript">Run Program</FluentButton>
+        <p>@ScriptRunResult</p>
+    </FluentStack>
+</FluentCard>
+
+<FluentCard>
+    <h3>Outputs</h3>
+    <ExcelGrid Months="@_months" Rows="@_outputsRows"/>
+</FluentCard>

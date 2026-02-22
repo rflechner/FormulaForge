@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\FormulaForge.Engine\FormulaForge.Engine.csproj" />
         <ProjectReference Include="..\FormulaForge.ServiceDefaults\FormulaForge.ServiceDefaults.csproj"/>
     </ItemGroup>
 
@@ -14,6 +15,13 @@
       <Content Update="appsettings.Development.json">
         <DependentUpon>appsettings.json</DependentUpon>
       </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="BlazorMonaco" Version="3.4.0" />
+      <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.14.0" />
+      <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Emoji" Version="4.14.0" />
+      <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.14.0" />
     </ItemGroup>
 
 </Project>

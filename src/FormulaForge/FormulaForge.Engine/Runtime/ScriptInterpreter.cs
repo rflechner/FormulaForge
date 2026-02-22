@@ -188,16 +188,15 @@ public sealed class ScriptInterpreter(IDslContext context)
             (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
                 Add(complexA, complexB),
             
+            (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeScalarValue scalarB) =>
+                Add(scalarB, complexA),
+            
+            (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
+                Add(scalarA, complexB),
+
             _ => throw new Exception("Unsupported types for addition: " + a.GetType() + ", " + b.GetType() + "")
         };
 
-    private RuntimeVariableValue Add(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
-    {
-        
-        throw new NotImplementedException();
-        
-    }
-    
     private ScalarValueNode Add(ScalarValueNode a, ScalarValueNode b)
     {
         switch (a, b)
@@ -227,6 +226,15 @@ public sealed class ScriptInterpreter(IDslContext context)
             (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeScalarValue scalarB) =>
                 new RuntimeVariableValue.RuntimeScalarValue(Subtract(scalarA.Value, scalarB.Value)),
             
+            (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
+                Subtract(complexA, complexB),
+            
+            (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeScalarValue scalarB) =>
+                Subtract(scalarB, complexA),
+            
+            (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
+                Subtract(scalarA, complexB),
+
             _ => throw new Exception("Unsupported types for subtraction: " + a.GetType() + ", " + b.GetType() + "")
         };
 
@@ -259,22 +267,95 @@ public sealed class ScriptInterpreter(IDslContext context)
             (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
                 Multiply(complexA, complexB),
             
+            (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeScalarValue scalarB) =>
+                Multiply(scalarB, complexA),
+            
+            (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
+                Multiply(scalarA, complexB),
+            
             _ => throw new Exception("Unsupported types for multiplication: " + a.GetType() + ", " + b.GetType() + "")
         };
-    
-    private RuntimeVariableValue Multiply(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
+
+    private RuntimeVariableValue Multiply(RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB)
     {
-        TimeSeries<ScalarValueNode.DecimalScalarValue> x = a.Value.Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value)).CreateTimeSeries();
-        var y = b.Value.Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value)).CreateTimeSeries();
-        
-        TimeSeries<ScalarValueNode.DecimalScalarValue>[] sources = [x, y];
-        var timeSeriesValues = sources
-            .Aggregate((oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value * newVal.Value.Value))
-            .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>();
+        var timeSeriesValues = complexB.Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode>(t.Period, new ScalarValueNode.DecimalScalarValue(AsDecimal(t.Value).Value * AsDecimal(scalarA.Value).Value)))
+            .CreateTimeSeries();
         
         return new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSeriesValues);
     }
     
+    private RuntimeVariableValue Multiply(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
+    {
+        return ComputeTimeSeries(a, b, (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value * newVal.Value.Value));
+    }
+    
+    private RuntimeVariableValue Add(RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB)
+    {
+        var timeSeriesValues = complexB.Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode>(t.Period, new ScalarValueNode.DecimalScalarValue(AsDecimal(t.Value).Value + AsDecimal(scalarA.Value).Value)))
+            .CreateTimeSeries();
+        
+        return new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSeriesValues);
+    }
+    
+    private RuntimeVariableValue Subtract(RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB)
+    {
+        var timeSeriesValues = complexB.Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode>(t.Period, new ScalarValueNode.DecimalScalarValue(AsDecimal(t.Value).Value - AsDecimal(scalarA.Value).Value)))
+            .CreateTimeSeries();
+        
+        return new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSeriesValues);
+    }
+    
+    private RuntimeVariableValue Add(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
+    {
+        return ComputeTimeSeries(a, b, 
+            (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value + newVal.Value.Value));
+    }
+    
+    private RuntimeVariableValue Subtract(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
+    {
+        return ComputeTimeSeries(a, b, 
+            (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value - newVal.Value.Value));
+    }
+    
+    private RuntimeVariableValue Divide(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
+    {
+        return ComputeTimeSeries(a, b, 
+            (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value / newVal.Value.Value));
+    }
+
+    private RuntimeVariableValue ComputeTimeSeries(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b, Func<TimeSeriesValue<ScalarValueNode.DecimalScalarValue>, TimeSeriesValue<ScalarValueNode.DecimalScalarValue>, ScalarValueNode.DecimalScalarValue> compute)
+    {
+        var x = a.Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, AsDecimal(t.Value)))
+            .CreateTimeSeries();
+        
+        var y = b.Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, AsDecimal(t.Value)))
+            .CreateTimeSeries();
+        
+        TimeSeries<ScalarValueNode.DecimalScalarValue>[] sources = [x, y];
+        var timeSeriesValues = sources
+            .Aggregate(compute)
+            .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>();
+        
+        return new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSeriesValues);
+    }
+
+    private ScalarValueNode.DecimalScalarValue AsDecimal(ScalarValueNode value) =>
+        value switch
+        {
+            ScalarValueNode.BooleanScalarValue booleanScalarValue => booleanScalarValue.Value
+                ? new ScalarValueNode.DecimalScalarValue(1)
+                : new ScalarValueNode.DecimalScalarValue(0),
+            ScalarValueNode.DecimalScalarValue decimalScalarValue => decimalScalarValue,
+            ScalarValueNode.IntegerScalarValue integerScalarValue => new ScalarValueNode.DecimalScalarValue(
+                integerScalarValue.Value),
+            _ => throw new ArgumentOutOfRangeException(nameof(value))
+        };
+
     private ScalarValueNode Multiply(ScalarValueNode a, ScalarValueNode b)
     {
         switch (a, b)
@@ -287,6 +368,7 @@ public sealed class ScriptInterpreter(IDslContext context)
             
             case (ScalarValueNode.DecimalScalarValue aDec, ScalarValueNode.IntegerScalarValue bInt):
                 return new ScalarValueNode.DecimalScalarValue(aDec.Value * bInt.Value);
+            
             case (ScalarValueNode.IntegerScalarValue aInt, ScalarValueNode.DecimalScalarValue bDec):
                 return new ScalarValueNode.DecimalScalarValue(aInt.Value * bDec.Value);
             
@@ -301,6 +383,15 @@ public sealed class ScriptInterpreter(IDslContext context)
             (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeScalarValue scalarB) => 
                 new RuntimeVariableValue.RuntimeScalarValue(Divide(scalarA.Value, scalarB.Value)),
             
+            (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
+                Divide(complexA, complexB),
+            
+            (RuntimeVariableValue.RuntimeTimeSeriesValue complexA, RuntimeVariableValue.RuntimeScalarValue scalarB) =>
+                Divide(scalarB, complexA),
+            
+            (RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB) =>
+                Divide(scalarA, complexB),
+
             _ => throw new Exception("Unsupported types for multiplication: " + a.GetType() + ", " + b.GetType() + "")
         };
     
@@ -322,6 +413,15 @@ public sealed class ScriptInterpreter(IDslContext context)
             default:
                 throw new Exception("Unsupported types for division: " + a.GetType() + ", " + b.GetType() + "");
         }
+    }
+    
+    private RuntimeVariableValue Divide(RuntimeVariableValue.RuntimeScalarValue scalarA, RuntimeVariableValue.RuntimeTimeSeriesValue complexB)
+    {
+        var timeSeriesValues = complexB.Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode>(t.Period, new ScalarValueNode.DecimalScalarValue(AsDecimal(t.Value).Value / AsDecimal(scalarA.Value).Value)))
+            .CreateTimeSeries();
+        
+        return new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSeriesValues);
     }
 
 }

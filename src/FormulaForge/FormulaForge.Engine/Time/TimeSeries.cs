@@ -38,7 +38,8 @@ public static class TimeSeries
     /// <param name="mergeFunction"></param>
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
-    public static TimeSeries<T> Aggregate<T>(this IReadOnlyCollection<TimeSeries<T>> sources, Func<TimeSeriesValue<T>, TimeSeriesValue<T>, T> mergeFunction)
+    public static TimeSeries<T> Aggregate<T>(this IReadOnlyCollection<TimeSeries<T>> sources, 
+        Func<TimeSeriesValue<T>, TimeSeriesValue<T>, T> mergeFunction)
     {
         var timeSeries = new TimeSeries<T>();
         

@@ -64,4 +64,263 @@ public class TimeSeriesBindingTests
 
         Assert.Equal(4, context.GlobalScope.Variables.Count);
     }
+    
+    [Fact]
+    public void ApplyRateFromBindingWithTimeSeriesOfDecimalAndInteger_ShouldComputeExpectedValues()
+    {
+        var year = Period.OfYear(2025);
+        var months = year.GetMonths().ToArray();
+
+        var dataContext = new CustomerDataContext
+        {
+            CustomerId = "123456789",
+            AccountBalance = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(i * 100m))).CreateTimeSeries(),
+            AssetsCount = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(period, new ScalarValueNode.IntegerScalarValue(i + 2))).CreateTimeSeries(),
+            ChangeRate = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(0.9m + i * 0.01m))).CreateTimeSeries(),
+            
+        };
+        var context = new CustomerDslContext(dataContext)
+        {
+            Months = months
+        };
+
+        var assetsCount = dataContext.AssetsCount
+            .Select(i => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(i.Period, new ScalarValueNode.DecimalScalarValue(i.Value.Value)))
+            .CreateTimeSeries();
+        var expectedTimeSeries = TimeSeries.Aggregate
+            ([assetsCount, dataContext.ChangeRate], 
+                (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value * newVal.Value.Value));
+        
+        var runner = new ScriptInterpreter(context);
+
+        var program = """
+                      compute_something(a, b) = a * b
+                      multiplication_result = compute_something(assets_count, change_rate)
+                      """;
+        runner.Run(program);
+        
+        Assert.True(context.GlobalScope.TryGetScalar("multiplication_result", out var resultVariable));
+        
+        var resultTimeSeries = Assert.IsType<RuntimeVariableValue.RuntimeTimeSeriesValue>(resultVariable).Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value))
+            .CreateTimeSeries();
+
+        Assert.Equal(expectedTimeSeries, resultTimeSeries);
+    }
+    
+    [Fact]
+    public void AdditionWithTimeSeriesOfDecimalAndInteger_ShouldComputeExpectedValues()
+    {
+        var year = Period.OfYear(2025);
+        var months = year.GetMonths().ToArray();
+
+        var dataContext = new CustomerDataContext
+        {
+            CustomerId = "123456789",
+            AccountBalance = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(i * 100m))).CreateTimeSeries(),
+            AssetsCount = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(period, new ScalarValueNode.IntegerScalarValue(i + 2))).CreateTimeSeries(),
+            ChangeRate = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(0.9m + i * 0.01m))).CreateTimeSeries(),
+            
+        };
+        var context = new CustomerDslContext(dataContext)
+        {
+            Months = months
+        };
+
+        var assetsCount = dataContext.AssetsCount
+            .Select(i => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(i.Period, new ScalarValueNode.DecimalScalarValue(i.Value.Value)))
+            .CreateTimeSeries();
+        
+        var runner = new ScriptInterpreter(context);
+
+        var program = """
+                      result = assets_count + change_rate
+                      """;
+        runner.Run(program);
+        
+        var expectedTimeSeries = TimeSeries.Aggregate
+        ([assetsCount, dataContext.ChangeRate], 
+            (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value + newVal.Value.Value));
+        
+        Assert.True(context.GlobalScope.TryGetScalar("result", out var resultVariable));
+        
+        var resultTimeSeries = Assert.IsType<RuntimeVariableValue.RuntimeTimeSeriesValue>(resultVariable).Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value))
+            .CreateTimeSeries();
+
+        Assert.Equal(expectedTimeSeries, resultTimeSeries);
+    }
+
+    [Fact]
+    public void SubtractionWithTimeSeriesOfDecimalAndInteger_ShouldComputeExpectedValues()
+    {
+        var year = Period.OfYear(2025);
+        var months = year.GetMonths().ToArray();
+
+        var dataContext = new CustomerDataContext
+        {
+            CustomerId = "123456789",
+            AccountBalance = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(i * 100m))).CreateTimeSeries(),
+            AssetsCount = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(period, new ScalarValueNode.IntegerScalarValue(i + 2))).CreateTimeSeries(),
+            ChangeRate = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(0.9m + i * 0.01m))).CreateTimeSeries(),
+            
+        };
+        var context = new CustomerDslContext(dataContext)
+        {
+            Months = months
+        };
+
+        var assetsCount = dataContext.AssetsCount
+            .Select(i => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(i.Period, new ScalarValueNode.DecimalScalarValue(i.Value.Value)))
+            .CreateTimeSeries();
+        
+        var runner = new ScriptInterpreter(context);
+
+        var program = """
+                      result = assets_count - change_rate
+                      """;
+        runner.Run(program);
+        
+        var expectedTimeSeries = TimeSeries.Aggregate
+        ([assetsCount, dataContext.ChangeRate], 
+            (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value - newVal.Value.Value));
+        
+        Assert.True(context.GlobalScope.TryGetScalar("result", out var resultVariable));
+        
+        var resultTimeSeries = Assert.IsType<RuntimeVariableValue.RuntimeTimeSeriesValue>(resultVariable).Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value))
+            .CreateTimeSeries();
+
+        Assert.Equal(expectedTimeSeries, resultTimeSeries);
+    }
+
+    [Fact]
+    public void DivideWithTimeSeriesOfDecimalAndInteger_ShouldComputeExpectedValues()
+    {
+        var year = Period.OfYear(2025);
+        var months = year.GetMonths().ToArray();
+
+        var dataContext = new CustomerDataContext
+        {
+            CustomerId = "123456789",
+            AccountBalance = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(i * 100m))).CreateTimeSeries(),
+            AssetsCount = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(period, new ScalarValueNode.IntegerScalarValue(i + 2))).CreateTimeSeries(),
+            ChangeRate = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(0.9m + i * 0.01m))).CreateTimeSeries(),
+            
+        };
+        var context = new CustomerDslContext(dataContext)
+        {
+            Months = months
+        };
+
+        var assetsCount = dataContext.AssetsCount
+            .Select(i => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(i.Period, new ScalarValueNode.DecimalScalarValue(i.Value.Value)))
+            .CreateTimeSeries();
+        
+        var runner = new ScriptInterpreter(context);
+
+        var program = """
+                      result = assets_count / change_rate
+                      """;
+        runner.Run(program);
+        
+        var expectedTimeSeries = TimeSeries.Aggregate
+        ([assetsCount, dataContext.ChangeRate], 
+            (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value / newVal.Value.Value));
+        
+        Assert.True(context.GlobalScope.TryGetScalar("result", out var resultVariable));
+        
+        var resultTimeSeries = Assert.IsType<RuntimeVariableValue.RuntimeTimeSeriesValue>(resultVariable).Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value))
+            .CreateTimeSeries();
+
+        Assert.Equal(expectedTimeSeries, resultTimeSeries);
+    }
+    
+    [Fact]
+    public void MultiplicationBetweenTimeSeriesOfIntegerAndScalarDecimal_ShouldComputeExpectedValues()
+    {
+        var year = Period.OfYear(2025);
+        var months = year.GetMonths().ToArray();
+
+        var dataContext = new CustomerDataContext
+        {
+            CustomerId = "123456789",
+            AccountBalance = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(i * 100m))).CreateTimeSeries(),
+            AssetsCount = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(period, new ScalarValueNode.IntegerScalarValue(i + 2))).CreateTimeSeries(),
+            ChangeRate = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(0.9m + i * 0.01m))).CreateTimeSeries(),
+            
+        };
+        var context = new CustomerDslContext(dataContext)
+        {
+            Months = months
+        };
+
+        var assetsCount = dataContext.AssetsCount
+            .Select(i => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(i.Period, new ScalarValueNode.DecimalScalarValue(i.Value.Value)))
+            .CreateTimeSeries();
+        
+        var runner = new ScriptInterpreter(context);
+
+        var program = """
+                      result = assets_count * 0.9
+                      """;
+        runner.Run(program);
+        
+        var expectedTimeSeries = TimeSeries.Aggregate
+        ([assetsCount, dataContext.ChangeRate], 
+            (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value * 0.9m));
+        
+        Assert.True(context.GlobalScope.TryGetScalar("result", out var resultVariable));
+        
+        var resultTimeSeries = Assert.IsType<RuntimeVariableValue.RuntimeTimeSeriesValue>(resultVariable).Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value))
+            .CreateTimeSeries();
+
+        Assert.Equal(expectedTimeSeries, resultTimeSeries);
+    }
+    
+    [Fact]
+    public void AdditionBetweenTimeSeriesOfIntegerAndScalarDecimal_ShouldComputeExpectedValues()
+    {
+        var year = Period.OfYear(2025);
+        var months = year.GetMonths().ToArray();
+
+        var dataContext = new CustomerDataContext
+        {
+            CustomerId = "123456789",
+            AccountBalance = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(i * 100m))).CreateTimeSeries(),
+            AssetsCount = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(period, new ScalarValueNode.IntegerScalarValue(i + 2))).CreateTimeSeries(),
+            ChangeRate = months.Select((period, i) => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(period, new ScalarValueNode.DecimalScalarValue(0.9m + i * 0.01m))).CreateTimeSeries(),
+            
+        };
+        var context = new CustomerDslContext(dataContext)
+        {
+            Months = months
+        };
+
+        var assetsCount = dataContext.AssetsCount
+            .Select(i => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(i.Period, new ScalarValueNode.DecimalScalarValue(i.Value.Value)))
+            .CreateTimeSeries();
+        
+        var runner = new ScriptInterpreter(context);
+
+        var program = """
+                      result = assets_count + 10
+                      """;
+        runner.Run(program);
+        
+        var expectedTimeSeries = TimeSeries.Aggregate
+        ([assetsCount, dataContext.ChangeRate], 
+            (oldVal, newVal) => new ScalarValueNode.DecimalScalarValue(oldVal.Value.Value + 10));
+        
+        Assert.True(context.GlobalScope.TryGetScalar("result", out var resultVariable));
+        
+        var resultTimeSeries = Assert.IsType<RuntimeVariableValue.RuntimeTimeSeriesValue>(resultVariable).Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value))
+            .CreateTimeSeries();
+
+        Assert.Equal(expectedTimeSeries, resultTimeSeries);
+    }
+    
 }
