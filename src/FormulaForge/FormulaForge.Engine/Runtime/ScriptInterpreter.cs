@@ -264,8 +264,13 @@ public sealed class ScriptInterpreter(IDslContext context)
     
     private RuntimeVariableValue Multiply(RuntimeVariableValue.RuntimeTimeSeriesValue a, RuntimeVariableValue.RuntimeTimeSeriesValue b)
     {
-        TimeSeries<ScalarValueNode.DecimalScalarValue> x = a.Value.Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value)).CreateTimeSeries();
-        var y = b.Value.Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, (ScalarValueNode.DecimalScalarValue)t.Value)).CreateTimeSeries();
+        var x = a.Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, AsDecimal(t.Value)))
+            .CreateTimeSeries();
+        
+        var y = b.Value
+            .Select(t => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(t.Period, AsDecimal(t.Value)))
+            .CreateTimeSeries();
         
         TimeSeries<ScalarValueNode.DecimalScalarValue>[] sources = [x, y];
         var timeSeriesValues = sources
@@ -274,7 +279,19 @@ public sealed class ScriptInterpreter(IDslContext context)
         
         return new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSeriesValues);
     }
-    
+
+    private ScalarValueNode.DecimalScalarValue AsDecimal(ScalarValueNode value) =>
+        value switch
+        {
+            ScalarValueNode.BooleanScalarValue booleanScalarValue => booleanScalarValue.Value
+                ? new ScalarValueNode.DecimalScalarValue(1)
+                : new ScalarValueNode.DecimalScalarValue(0),
+            ScalarValueNode.DecimalScalarValue decimalScalarValue => decimalScalarValue,
+            ScalarValueNode.IntegerScalarValue integerScalarValue => new ScalarValueNode.DecimalScalarValue(
+                integerScalarValue.Value),
+            _ => throw new ArgumentOutOfRangeException(nameof(value))
+        };
+
     private ScalarValueNode Multiply(ScalarValueNode a, ScalarValueNode b)
     {
         switch (a, b)
