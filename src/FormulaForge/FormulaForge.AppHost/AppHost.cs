@@ -1,8 +1,10 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var postgres = builder.AddPostgres("postgres")
+var postgres = builder
+    .AddPostgres("postgres")
     .WithDataVolume("formulaforgestorage")
-    .WithPgAdmin();
+    .WithPgAdmin(p => p.WithHostPort(5050))
+    ;
 
 var db = postgres.AddDatabase("formulaforge", databaseName: "formulaforge");
 

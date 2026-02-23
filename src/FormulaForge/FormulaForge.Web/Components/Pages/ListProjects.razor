@@ -11,8 +11,7 @@
     <FluentListbox Items="@ProjectsItems" 
                    TOption="Option<Project>"
                    OptionText="@(i => i.Value?.Name)" 
-                   OptionSelected="@(i => i.Selected)"
-                   @bind-SelectedOption="@SelectedProject" />
+                   SelectedOptionChanged="@OnProjectSelected" />
     
 </FluentCard>
 
@@ -31,6 +30,8 @@
 
     public Option<Project>? SelectedProject { get; set; }
 
+    [Inject] public required NavigationManager NavigationManager { get; set; }
+    
     protected override async Task OnInitializedAsync()
     {
         Projects = await ProjectManagementService.GetProjectsAsync().ToArrayAsync(_cts.Token);
@@ -41,4 +42,17 @@
         _cts?.Cancel();
         _cts?.Dispose();
     }
+
+    private Task OnProjectSelected(Option<Project>? arg)
+    {
+        SelectedProject = arg;
+        
+        var project = arg?.Value;
+        
+        if (project == null) return Task.CompletedTask;
+        
+        NavigationManager.NavigateTo($"edit-project/{project.Id}", forceLoad: true);
+        return Task.CompletedTask;
+    }
+
 }

@@ -13,7 +13,7 @@ using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons;
 
 namespace FormulaForge.Web.Components.Pages;
 
-public partial class Home
+public partial class EditProject
 {
     private List<DateTime> _months = new();
     private readonly List<ExcelGrid.RowData> _inputsRows = new();
