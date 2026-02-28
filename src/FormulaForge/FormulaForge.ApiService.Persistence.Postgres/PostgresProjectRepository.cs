@@ -8,6 +8,15 @@ public class PostgresProjectRepository(FormulaForgeDbContext dbContext) : IProje
     public async Task<Project?> GetProjectAsync(Guid projectId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Projects
+            .Include(p => p.DecimalScalarValues)
+            .Include(p => p.IntegerScalarValues)
+            .Include(p => p.BooleanScalarValues)
+            .Include(p => p.DecimalTimeSeriesValues)
+                .ThenInclude(ts => ts.Entries)
+            .Include(p => p.IntegerTimeSeriesValues)
+                .ThenInclude(ts => ts.Entries)
+            .Include(p => p.BooleanTimeSeriesValues)
+                .ThenInclude(ts => ts.Entries)
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == projectId, cancellationToken);
     }

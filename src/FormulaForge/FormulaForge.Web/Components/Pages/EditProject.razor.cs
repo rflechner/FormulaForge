@@ -52,35 +52,44 @@ public partial class EditProject
 
             foreach (var scalarValue in project.BooleanScalarValues)
             {
-                _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(scalarValue.Value));
+                _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.BooleanScalarValue(scalarValue.Value)));
             }
 
             foreach (var scalarValue in project.IntegerScalarValues)
             {
-                _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(scalarValue.Value));
+                _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(scalarValue.Value)));
             }
 
             foreach (var scalarValue in project.DecimalScalarValues)
             {
-                _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(scalarValue.Value));
+                _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.DecimalScalarValue(scalarValue.Value)));
             }
             
-            foreach (var (key, value) in project.IntegerTimeSeriesValues)
+            foreach (var ts in project.IntegerTimeSeriesValues)
             {
-                var timeSerie = value.Cast<ScalarValueNode, ScalarValueNode.IntegerScalarValue>().CreateTimeSeries();
-                _dslContext.GlobalScope.Variables.Add(key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
+                var timeSerie = ts.Entries.Select(e => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.IntegerScalarValue(e.Value)))
+                    .CreateTimeSeries()
+                    .Cast<ScalarValueNode, ScalarValueNode.IntegerScalarValue>()
+                    .CreateTimeSeries();
+                _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
             }
 
-            foreach (var (key, value) in project.DecimalTimeSeriesValues)
+            foreach (var ts in project.DecimalTimeSeriesValues)
             {
-                var timeSerie = value.Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>().CreateTimeSeries();
-                _dslContext.GlobalScope.Variables.Add(key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
+                var timeSerie = ts.Entries.Select(e => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.DecimalScalarValue(e.Value)))
+                    .CreateTimeSeries()
+                    .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>()
+                    .CreateTimeSeries();
+                _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
             }
 
-            foreach (var (key, value) in project.BooleanTimeSeriesValues)
+            foreach (var ts in project.BooleanTimeSeriesValues)
             {
-                var timeSerie = value.Cast<ScalarValueNode, ScalarValueNode.BooleanScalarValue>().CreateTimeSeries();
-                _dslContext.GlobalScope.Variables.Add(key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
+                var timeSerie = ts.Entries.Select(e => new TimeSeriesValue<ScalarValueNode.BooleanScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.BooleanScalarValue(e.Value)))
+                    .CreateTimeSeries()
+                    .Cast<ScalarValueNode, ScalarValueNode.BooleanScalarValue>()
+                    .CreateTimeSeries();
+                _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
             }
             
             await LoadRows(clear: false);
@@ -93,7 +102,7 @@ public partial class EditProject
             Name = "Untitled project"
         };
         
-        var period = new Period(new DateTime(2024, 1, 1), new DateTime(2027, 1, 1));
+        var period = new Period(new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), new DateTime(2027, 1, 1, 0, 0, 0, DateTimeKind.Utc));
         var months = period.GetMonths().ToArray();
         _months = months.Select(m => m.InclusiveStart.DateTime).ToList();
 
@@ -238,13 +247,13 @@ public partial class EditProject
                     switch (scalarValue.Value)
                     {
                         case ScalarValueNode.BooleanScalarValue booleanScalarValue:
-                            Project.BooleanScalarValues.Add(key, booleanScalarValue);
+                            Project.BooleanScalarValues.Add(new BooleanScalarValueEntity { Key = key, Value = booleanScalarValue.Value });
                             break;
                         case ScalarValueNode.DecimalScalarValue decimalScalarValue:
-                            Project.DecimalScalarValues.Add(key, decimalScalarValue);
+                            Project.DecimalScalarValues.Add(new DecimalScalarValueEntity { Key = key, Value = decimalScalarValue.Value });
                             break;
                         case ScalarValueNode.IntegerScalarValue integerScalarValue:
-                            Project.IntegerScalarValues.Add(key, integerScalarValue);
+                            Project.IntegerScalarValues.Add(new IntegerScalarValueEntity { Key = key, Value = integerScalarValue.Value });
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -259,19 +268,40 @@ public partial class EditProject
                     switch (firstValue)
                     {
                         case ScalarValueNode.BooleanScalarValue:
-                            Project.BooleanTimeSeriesValues.Add(key, 
-                                timeSeriesValue.Value.Select(v => new TimeSeriesValue<ScalarValueNode.BooleanScalarValue>(v.Period, (ScalarValueNode.BooleanScalarValue)v.Value))
-                                    .CreateTimeSeries());
+                            Project.BooleanTimeSeriesValues.Add(new BooleanTimeSeriesEntity
+                            {
+                                Key = key,
+                                Entries = timeSeriesValue.Value.Select(v => new BooleanTimeSeriesEntry
+                                {
+                                    Value = ((ScalarValueNode.BooleanScalarValue)v.Value).Value,
+                                    Start = v.Period.InclusiveStart,
+                                    End = v.Period.ExclusiveEnd
+                                }).ToList()
+                            });
                             break;
                         case ScalarValueNode.DecimalScalarValue:
-                            Project.DecimalTimeSeriesValues.Add(key, 
-                                timeSeriesValue.Value.Select(v => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(v.Period, (ScalarValueNode.DecimalScalarValue)v.Value))
-                                    .CreateTimeSeries());
+                            Project.DecimalTimeSeriesValues.Add(new DecimalTimeSeriesEntity
+                            {
+                                Key = key,
+                                Entries = timeSeriesValue.Value.Select(v => new DecimalTimeSeriesEntry
+                                {
+                                    Value = ((ScalarValueNode.DecimalScalarValue)v.Value).Value,
+                                    Start = v.Period.InclusiveStart,
+                                    End = v.Period.ExclusiveEnd
+                                }).ToList()
+                            });
                             break;
                         case ScalarValueNode.IntegerScalarValue:
-                            Project.IntegerTimeSeriesValues.Add(key, 
-                                timeSeriesValue.Value.Select(v => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(v.Period, (ScalarValueNode.IntegerScalarValue)v.Value))
-                                    .CreateTimeSeries());
+                            Project.IntegerTimeSeriesValues.Add(new IntegerTimeSeriesEntity
+                            {
+                                Key = key,
+                                Entries = timeSeriesValue.Value.Select(v => new IntegerTimeSeriesEntry
+                                {
+                                    Value = ((ScalarValueNode.IntegerScalarValue)v.Value).Value,
+                                    Start = v.Period.InclusiveStart,
+                                    End = v.Period.ExclusiveEnd
+                                }).ToList()
+                            });
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -283,10 +313,13 @@ public partial class EditProject
                     throw new ArgumentOutOfRangeException(nameof(value));
             }
         }
-        
-        
+
+
         if (ProjectId == null)
+        {
+            ProjectId = Project.Id = Guid.NewGuid();
             await ProjectManagement.CreateProjectAsync(Project);
+        }
         else
             await ProjectManagement.UpdateProjectAsync(Project);
     }
