@@ -92,6 +92,14 @@ public partial class EditProject
                 _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
             }
             
+            _months = 
+                project.IntegerTimeSeriesValues.SelectMany(m => m.Entries.Select(e => e.Start.DateTime))
+                    .Concat(project.DecimalTimeSeriesValues.SelectMany(m => m.Entries.Select(e => e.Start.DateTime)))
+                    .Concat(project.BooleanTimeSeriesValues.SelectMany(m => m.Entries.Select(e => e.Start.DateTime)))
+                    .Distinct()
+                    .OrderBy(m => m)
+                    .ToList();
+            
             await LoadRows(clear: false);
             
             return;
