@@ -420,3 +420,6 @@ FodyWeavers.xsd
 src/FormulaForge/.idea/
 
 .DS_Store
+**/bin/Debug
+
+

@@ -1,3 +1,6 @@
+using FormulaForge.ApiService.Persistence;
+using FormulaForge.ApiService.Persistence.Postgres;
+using FormulaForge.Domain.Services;
 using FormulaForge.Web;
 using FormulaForge.Web.Components;
 using Microsoft.FluentUI.AspNetCore.Components;
@@ -6,6 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
+
+builder.AddNpgsqlDbContext<FormulaForgeDbContext>("formulaforge");
+builder.Services.AddScoped<IProjectRepository, PostgresProjectRepository>();
+builder.Services.AddScoped<IProjectManagementService, ProjectManagementService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

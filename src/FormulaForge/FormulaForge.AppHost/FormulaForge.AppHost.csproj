@@ -9,14 +9,18 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FormulaForge.ApiService\FormulaForge.ApiService.csproj"/>
-        <ProjectReference Include="..\FormulaForge.Web\FormulaForge.Web.csproj"/>
+        <ProjectReference Include="..\FormulaForge.ApiService\FormulaForge.ApiService.csproj" />
+        <ProjectReference Include="..\FormulaForge.Web\FormulaForge.Web.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <None Update="appsettings.Development.json">
         <DependentUpon>appsettings.json</DependentUpon>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="13.1.1" />
     </ItemGroup>
 
 </Project>

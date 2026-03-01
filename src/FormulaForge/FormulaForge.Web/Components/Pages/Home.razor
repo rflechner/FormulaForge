@@ -1,26 +1,8 @@
-﻿@page "/"
-
-<PageTitle>Computation script</PageTitle>
-
-<FluentCard>
-    <h3>Inputs</h3>
-    <ExcelGrid Months="@_months" Rows="@_inputsRows" />
-</FluentCard>
+@page "/"
+<PageTitle>Formula Forge</PageTitle>
 
 <FluentCard>
-    <StandaloneCodeEditor Id="my-editor-id" CssClass="my-editor-class" 
-                          @ref="_editor"
-                          ConstructionOptions="EditorConstructionOptions" />
-</FluentCard>
-
-<FluentCard>
-    <FluentStack>
-        <FluentButton @onclick="RunScript">Run Program</FluentButton>
-        <p>@ScriptRunResult</p>
-    </FluentStack>
-</FluentCard>
-
-<FluentCard>
-    <h3>Outputs</h3>
-    <ExcelGrid Months="@_months" Rows="@_outputsRows"/>
+    
+    
+    
 </FluentCard>
