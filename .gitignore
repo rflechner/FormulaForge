@@ -423,3 +423,5 @@ src/FormulaForge/.idea/
 **/bin/Debug
 
 
+
+src/FormulaForge/FormulaForge.Web/wwwroot/lib/monaco-editor/

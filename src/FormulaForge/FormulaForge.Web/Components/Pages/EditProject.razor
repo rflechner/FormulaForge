@@ -31,10 +31,11 @@
 
 <FluentCard>
     <h3>Code</h3>
-    <StandaloneCodeEditor Id="my-editor-id" CssClass="my-editor-class"
-                          @ref="_editor"
-                          OnDidInit="@OnEditorDidInit"
-                          ConstructionOptions="EditorConstructionOptions"/>
+    <MonacoEditor Id="my-editor-id" CssClass="my-editor-class"
+                  @ref="_editor"
+                  OnInitialized="@OnEditorDidInit"
+                  Language="bash"
+                  Value="@Project.Code" />
 </FluentCard>
 
 <FluentCard>
