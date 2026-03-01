@@ -21,6 +21,7 @@ public partial class EditProject
     private readonly DynamicDslContext _dslContext = new(new DynamicDataContext());
     private ScriptInterpreter? _interpreter;
     private StandaloneCodeEditor? _editor;
+    private bool _ideInitialized = false;
     public CodeRunResult? ScriptRunResult { get; set; }
     
     public Project Project { get; set; } = new Project
@@ -34,13 +35,13 @@ public partial class EditProject
     
     [Parameter] public Guid? ProjectId { get; set; }
 
-    private static StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
+    private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
     {
         return new StandaloneEditorConstructionOptions
         {
             Language = "bash",
             AutomaticLayout = true,
-            Value = string.Empty
+            Value = Project.Code
         };
     }
 
@@ -49,6 +50,18 @@ public partial class EditProject
         if (ProjectId.HasValue && await ProjectManagement.GetProjectAsync(ProjectId.Value) is { } project)
         {
             Project = project;
+
+            if (_ideInitialized && _editor != null)
+            {
+                try
+                {
+                    await _editor.SetValue(project.Code);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
 
             foreach (var scalarValue in project.BooleanScalarValues)
             {
@@ -138,6 +151,18 @@ public partial class EditProject
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (!firstRender) return;
+
+        if (ProjectId.HasValue && _editor != null)
+        {
+            try
+            {
+                await _editor.SetValue(Project.Code);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+        }
 
         await LoadRows();
     }
@@ -238,6 +263,11 @@ public partial class EditProject
             return;
         }
 
+        if (_editor != null)
+        {
+            Project.Code = await _editor.GetValue();
+        }
+
         Project.BooleanScalarValues.Clear();
         Project.IntegerScalarValues.Clear();
         Project.DecimalScalarValues.Clear();
@@ -330,5 +360,12 @@ public partial class EditProject
         }
         else
             await ProjectManagement.UpdateProjectAsync(Project);
+    }
+
+    private async Task OnEditorDidInit(object arg)
+    {
+        if (_editor == null) return;
+        _ideInitialized = true;
+        await _editor.SetValue(Project.Code);
     }
 }

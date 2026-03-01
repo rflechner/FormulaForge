@@ -55,6 +55,7 @@ public class PostgresProjectRepository(FormulaForgeDbContext dbContext) : IProje
 
         // Mettre à jour les propriétés de base
         existingProject.Name = project.Name;
+        existingProject.Code = project.Code;
 
         // Remplacer les collections scalaires
         existingProject.DecimalScalarValues = project.DecimalScalarValues;

@@ -3,6 +3,7 @@ using System;
 using FormulaForge.ApiService.Persistence.Postgres;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 {
     [DbContext(typeof(FormulaForgeDbContext))]
-    partial class FormulaForgeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260301144454_AddProjectCode")]
+    partial class AddProjectCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

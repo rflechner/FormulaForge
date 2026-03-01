@@ -9,6 +9,8 @@ public class Project
     
     public required string Name { get; set; } = string.Empty;
     
+    public string Code { get; set; } = string.Empty;
+    
     public List<DecimalScalarValueEntity> DecimalScalarValues { get; set; } = new();
     
     public List<IntegerScalarValueEntity> IntegerScalarValues { get; set; } = new();

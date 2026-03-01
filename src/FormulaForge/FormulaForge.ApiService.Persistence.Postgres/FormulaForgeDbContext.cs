@@ -32,6 +32,7 @@ public class FormulaForgeDbContext(DbContextOptions<FormulaForgeDbContext> optio
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Name).IsRequired();
+            entity.Property(e => e.Code).IsRequired(false);
 
             entity.HasMany(e => e.DecimalScalarValues)
                 .WithOne()
