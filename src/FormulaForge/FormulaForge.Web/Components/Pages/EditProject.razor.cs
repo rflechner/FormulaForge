@@ -113,7 +113,7 @@ public partial class EditProject
                     .OrderBy(m => m)
                     .ToList();
             
-            await LoadRows(clear: false);
+            await DisplayRows(clear: false);
             
             return;
         }
@@ -123,6 +123,13 @@ public partial class EditProject
             Name = "Untitled project"
         };
         
+        await LoadInputs();
+
+        await DisplayRows();
+    }
+
+    private Task LoadInputs()
+    {
         var period = new Period(new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), new DateTime(2027, 1, 1, 0, 0, 0, DateTimeKind.Utc));
         var months = period.GetMonths().ToArray();
         _months = months.Select(m => m.InclusiveStart.DateTime).ToList();
@@ -144,8 +151,8 @@ public partial class EditProject
 
         _dslContext.GlobalScope.Variables.Add("balance", new RuntimeVariableValue.RuntimeTimeSeriesValue(balance));
         _dslContext.GlobalScope.Variables.Add("change_rate", new RuntimeVariableValue.RuntimeTimeSeriesValue(changeRate));
-
-        await LoadRows();
+        
+        return Task.CompletedTask;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -164,10 +171,10 @@ public partial class EditProject
             }
         }
 
-        await LoadRows();
+        await DisplayRows();
     }
 
-    private async Task LoadRows(bool clear = true)
+    private async Task DisplayRows(bool clear = true)
     {
         if (clear)
         {
@@ -213,7 +220,7 @@ public partial class EditProject
             Console.WriteLine(e);
         }
 
-        await LoadRows();
+        await DisplayRows();
     }
 
     private Dictionary<int, decimal> Map(RuntimeVariableValue variableValue)
