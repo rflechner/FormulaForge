@@ -9,6 +9,7 @@
     [Parameter] public string CssClass { get; set; } = "";
     [Parameter] public string Language { get; set; } = "javascript";
     [Parameter] public string Value { get; set; } = "";
+    [Parameter] public string Theme { get; set; } = "vs-dark";
     [Parameter] public EventCallback OnInitialized { get; set; }
     [Parameter] public EventCallback<string> OnValueChanged { get; set; }
 
@@ -24,7 +25,7 @@
                 value = Value,
                 language = Language,
                 automaticLayout = true,
-                theme = "vs-dark"
+                theme = Theme
             };
             await JSRuntime.InvokeVoidAsync("monacoInterop.initialize", Id, options, _objRef);
         }
