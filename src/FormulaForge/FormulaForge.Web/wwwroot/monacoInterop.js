@@ -6,7 +6,7 @@
             return;
         }
 
-        require.config({ paths: { 'vs': 'lib/monaco-editor/vs' } });
+        require.config({ paths: { 'vs': '/lib/monaco-editor/vs' } });
 
         require(['vs/editor/editor.main'], () => {
             const container = document.getElementById(id);
