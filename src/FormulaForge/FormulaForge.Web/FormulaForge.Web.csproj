@@ -23,10 +23,21 @@
 
     <ItemGroup>
       <PackageReference Include="Aspire.Npgsql" Version="13.1.1" />
-      <PackageReference Include="BlazorMonaco" Version="3.4.0" />
       <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.14.0" />
       <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Emoji" Version="4.14.0" />
       <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.14.0" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\lib\monaco-editor\vs\assets\" />
+      <Folder Include="wwwroot\lib\monaco-editor\vs\editor\" />
+    </ItemGroup>
+
+    <Target Name="CopyMonaco" BeforeTargets="BeforeBuild">
+        <ItemGroup>
+            <MonacoFiles Include="node_modules\monaco-editor\min\vs\**\*.*" />
+        </ItemGroup>
+        <Copy SourceFiles="@(MonacoFiles)" DestinationFolder="wwwroot\lib\monaco-editor\vs\%(RecursiveDir)" SkipUnchangedFiles="true" />
+    </Target>
 
 </Project>

@@ -1,0 +1,65 @@
+﻿@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JSRuntime
+
+<div id="@Id" class="@CssClass" style="height: 500px; border: 1px solid #ccc;"></div>
+
+@code {
+    [Parameter] public string Id { get; set; } = "monaco-editor";
+    [Parameter] public string CssClass { get; set; } = "";
+    [Parameter] public string Language { get; set; } = "javascript";
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public string Theme { get; set; } = "vs-dark";
+    [Parameter] public EventCallback OnInitialized { get; set; }
+    [Parameter] public EventCallback<string> OnValueChanged { get; set; }
+
+    private DotNetObjectReference<MonacoEditor>? _objRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _objRef = DotNetObjectReference.Create(this);
+            var options = new
+            {
+                value = Value,
+                language = Language,
+                automaticLayout = true,
+                theme = Theme
+            };
+            await JSRuntime.InvokeVoidAsync("monacoInterop.initialize", Id, options, _objRef);
+        }
+    }
+
+    [JSInvokable]
+    public async Task NotifyInitialized()
+    {
+        await OnInitialized.InvokeAsync();
+    }
+
+    [JSInvokable]
+    public async Task OnBlur()
+    {
+        var value = await GetValue();
+        await OnValueChanged.InvokeAsync(value);
+    }
+
+    public async Task<string> GetValue()
+    {
+        return await JSRuntime.InvokeAsync<string>("monacoInterop.getValue", Id);
+    }
+
+    public async Task SetValue(string value)
+    {
+        await JSRuntime.InvokeVoidAsync("monacoInterop.setValue", Id, value);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_objRef != null)
+        {
+            await JSRuntime.InvokeVoidAsync("monacoInterop.dispose", Id);
+            _objRef.Dispose();
+        }
+    }
+}

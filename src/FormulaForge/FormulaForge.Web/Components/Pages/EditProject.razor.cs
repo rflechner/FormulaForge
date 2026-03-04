@@ -1,4 +1,3 @@
-using BlazorMonaco.Editor;
 using FormulaForge.Domain.Entities;
 using FormulaForge.Domain.Services;
 using FormulaForge.Engine.DomainSpecificLanguage.Ast;
@@ -20,7 +19,7 @@ public partial class EditProject
     private readonly List<ExcelGrid.RowData> _outputsRows = new();
     private readonly DynamicDslContext _dslContext = new(new DynamicDataContext());
     private ScriptInterpreter? _interpreter;
-    private StandaloneCodeEditor? _editor;
+    private MonacoEditor? _editor;
     private bool _ideInitialized = false;
     public CodeRunResult? ScriptRunResult { get; set; }
     
@@ -34,16 +33,6 @@ public partial class EditProject
     [Inject] public required IProjectManagementService ProjectManagement { get; init; }
     
     [Parameter] public Guid? ProjectId { get; set; }
-
-    private StandaloneEditorConstructionOptions EditorConstructionOptions(StandaloneCodeEditor editor)
-    {
-        return new StandaloneEditorConstructionOptions
-        {
-            Language = "bash",
-            AutomaticLayout = true,
-            Value = Project.Code
-        };
-    }
 
     protected override async Task OnInitializedAsync()
     {
