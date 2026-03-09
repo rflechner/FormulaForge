@@ -37,5 +37,10 @@ public abstract class DslContextBase : IDslContext
         return _functions.TryAdd(id, function) ? CodeRunResult.Success : CodeRunResult.FunctionOverwriteNotAllowed;
     }
 
+    public void ClearFunctions()
+    {
+        _functions.Clear();
+    }
+    
     protected abstract Scope CreateGlobalScope();
 }

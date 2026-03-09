@@ -52,48 +52,8 @@ public partial class EditProject
                 }
             }
 
-            foreach (var scalarValue in project.BooleanScalarValues)
-            {
-                _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.BooleanScalarValue(scalarValue.Value)));
-            }
+            InitializeContext(project);
 
-            foreach (var scalarValue in project.IntegerScalarValues)
-            {
-                _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(scalarValue.Value)));
-            }
-
-            foreach (var scalarValue in project.DecimalScalarValues)
-            {
-                _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.DecimalScalarValue(scalarValue.Value)));
-            }
-            
-            foreach (var ts in project.IntegerTimeSeriesValues)
-            {
-                var timeSerie = ts.Entries.Select(e => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.IntegerScalarValue(e.Value)))
-                    .CreateTimeSeries()
-                    .Cast<ScalarValueNode, ScalarValueNode.IntegerScalarValue>()
-                    .CreateTimeSeries();
-                _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
-            }
-
-            foreach (var ts in project.DecimalTimeSeriesValues)
-            {
-                var timeSerie = ts.Entries.Select(e => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.DecimalScalarValue(e.Value)))
-                    .CreateTimeSeries()
-                    .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>()
-                    .CreateTimeSeries();
-                _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
-            }
-
-            foreach (var ts in project.BooleanTimeSeriesValues)
-            {
-                var timeSerie = ts.Entries.Select(e => new TimeSeriesValue<ScalarValueNode.BooleanScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.BooleanScalarValue(e.Value)))
-                    .CreateTimeSeries()
-                    .Cast<ScalarValueNode, ScalarValueNode.BooleanScalarValue>()
-                    .CreateTimeSeries();
-                _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
-            }
-            
             _months = 
                 project.IntegerTimeSeriesValues.SelectMany(m => m.Entries.Select(e => e.Start.DateTime))
                     .Concat(project.DecimalTimeSeriesValues.SelectMany(m => m.Entries.Select(e => e.Start.DateTime)))
@@ -115,6 +75,55 @@ public partial class EditProject
         await LoadInputs();
 
         await DisplayRows();
+    }
+
+    private void InitializeContext(Project project)
+    {
+        _dslContext.ClearFunctions();
+        _dslContext.GlobalScope.Variables.Clear();
+        _dslContext.GlobalScope.BuiltInVariables.Clear();
+
+        foreach (var scalarValue in project.BooleanScalarValues)
+        {
+            _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.BooleanScalarValue(scalarValue.Value)));
+        }
+
+        foreach (var scalarValue in project.IntegerScalarValues)
+        {
+            _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(scalarValue.Value)));
+        }
+
+        foreach (var scalarValue in project.DecimalScalarValues)
+        {
+            _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.DecimalScalarValue(scalarValue.Value)));
+        }
+            
+        foreach (var ts in project.IntegerTimeSeriesValues)
+        {
+            var timeSerie = ts.Entries.Select(e => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.IntegerScalarValue(e.Value)))
+                .CreateTimeSeries()
+                .Cast<ScalarValueNode, ScalarValueNode.IntegerScalarValue>()
+                .CreateTimeSeries();
+            _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
+        }
+
+        foreach (var ts in project.DecimalTimeSeriesValues)
+        {
+            var timeSerie = ts.Entries.Select(e => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.DecimalScalarValue(e.Value)))
+                .CreateTimeSeries()
+                .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>()
+                .CreateTimeSeries();
+            _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
+        }
+
+        foreach (var ts in project.BooleanTimeSeriesValues)
+        {
+            var timeSerie = ts.Entries.Select(e => new TimeSeriesValue<ScalarValueNode.BooleanScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.BooleanScalarValue(e.Value)))
+                .CreateTimeSeries()
+                .Cast<ScalarValueNode, ScalarValueNode.BooleanScalarValue>()
+                .CreateTimeSeries();
+            _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
+        }
     }
 
     private Task LoadInputs()
@@ -193,6 +202,7 @@ public partial class EditProject
 
         try
         {
+            InitializeContext(Project);
             _interpreter = new ScriptInterpreter(_dslContext);
 
             var code = await _editor.GetValue();
