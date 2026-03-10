@@ -6,6 +6,16 @@ var postgres = builder
     .WithPgAdmin(p => p.WithHostPort(5050))
     ;
 
+var encryptionKey = builder.AddParameter("encryption-key", secret: true);
+
+var pocketId = builder
+    .AddContainer("pocket-id", "ghcr.io/pocket-id/pocket-id", "v2")
+    .WithBindMount("./pocket-id-data", "/app/data")
+    .WithHttpEndpoint(targetPort: 1411, name: "http")
+    .WithExternalHttpEndpoints()
+    .WithEnvironment("ENCRYPTION_KEY", encryptionKey)
+    ;
+
 var db = postgres.AddDatabase("formulaforge", databaseName: "formulaforge");
 
 var apiService = builder
