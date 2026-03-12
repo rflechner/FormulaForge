@@ -5,7 +5,7 @@
 <FluentCard>
     <FluentHeader>
         <FluentIcon Value="@(new Icons.Regular.Size24.Person())" Color="@Color.Accent" Slot="start" />
-        <h3 style="margin: 0; padding-left: 10px;">Profil Utilisateur</h3>
+        <h3 style="margin: 0; padding-left: 10px;">User profil</h3>
     </FluentHeader>
 
     <div style="padding: 1rem;">
@@ -20,7 +20,7 @@
                         <FluentPersona Name="@context.User.Identity?.Name" 
                                        Image="@avatarUrl" 
                                        ImageSize="50px" />
-                        <FluentTextField Label="Nom d'utilisateur" Value="@context.User.Identity?.Name" ReadOnly="true" FullWidth="true" />
+                        <FluentTextField Label="User name" Value="@context.User.Identity?.Name" ReadOnly="true" FullWidth="true" />
                     </FluentStack>
                     
                     <FluentLabel Weight="FontWeight.Bold">Claims :</FluentLabel>
