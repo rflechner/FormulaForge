@@ -1,5 +1,6 @@
 ﻿@using Microsoft.FluentUI.AspNetCore.Components.Icons.Filled
 @inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 <FluentToastProvider />
 <FluentDialogProvider />
@@ -11,15 +12,42 @@
     <FluentHeader>
         Formula Forge
         <FluentSpacer />
-        DSL for computation
+        <AuthorizeView>
+            <Authorized>
+                @{
+                    var pictureUrl = context.User.Claims.FirstOrDefault(c => c.Type == "picture")?.Value;
+                    var avatarUrl = !string.IsNullOrEmpty(pictureUrl) ? $"/avatar?url={Uri.EscapeDataString(pictureUrl)}" : null;
+                }
+                <FluentPersona Name="@context.User.Identity?.Name"
+                               Image="@avatarUrl"
+                               Status="PresenceStatus.Available"
+                               Style="cursor: pointer;"
+                               Id="user-persona" />
+                <FluentMenu Anchor="user-persona" Trigger="MouseButton.Left">
+                    <FluentMenuItem Icon="@(new Icons.Regular.Size20.Person())" OnClick="@(() => NavigationManager.NavigateTo("/me"))">My Profil</FluentMenuItem>
+                    <FluentDivider />
+                    <FluentMenuItem Icon="@(new Icons.Regular.Size20.SignOut())" OnClick="@(() => NavigationManager.NavigateTo("/logout", true))">
+                        Logout
+                    </FluentMenuItem>
+                </FluentMenu>
+            </Authorized>
+            <NotAuthorized>
+                <FluentButton Appearance="Appearance.Stealth" OnClick="@(() => NavigationManager.NavigateTo("/list-projects", forceLoad: true))">Login</FluentButton>
+            </NotAuthorized>
+        </AuthorizeView>
     </FluentHeader>
     
     <FluentStack Orientation="Orientation.Horizontal" Width="100%" Style="flex: 1;">
             <FluentNavMenu Width="250">
                 
                 <FluentNavLink Href="/" Icon="@(new Icons.Regular.Size24.Home())" Match="NavLinkMatch.All">Home</FluentNavLink>
-                <FluentNavLink Href="/list-projects" Icon="@(new Icons.Regular.Size24.DocumentSearch())" Match="NavLinkMatch.All">List Projects</FluentNavLink>
-                <FluentNavLink Href="/edit-project" Icon="@(new Icons.Regular.Size24.Calculator())" Match="NavLinkMatch.All">New Project</FluentNavLink>
+                
+                <AuthorizeView>
+                    <Authorized>
+                        <FluentNavLink Href="/list-projects" Icon="@(new Icons.Regular.Size24.DocumentSearch())" Match="NavLinkMatch.All">List Projects</FluentNavLink>
+                        <FluentNavLink Href="/edit-project" Icon="@(new Icons.Regular.Size24.Calculator())" Match="NavLinkMatch.All">New Project</FluentNavLink>
+                    </Authorized>
+                </AuthorizeView>
 
             </FluentNavMenu>
 
@@ -29,7 +57,7 @@
         
     </FluentStack>
 
-    <FluentFooter Style="@("height: 40px; text-align: center;")">
+    <FluentFooter Style="height: 40px; text-align: center;">
         Footer Text
     </FluentFooter>
     

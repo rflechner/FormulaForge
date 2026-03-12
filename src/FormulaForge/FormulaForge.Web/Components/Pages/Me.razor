@@ -1,0 +1,40 @@
+@page "/me"
+
+<PageTitle>Mon Profil</PageTitle>
+
+<FluentCard>
+    <FluentHeader>
+        <FluentIcon Value="@(new Icons.Regular.Size24.Person())" Color="@Color.Accent" Slot="start" />
+        <h3 style="margin: 0; padding-left: 10px;">User profil</h3>
+    </FluentHeader>
+
+    <div style="padding: 1rem;">
+        <FluentStack Orientation="Orientation.Vertical" VerticalGap="10">
+            <AuthorizeView>
+                <Authorized>
+                    <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Center" HorizontalGap="20">
+                        @{
+                            var pictureUrl = context.User.Claims.FirstOrDefault(c => c.Type == "picture")?.Value;
+                            var avatarUrl = !string.IsNullOrEmpty(pictureUrl) ? $"/avatar?url={Uri.EscapeDataString(pictureUrl)}" : null;
+                        }
+                        <FluentPersona Name="@context.User.Identity?.Name" 
+                                       Image="@avatarUrl" 
+                                       ImageSize="50px" />
+                        <FluentTextField Label="User name" Value="@context.User.Identity?.Name" ReadOnly="true" FullWidth="true" />
+                    </FluentStack>
+                    
+                    <FluentLabel Weight="FontWeight.Bold">Claims :</FluentLabel>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <FluentDataGrid Items="@context.User.Claims.AsQueryable()" TGridItem="System.Security.Claims.Claim" ResizableColumns="true">
+                            <PropertyColumn Property="@(c => c.Type)" Title="Type" Sortable="true" />
+                            <PropertyColumn Property="@(c => c.Value)" Title="Value" Sortable="true" />
+                        </FluentDataGrid>
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <FluentBadge Appearance="Appearance.Neutral">Vous n'êtes pas connecté.</FluentBadge>
+                </NotAuthorized>
+            </AuthorizeView>
+        </FluentStack>
+    </div>
+</FluentCard>

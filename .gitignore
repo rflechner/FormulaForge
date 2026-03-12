@@ -425,3 +425,5 @@ src/FormulaForge/.idea/
 
 
 src/FormulaForge/FormulaForge.Web/wwwroot/lib/monaco-editor/
+
+src/FormulaForge/FormulaForge.AppHost/pocket-id-data/
