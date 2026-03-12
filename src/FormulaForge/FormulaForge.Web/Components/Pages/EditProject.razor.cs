@@ -204,7 +204,9 @@ public partial class EditProject
         {
             InitializeContext(Project);
             _interpreter = new ScriptInterpreter(_dslContext);
-
+            
+            await LoadInputs();
+            
             var code = await _editor.GetValue();
             ScriptRunResult = _interpreter.Run(code);
 
