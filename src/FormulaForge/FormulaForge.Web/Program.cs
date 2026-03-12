@@ -158,7 +158,10 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-app.MapGroup("/").RequireAuthorization();
+// The following line might be too restrictive if we want some pages to be anonymous.
+// Since Blazor components use [Authorize] or [AllowAnonymous], 
+// we can rely on the router and component attributes.
+// app.MapGroup("/").RequireAuthorization();
 
 app.MapDefaultEndpoints();
 

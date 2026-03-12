@@ -27,7 +27,7 @@
                     <div style="max-height: 400px; overflow-y: auto;">
                         <FluentDataGrid Items="@context.User.Claims.AsQueryable()" TGridItem="System.Security.Claims.Claim" ResizableColumns="true">
                             <PropertyColumn Property="@(c => c.Type)" Title="Type" Sortable="true" />
-                            <PropertyColumn Property="@(c => c.Value)" Title="Valeur" Sortable="true" />
+                            <PropertyColumn Property="@(c => c.Value)" Title="Value" Sortable="true" />
                         </FluentDataGrid>
                     </div>
                 </Authorized>

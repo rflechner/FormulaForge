@@ -24,15 +24,15 @@
                                Style="cursor: pointer;"
                                Id="user-persona" />
                 <FluentMenu Anchor="user-persona" Trigger="MouseButton.Left">
-                    <FluentMenuItem Icon="@(new Icons.Regular.Size20.Person())" OnClick="@(() => NavigationManager.NavigateTo("/me"))">Mon Profil</FluentMenuItem>
+                    <FluentMenuItem Icon="@(new Icons.Regular.Size20.Person())" OnClick="@(() => NavigationManager.NavigateTo("/me"))">My Profil</FluentMenuItem>
                     <FluentDivider />
                     <FluentMenuItem Icon="@(new Icons.Regular.Size20.SignOut())" OnClick="@(() => NavigationManager.NavigateTo("/logout", true))">
-                        Se déconnecter
+                        Logout
                     </FluentMenuItem>
                 </FluentMenu>
             </Authorized>
             <NotAuthorized>
-                <FluentButton Appearance="Appearance.Stealth" OnClick="@(() => NavigationManager.NavigateTo("/login"))">Se connecter</FluentButton>
+                <FluentButton Appearance="Appearance.Stealth" OnClick="@(() => NavigationManager.NavigateTo("/list-projects", forceLoad: true))">Login</FluentButton>
             </NotAuthorized>
         </AuthorizeView>
     </FluentHeader>
@@ -41,9 +41,13 @@
             <FluentNavMenu Width="250">
                 
                 <FluentNavLink Href="/" Icon="@(new Icons.Regular.Size24.Home())" Match="NavLinkMatch.All">Home</FluentNavLink>
-                <FluentNavLink Href="/list-projects" Icon="@(new Icons.Regular.Size24.DocumentSearch())" Match="NavLinkMatch.All">List Projects</FluentNavLink>
-                <FluentNavLink Href="/edit-project" Icon="@(new Icons.Regular.Size24.Calculator())" Match="NavLinkMatch.All">New Project</FluentNavLink>
-                <FluentNavLink Href="/me" Icon="@(new Icons.Regular.Size24.Person())" Match="NavLinkMatch.All">Mon Profil</FluentNavLink>
+                
+                <AuthorizeView>
+                    <Authorized>
+                        <FluentNavLink Href="/list-projects" Icon="@(new Icons.Regular.Size24.DocumentSearch())" Match="NavLinkMatch.All">List Projects</FluentNavLink>
+                        <FluentNavLink Href="/edit-project" Icon="@(new Icons.Regular.Size24.Calculator())" Match="NavLinkMatch.All">New Project</FluentNavLink>
+                    </Authorized>
+                </AuthorizeView>
 
             </FluentNavMenu>
 
