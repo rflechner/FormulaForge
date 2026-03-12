@@ -7,6 +7,8 @@ var postgres = builder
     ;
 
 var encryptionKey = builder.AddParameter("encryption-key", secret: true);
+var pocketIdClientId = builder.AddParameter("pocket-id-client-id", secret: true);
+var pocketIdClientSecret = builder.AddParameter("pocket-id-client-secret", secret: true);
 
 var smtp4dev = builder
     .AddContainer("smtp4dev", "rnwood/smtp4dev", "latest")
@@ -44,6 +46,8 @@ builder.AddProject<Projects.FormulaForge_Web>("webfrontend")
     .WithReference(apiService)
     .WithReference(db)
     .WithEnvironment("Authentication__PocketId__Authority", pocketId.GetEndpoint("http"))
+    .WithEnvironment("Authentication__PocketId__ClientId", pocketIdClientId)
+    .WithEnvironment("Authentication__PocketId__ClientSecret", pocketIdClientSecret)
     .WaitFor(db)
     .WaitFor(apiService)
     .WaitFor(pocketId)

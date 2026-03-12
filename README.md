@@ -10,6 +10,8 @@ Run a new key with `GenerateEncryptionKey.fsx`.
 
 Move into `FormulaForge.AppHost` folder and run:
 
-```
+```bash
 dotnet user-secrets set "Parameters:encryption-key" "<YOUR_ENCRYPTION_KEY>"
+dotnet user-secrets set "Parameters:pocket-id-client-id" "id1234"
+dotnet user-secrets set "Parameters:pocket-id-client-secret" "secret1234"
 ```
