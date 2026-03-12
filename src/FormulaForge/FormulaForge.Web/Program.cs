@@ -3,9 +3,12 @@ using FormulaForge.ApiService.Persistence.Postgres;
 using FormulaForge.Domain.Services;
 using FormulaForge.Web;
 using FormulaForge.Web.Components;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.FluentUI.AspNetCore.Components;
+using SkiaSharp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,6 +91,61 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseAntiforgery();
+
+app.MapGet("/logout", () =>
+{
+    var properties = new AuthenticationProperties { RedirectUri = "/" };
+    return Results.SignOut(properties, [ "Cookies", "oidc" ]);
+});
+
+app.MapGet("/avatar", async (string url, [FromServices] IHttpClientFactory httpClientFactory) =>
+{
+    if (string.IsNullOrEmpty(url)) return Results.BadRequest();
+
+    try
+    {
+        var client = httpClientFactory.CreateClient();
+        var response = await client.GetAsync(url);
+        if (!response.IsSuccessStatusCode) return Results.BadRequest();
+
+        await using var inputStream = await response.Content.ReadAsStreamAsync();
+        using var codec = SKCodec.Create(inputStream);
+        if (codec == null) return Results.BadRequest();
+
+        using var bitmap = SKBitmap.Decode(codec);
+        if (bitmap == null) return Results.BadRequest();
+
+        int targetWidth = 40;
+        int targetHeight = 40;
+
+        // Calculate proportions to match "Max" behavior (contain)
+        float ratio = Math.Min((float)targetWidth / bitmap.Width, (float)targetHeight / bitmap.Height);
+        int newWidth = (int)(bitmap.Width * ratio);
+        int newHeight = (int)(bitmap.Height * ratio);
+
+        using var resized = bitmap.Resize(new SKImageInfo(newWidth, newHeight), SKSamplingOptions.Default);
+        if (resized == null) return Results.BadRequest();
+
+        using var image = SKImage.FromBitmap(resized);
+        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+        
+        var outputStream = new MemoryStream();
+        data.SaveTo(outputStream);
+        outputStream.Position = 0;
+
+        return Results.File(outputStream, "image/png");
+    }
+    catch
+    {
+        return Results.BadRequest();
+    }
+}).RequireAuthorization();
+
+app.MapPost("/logout", () =>
+{
+    var properties = new AuthenticationProperties { RedirectUri = "/" };
+    return Results.SignOut(properties, [ "Cookies", "oidc" ]);
+});
 
 app.MapStaticAssets();
 
