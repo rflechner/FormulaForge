@@ -98,9 +98,15 @@ app.MapGet("/logout", () =>
     return Results.SignOut(properties, [ "Cookies", "oidc" ]);
 });
 
-app.MapGet("/avatar", async (string url, [FromServices] IHttpClientFactory httpClientFactory) =>
+app.MapGet("/avatar", async (string url, [FromServices] IHttpClientFactory httpClientFactory, [FromServices] IConfiguration configuration) =>
 {
     if (string.IsNullOrEmpty(url)) return Results.BadRequest();
+
+    var authority = configuration["Authentication:PocketId:Authority"];
+    if (string.IsNullOrEmpty(authority) || !url.StartsWith(authority, StringComparison.OrdinalIgnoreCase))
+    {
+        return Results.BadRequest();
+    }
 
     try
     {
