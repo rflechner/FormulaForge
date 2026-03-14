@@ -15,8 +15,8 @@ namespace FormulaForge.Web.Components.Pages;
 public partial class EditProject
 {
     private List<DateTime> _months = new();
-    private readonly List<ExcelGrid.RowData> _inputsRows = new();
-    private readonly List<ExcelGrid.RowData> _outputsRows = new();
+    private readonly List<ComputationGrid.RowData> _inputsRows = new();
+    private readonly List<ComputationGrid.RowData> _outputsRows = new();
     private readonly DynamicDslContext _dslContext = new(new DynamicDataContext());
     private ScriptInterpreter? _interpreter;
     private MonacoEditor? _editor;
@@ -182,7 +182,7 @@ public partial class EditProject
 
         foreach (var (variableName, variableValue) in _dslContext.GlobalScope.Variables)
         {
-            _outputsRows.Add(new ExcelGrid.RowData
+            _outputsRows.Add(new ComputationGrid.RowData
             {
                 Name = variableName,
                 Values = Map(variableValue)
@@ -359,8 +359,7 @@ public partial class EditProject
                     throw new ArgumentOutOfRangeException(nameof(value));
             }
         }
-
-
+        
         if (ProjectId == null)
         {
             ProjectId = Project.Id = Guid.NewGuid();
