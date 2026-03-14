@@ -15,8 +15,13 @@ namespace FormulaForge.Web.Components.Pages;
 public partial class EditProject
 {
     private List<DateTime> _months = new();
-    private readonly List<ComputationGrid.RowData> _inputsRows = new();
-    private readonly List<ComputationGrid.RowData> _outputsRows = new();
+    
+    private readonly List<ComputationGrid.RowSeriesData> _inputsSeries = new();
+    private readonly List<ComputationGrid.RowSeriesData> _outputsSeries = new();
+    
+    private readonly List<ComputationGrid.RowScalarData> _outputsScalars = new();
+    private readonly List<ComputationGrid.RowScalarData> _inputsScalars = new();
+    
     private readonly DynamicDslContext _dslContext = new(new DynamicDataContext());
     private ScriptInterpreter? _interpreter;
     private MonacoEditor? _editor;
@@ -79,9 +84,7 @@ public partial class EditProject
 
     private void InitializeContext(Project project)
     {
-        _dslContext.ClearFunctions();
-        _dslContext.GlobalScope.Variables.Clear();
-        _dslContext.GlobalScope.BuiltInVariables.Clear();
+        ClearContext();
 
         foreach (var scalarValue in project.BooleanScalarValues)
         {
@@ -126,15 +129,30 @@ public partial class EditProject
         }
     }
 
+    private void ClearContext()
+    {
+        _dslContext.ClearFunctions();
+        _dslContext.GlobalScope.Variables.Clear();
+        _dslContext.GlobalScope.BuiltInVariables.Clear();
+    }
+
     private Task LoadInputs()
     {
+        _inputsSeries.Clear();
+        _inputsScalars.Clear();
+
         var period = new Period(new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), new DateTime(2027, 1, 1, 0, 0, 0, DateTimeKind.Utc));
         var months = period.GetMonths().ToArray();
         _months = months.Select(m => m.InclusiveStart.DateTime).ToList();
 
-        _dslContext.GlobalScope.Variables.Add("x",
+        _dslContext.GlobalScope.Variables.TryAdd("x",
             new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(10)));
-
+        _inputsScalars.Add(new ComputationGrid.RowScalarData
+        {
+            Name = "x",
+            ScalarValue = new ScalarValueNode.IntegerScalarValue(10)
+        });
+        
         var random = new Random();
         var balance = new TimeSeries<ScalarValueNode>();
         var changeRate = new TimeSeries<ScalarValueNode>();
@@ -147,8 +165,21 @@ public partial class EditProject
                 (a, b) => a.Value);
         }
 
-        _dslContext.GlobalScope.Variables.Add("balance", new RuntimeVariableValue.RuntimeTimeSeriesValue(balance));
-        _dslContext.GlobalScope.Variables.Add("change_rate", new RuntimeVariableValue.RuntimeTimeSeriesValue(changeRate));
+        _dslContext.GlobalScope.Variables.TryAdd("balance", new RuntimeVariableValue.RuntimeTimeSeriesValue(balance));
+        _dslContext.GlobalScope.Variables.TryAdd("change_rate", new RuntimeVariableValue.RuntimeTimeSeriesValue(changeRate));
+        
+        _inputsSeries.Add(new ComputationGrid.RowSeriesData
+        {
+            Name = "balance",
+            Values = Map(new RuntimeVariableValue.RuntimeTimeSeriesValue(balance))
+        });
+        _inputsSeries.Add(new ComputationGrid.RowSeriesData()
+        {
+            Name = "change_rate",
+            Values = Map(new RuntimeVariableValue.RuntimeTimeSeriesValue(changeRate))
+        });
+        
+        StateHasChanged();
         
         return Task.CompletedTask;
     }
@@ -176,17 +207,28 @@ public partial class EditProject
     {
         if (clear)
         {
-            _inputsRows.Clear();
-            _outputsRows.Clear();
+            _outputsSeries.Clear();
+            _outputsScalars.Clear();
         }
 
         foreach (var (variableName, variableValue) in _dslContext.GlobalScope.Variables)
         {
-            _outputsRows.Add(new ComputationGrid.RowData
+            if (variableValue is RuntimeVariableValue.RuntimeTimeSeriesValue timeSeriesValue)
             {
-                Name = variableName,
-                Values = Map(variableValue)
-            });
+                _outputsSeries.Add(new ComputationGrid.RowSeriesData
+                {
+                    Name = variableName,
+                    Values = Map(timeSeriesValue)
+                });
+            }
+            if (variableValue is RuntimeVariableValue.RuntimeScalarValue scalarValue)
+            {
+                _outputsScalars.Add(new ComputationGrid.RowScalarData
+                {
+                    Name = variableName,
+                    ScalarValue = scalarValue.Value
+                });
+            }
         }
 
         StateHasChanged();
@@ -202,10 +244,11 @@ public partial class EditProject
 
         try
         {
-            InitializeContext(Project);
-            _interpreter = new ScriptInterpreter(_dslContext);
-            
+            ClearContext();
             await LoadInputs();
+            // InitializeContext(Project);
+            
+            _interpreter = new ScriptInterpreter(_dslContext);
             
             var code = await _editor.GetValue();
             ScriptRunResult = _interpreter.Run(code);
@@ -224,26 +267,15 @@ public partial class EditProject
         await DisplayRows();
     }
 
-    private Dictionary<int, decimal> Map(RuntimeVariableValue variableValue)
+    private Dictionary<int, decimal> Map(RuntimeVariableValue.RuntimeTimeSeriesValue runtimeTimeSeriesValue)
     {
-        switch (variableValue)
-        {
-            case RuntimeVariableValue.RuntimeScalarValue runtimeScalarValue:
-                var value = Map(runtimeScalarValue.Value);
-                return new Dictionary<int, decimal> { { 0, value } };
-
-            case RuntimeVariableValue.RuntimeTimeSeriesValue runtimeTimeSeriesValue:
-                return runtimeTimeSeriesValue.Value
-                    .Select((v, i) => new
-                    {
-                        Value = Map(v.Value),
-                        Index = i
-                    })
-                    .ToDictionary(v => v.Index, v => v.Value);
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(variableValue));
-        }
+        return runtimeTimeSeriesValue.Value
+            .Select((v, i) => new
+            {
+                Value = Map(v.Value),
+                Index = i
+            })
+            .ToDictionary(v => v.Index, v => v.Value);
     }
 
     private static decimal Map(ScalarValueNode scalarValue) =>
