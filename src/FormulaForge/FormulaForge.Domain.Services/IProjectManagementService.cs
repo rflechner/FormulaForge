@@ -5,8 +5,8 @@ namespace FormulaForge.Domain.Services;
 
 public interface IProjectManagementService
 {
-    Task<Project?> GetProjectAsync(Guid projectId, CancellationToken cancellationToken = default);
-    IAsyncEnumerable<Project> GetProjectsAsync(CancellationToken cancellationToken = default);
+    Task<Project?> GetProjectAsync(Guid projectId, string userId, CancellationToken cancellationToken = default);
+    IAsyncEnumerable<Project> GetProjectsAsync(string userId, CancellationToken cancellationToken = default);
     Task CreateProjectAsync(Project project, CancellationToken cancellationToken = default);
     Task UpdateProjectAsync(Project project, CancellationToken cancellationToken = default);
     Task DeleteProjectAsync(Project project, CancellationToken cancellationToken = default);
@@ -14,14 +14,14 @@ public interface IProjectManagementService
 
 public class ProjectManagementService(IProjectRepository projectRepository) : IProjectManagementService
 {
-    public Task<Project?> GetProjectAsync(Guid projectId, CancellationToken cancellationToken = default)
+    public Task<Project?> GetProjectAsync(Guid projectId, string userId, CancellationToken cancellationToken = default)
     {
-        return projectRepository.GetProjectAsync(projectId, cancellationToken);
+        return projectRepository.GetProjectAsync(projectId, userId, cancellationToken);
     }
 
-    public IAsyncEnumerable<Project> GetProjectsAsync(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<Project> GetProjectsAsync(string userId, CancellationToken cancellationToken = default)
     {
-        return projectRepository.GetProjectsAsync(cancellationToken);
+        return projectRepository.GetProjectsAsync(userId, cancellationToken);
     }
 
     public Task CreateProjectAsync(Project project, CancellationToken cancellationToken = default)

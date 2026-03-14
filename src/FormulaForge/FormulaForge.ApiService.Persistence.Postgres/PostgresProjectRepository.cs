@@ -6,7 +6,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres;
 
 public class PostgresProjectRepository(FormulaForgeDbContext dbContext) : IProjectRepository
 {
-    public async Task<Project?> GetProjectAsync(Guid projectId, CancellationToken cancellationToken = default)
+    public async Task<Project?> GetProjectAsync(Guid projectId, string userId, CancellationToken cancellationToken = default)
     {
         return await dbContext.Projects
             .Include(p => p.DecimalScalarValues)
@@ -19,12 +19,13 @@ public class PostgresProjectRepository(FormulaForgeDbContext dbContext) : IProje
             .Include(p => p.BooleanTimeSeriesValues)
                 .ThenInclude(ts => ts.Entries)
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.Id == projectId, cancellationToken);
+            .FirstOrDefaultAsync(p => p.Id == projectId && p.UserId == userId, cancellationToken);
     }
 
-    public IAsyncEnumerable<Project> GetProjectsAsync(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<Project> GetProjectsAsync(string userId, CancellationToken cancellationToken = default)
     {
         return dbContext.Projects
+            .Where(p => p.UserId == userId)
             .AsNoTracking()
             .AsAsyncEnumerable();
     }

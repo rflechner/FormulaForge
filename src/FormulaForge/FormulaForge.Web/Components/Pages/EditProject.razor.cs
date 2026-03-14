@@ -6,6 +6,7 @@ using FormulaForge.Engine.Time;
 using FormulaForge.Web.Components.Shared;
 using FormulaForge.Web.Contexts;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.FluentUI.AspNetCore.Components;
 using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular;
 using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons;
@@ -30,18 +31,25 @@ public partial class EditProject
     
     public Project Project { get; set; } = new Project
     {
-        Name = "Untitled project"
+        Name = "Untitled project",
+        UserId = string.Empty,
     };
     
     [Inject] public required IDialogService DialogService { get; init; }
     
     [Inject] public required IProjectManagementService ProjectManagement { get; init; }
     
+    [Inject] public required AuthenticationStateProvider AuthenticationStateProvider { get; init; }
+    
     [Parameter] public Guid? ProjectId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        if (ProjectId.HasValue && await ProjectManagement.GetProjectAsync(ProjectId.Value) is { } project)
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? user.Identity?.Name ?? "anonymous";
+
+        if (ProjectId.HasValue && await ProjectManagement.GetProjectAsync(ProjectId.Value, userId) is { } project)
         {
             Project = project;
 
@@ -74,6 +82,7 @@ public partial class EditProject
         
         Project = new Project
         {
+            UserId = userId,
             Name = "Untitled project"
         };
         

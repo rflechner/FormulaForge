@@ -40,6 +40,7 @@ public class FormulaForgeDbContext(DbContextOptions<FormulaForgeDbContext> optio
         modelBuilder.Entity<Project>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.Name).IsRequired();
             entity.Property(e => e.Code).IsRequired(false);
 
