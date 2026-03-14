@@ -1,4 +1,5 @@
 ﻿using FormulaForge.Domain.Entities;
+using FormulaForge.Engine.DomainSpecificLanguage.Ast;
 using Microsoft.EntityFrameworkCore;
 
 namespace FormulaForge.ApiService.Persistence.Postgres;
@@ -37,15 +38,6 @@ public class PostgresProjectRepository(FormulaForgeDbContext dbContext) : IProje
     public async Task UpdateProjectAsync(Project project, CancellationToken cancellationToken = default)
     {
         var existingProject = await dbContext.Projects
-            .Include(p => p.DecimalScalarValues)
-            .Include(p => p.IntegerScalarValues)
-            .Include(p => p.BooleanScalarValues)
-            .Include(p => p.DecimalTimeSeriesValues)
-                .ThenInclude(ts => ts.Entries)
-            .Include(p => p.IntegerTimeSeriesValues)
-                .ThenInclude(ts => ts.Entries)
-            .Include(p => p.BooleanTimeSeriesValues)
-                .ThenInclude(ts => ts.Entries)
             .FirstOrDefaultAsync(p => p.Id == project.Id, cancellationToken);
 
         if (existingProject == null)
@@ -53,41 +45,86 @@ public class PostgresProjectRepository(FormulaForgeDbContext dbContext) : IProje
             throw new KeyNotFoundException($"Project with ID {project.Id} not found.");
         }
 
-        // Mettre à jour les propriétés de base
         existingProject.Name = project.Name;
         existingProject.Code = project.Code;
 
-        project.DecimalTimeSeriesValues.ForEach(sv => sv.ProjectId = project.Id);
-        project.IntegerTimeSeriesValues.ForEach(sv => sv.ProjectId = project.Id);
-        project.BooleanTimeSeriesValues.ForEach(sv => sv.ProjectId = project.Id);
-        
-        project.DecimalScalarValues.ForEach(sv => sv.ProjectId = project.Id);
-        project.IntegerScalarValues.ForEach(sv => sv.ProjectId = project.Id);
-        project.BooleanScalarValues.ForEach(sv => sv.ProjectId = project.Id);
+        await RemoveExistingScalarAndTimeSeriesValuesAsync(project, cancellationToken);
 
-        
-        // // Remplacer les collections scalaires
-        existingProject.DecimalScalarValues.Clear();
-        existingProject.DecimalScalarValues.AddRange(project.DecimalScalarValues);
-        
-        existingProject.IntegerScalarValues.Clear();
-        existingProject.IntegerScalarValues.AddRange(project.IntegerScalarValues);
-        
-        existingProject.BooleanScalarValues.Clear();
-        existingProject.BooleanScalarValues.AddRange(project.BooleanScalarValues);
-        
-        // // Remplacer les collections de séries temporelles
-        
-        existingProject.DecimalTimeSeriesValues.Clear();
-        existingProject.DecimalTimeSeriesValues.AddRange(project.DecimalTimeSeriesValues);
-        
-        existingProject.IntegerTimeSeriesValues.Clear();
-        existingProject.IntegerTimeSeriesValues.AddRange(project.IntegerTimeSeriesValues);
-        
-        existingProject.BooleanTimeSeriesValues.Clear();
-        existingProject.BooleanTimeSeriesValues.AddRange(project.BooleanTimeSeriesValues);
+        await AddScalarAndTimeSeriesValuesAsync(project, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private async Task AddScalarAndTimeSeriesValuesAsync(Project project, CancellationToken cancellationToken)
+    {
+        foreach (var scalar in project.DecimalScalarValues)
+        {
+            scalar.ProjectId = project.Id;
+            await dbContext.DecimalScalarValues.AddAsync(scalar, cancellationToken);
+        }
+
+        foreach (var scalar in project.IntegerScalarValues)
+        {
+            scalar.ProjectId = project.Id;
+            await dbContext.IntegerScalarValues.AddAsync(scalar, cancellationToken);
+        }
+
+        foreach (var scalar in project.BooleanScalarValues)
+        {
+            scalar.ProjectId = project.Id;
+            await dbContext.BooleanScalarValues.AddAsync(scalar, cancellationToken);
+        }
+
+        foreach (var timeSeries in project.DecimalTimeSeriesValues)
+        {
+            timeSeries.ProjectId = project.Id;
+            await dbContext.DecimalTimeSeriesValues.AddAsync(timeSeries, cancellationToken);
+        }
+
+        foreach (var timeSeries in project.IntegerTimeSeriesValues)
+        {
+            timeSeries.ProjectId = project.Id;
+            await dbContext.IntegerTimeSeriesValues.AddAsync(timeSeries, cancellationToken);
+        }
+
+        foreach (var timeSeries in project.BooleanTimeSeriesValues)
+        {
+            timeSeries.ProjectId = project.Id;
+            await dbContext.BooleanTimeSeriesValues.AddAsync(timeSeries, cancellationToken);
+        }
+    }
+
+    private async Task RemoveExistingScalarAndTimeSeriesValuesAsync(Project project, CancellationToken cancellationToken)
+    {
+        var existingDecimalScalars = await dbContext.DecimalScalarValues
+            .Where(v => v.ProjectId == project.Id)
+            .ToListAsync(cancellationToken);
+        dbContext.DecimalScalarValues.RemoveRange(existingDecimalScalars);
+
+        var existingIntegerScalars = await dbContext.IntegerScalarValues
+            .Where(v => v.ProjectId == project.Id)
+            .ToListAsync(cancellationToken);
+        dbContext.IntegerScalarValues.RemoveRange(existingIntegerScalars);
+
+        var existingBooleanScalars = await dbContext.BooleanScalarValues
+            .Where(v => v.ProjectId == project.Id)
+            .ToListAsync(cancellationToken);
+        dbContext.BooleanScalarValues.RemoveRange(existingBooleanScalars);
+
+        var existingDecimalTimeSeries = await dbContext.DecimalTimeSeriesValues
+            .Where(v => v.ProjectId == project.Id)
+            .ToListAsync(cancellationToken);
+        dbContext.DecimalTimeSeriesValues.RemoveRange(existingDecimalTimeSeries);
+
+        var existingIntegerTimeSeries = await dbContext.IntegerTimeSeriesValues
+            .Where(v => v.ProjectId == project.Id)
+            .ToListAsync(cancellationToken);
+        dbContext.IntegerTimeSeriesValues.RemoveRange(existingIntegerTimeSeries);
+
+        var existingBooleanTimeSeries = await dbContext.BooleanTimeSeriesValues
+            .Where(v => v.ProjectId == project.Id)
+            .ToListAsync(cancellationToken);
+        dbContext.BooleanTimeSeriesValues.RemoveRange(existingBooleanTimeSeries);
     }
 
     public async Task DeleteProjectAsync(Guid projectId, CancellationToken cancellationToken = default)

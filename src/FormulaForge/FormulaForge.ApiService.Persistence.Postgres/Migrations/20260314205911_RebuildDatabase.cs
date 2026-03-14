@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 {
     /// <inheritdoc />
-    public partial class InitializeDatabase : Migration
+    public partial class RebuildDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -25,7 +25,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BooleanScalarValueEntity",
+                name: "BooleanScalarValues",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -35,9 +35,9 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BooleanScalarValueEntity", x => x.Id);
+                    table.PrimaryKey("PK_BooleanScalarValues", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BooleanScalarValueEntity_Projects_ProjectId",
+                        name: "FK_BooleanScalarValues_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id",
@@ -45,7 +45,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BooleanTimeSeriesEntity",
+                name: "BooleanTimeSeriesValues",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -54,9 +54,9 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BooleanTimeSeriesEntity", x => x.Id);
+                    table.PrimaryKey("PK_BooleanTimeSeriesValues", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BooleanTimeSeriesEntity_Projects_ProjectId",
+                        name: "FK_BooleanTimeSeriesValues_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id",
@@ -64,7 +64,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DecimalScalarValueEntity",
+                name: "DecimalScalarValues",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -74,9 +74,9 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DecimalScalarValueEntity", x => x.Id);
+                    table.PrimaryKey("PK_DecimalScalarValues", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DecimalScalarValueEntity_Projects_ProjectId",
+                        name: "FK_DecimalScalarValues_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id",
@@ -84,7 +84,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DecimalTimeSeriesEntity",
+                name: "DecimalTimeSeriesValues",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -93,9 +93,9 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DecimalTimeSeriesEntity", x => x.Id);
+                    table.PrimaryKey("PK_DecimalTimeSeriesValues", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DecimalTimeSeriesEntity_Projects_ProjectId",
+                        name: "FK_DecimalTimeSeriesValues_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id",
@@ -103,7 +103,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "IntegerScalarValueEntity",
+                name: "IntegerScalarValues",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -113,9 +113,9 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IntegerScalarValueEntity", x => x.Id);
+                    table.PrimaryKey("PK_IntegerScalarValues", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IntegerScalarValueEntity_Projects_ProjectId",
+                        name: "FK_IntegerScalarValues_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id",
@@ -123,7 +123,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "IntegerTimeSeriesEntity",
+                name: "IntegerTimeSeriesValues",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -132,9 +132,9 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IntegerTimeSeriesEntity", x => x.Id);
+                    table.PrimaryKey("PK_IntegerTimeSeriesValues", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IntegerTimeSeriesEntity_Projects_ProjectId",
+                        name: "FK_IntegerTimeSeriesValues_Projects_ProjectId",
                         column: x => x.ProjectId,
                         principalTable: "Projects",
                         principalColumn: "Id",
@@ -142,7 +142,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BooleanTimeSeriesEntry",
+                name: "BooleanTimeSeriesEntries",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -153,17 +153,17 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BooleanTimeSeriesEntry", x => x.Id);
+                    table.PrimaryKey("PK_BooleanTimeSeriesEntries", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BooleanTimeSeriesEntry_BooleanTimeSeriesEntity_TimeSeriesId",
+                        name: "FK_BooleanTimeSeriesEntries_BooleanTimeSeriesValues_TimeSeries~",
                         column: x => x.TimeSeriesId,
-                        principalTable: "BooleanTimeSeriesEntity",
+                        principalTable: "BooleanTimeSeriesValues",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "DecimalTimeSeriesEntry",
+                name: "DecimalTimeSeriesEntries",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -174,17 +174,17 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DecimalTimeSeriesEntry", x => x.Id);
+                    table.PrimaryKey("PK_DecimalTimeSeriesEntries", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_DecimalTimeSeriesEntry_DecimalTimeSeriesEntity_TimeSeriesId",
+                        name: "FK_DecimalTimeSeriesEntries_DecimalTimeSeriesValues_TimeSeries~",
                         column: x => x.TimeSeriesId,
-                        principalTable: "DecimalTimeSeriesEntity",
+                        principalTable: "DecimalTimeSeriesValues",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "IntegerTimeSeriesEntry",
+                name: "IntegerTimeSeriesEntries",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -195,90 +195,90 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_IntegerTimeSeriesEntry", x => x.Id);
+                    table.PrimaryKey("PK_IntegerTimeSeriesEntries", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_IntegerTimeSeriesEntry_IntegerTimeSeriesEntity_TimeSeriesId",
+                        name: "FK_IntegerTimeSeriesEntries_IntegerTimeSeriesValues_TimeSeries~",
                         column: x => x.TimeSeriesId,
-                        principalTable: "IntegerTimeSeriesEntity",
+                        principalTable: "IntegerTimeSeriesValues",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BooleanScalarValueEntity_ProjectId",
-                table: "BooleanScalarValueEntity",
+                name: "IX_BooleanScalarValues_ProjectId",
+                table: "BooleanScalarValues",
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BooleanTimeSeriesEntity_ProjectId",
-                table: "BooleanTimeSeriesEntity",
-                column: "ProjectId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BooleanTimeSeriesEntry_TimeSeriesId",
-                table: "BooleanTimeSeriesEntry",
+                name: "IX_BooleanTimeSeriesEntries_TimeSeriesId",
+                table: "BooleanTimeSeriesEntries",
                 column: "TimeSeriesId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DecimalScalarValueEntity_ProjectId",
-                table: "DecimalScalarValueEntity",
+                name: "IX_BooleanTimeSeriesValues_ProjectId",
+                table: "BooleanTimeSeriesValues",
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DecimalTimeSeriesEntity_ProjectId",
-                table: "DecimalTimeSeriesEntity",
+                name: "IX_DecimalScalarValues_ProjectId",
+                table: "DecimalScalarValues",
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DecimalTimeSeriesEntry_TimeSeriesId",
-                table: "DecimalTimeSeriesEntry",
+                name: "IX_DecimalTimeSeriesEntries_TimeSeriesId",
+                table: "DecimalTimeSeriesEntries",
                 column: "TimeSeriesId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IntegerScalarValueEntity_ProjectId",
-                table: "IntegerScalarValueEntity",
+                name: "IX_DecimalTimeSeriesValues_ProjectId",
+                table: "DecimalTimeSeriesValues",
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IntegerTimeSeriesEntity_ProjectId",
-                table: "IntegerTimeSeriesEntity",
+                name: "IX_IntegerScalarValues_ProjectId",
+                table: "IntegerScalarValues",
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_IntegerTimeSeriesEntry_TimeSeriesId",
-                table: "IntegerTimeSeriesEntry",
+                name: "IX_IntegerTimeSeriesEntries_TimeSeriesId",
+                table: "IntegerTimeSeriesEntries",
                 column: "TimeSeriesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IntegerTimeSeriesValues_ProjectId",
+                table: "IntegerTimeSeriesValues",
+                column: "ProjectId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "BooleanScalarValueEntity");
+                name: "BooleanScalarValues");
 
             migrationBuilder.DropTable(
-                name: "BooleanTimeSeriesEntry");
+                name: "BooleanTimeSeriesEntries");
 
             migrationBuilder.DropTable(
-                name: "DecimalScalarValueEntity");
+                name: "DecimalScalarValues");
 
             migrationBuilder.DropTable(
-                name: "DecimalTimeSeriesEntry");
+                name: "DecimalTimeSeriesEntries");
 
             migrationBuilder.DropTable(
-                name: "IntegerScalarValueEntity");
+                name: "IntegerScalarValues");
 
             migrationBuilder.DropTable(
-                name: "IntegerTimeSeriesEntry");
+                name: "IntegerTimeSeriesEntries");
 
             migrationBuilder.DropTable(
-                name: "BooleanTimeSeriesEntity");
+                name: "BooleanTimeSeriesValues");
 
             migrationBuilder.DropTable(
-                name: "DecimalTimeSeriesEntity");
+                name: "DecimalTimeSeriesValues");
 
             migrationBuilder.DropTable(
-                name: "IntegerTimeSeriesEntity");
+                name: "IntegerTimeSeriesValues");
 
             migrationBuilder.DropTable(
                 name: "Projects");
