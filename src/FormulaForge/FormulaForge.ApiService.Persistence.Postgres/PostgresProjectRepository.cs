@@ -57,15 +57,35 @@ public class PostgresProjectRepository(FormulaForgeDbContext dbContext) : IProje
         existingProject.Name = project.Name;
         existingProject.Code = project.Code;
 
-        // Remplacer les collections scalaires
-        existingProject.DecimalScalarValues = project.DecimalScalarValues;
-        existingProject.IntegerScalarValues = project.IntegerScalarValues;
-        existingProject.BooleanScalarValues = project.BooleanScalarValues;
+        project.DecimalTimeSeriesValues.ForEach(sv => sv.ProjectId = project.Id);
+        project.IntegerTimeSeriesValues.ForEach(sv => sv.ProjectId = project.Id);
+        project.BooleanTimeSeriesValues.ForEach(sv => sv.ProjectId = project.Id);
+        
+        project.DecimalScalarValues.ForEach(sv => sv.ProjectId = project.Id);
+        project.IntegerScalarValues.ForEach(sv => sv.ProjectId = project.Id);
+        project.BooleanScalarValues.ForEach(sv => sv.ProjectId = project.Id);
 
-        // Remplacer les collections de séries temporelles
-        existingProject.DecimalTimeSeriesValues = project.DecimalTimeSeriesValues;
-        existingProject.IntegerTimeSeriesValues = project.IntegerTimeSeriesValues;
-        existingProject.BooleanTimeSeriesValues = project.BooleanTimeSeriesValues;
+        
+        // // Remplacer les collections scalaires
+        existingProject.DecimalScalarValues.Clear();
+        existingProject.DecimalScalarValues.AddRange(project.DecimalScalarValues);
+        
+        existingProject.IntegerScalarValues.Clear();
+        existingProject.IntegerScalarValues.AddRange(project.IntegerScalarValues);
+        
+        existingProject.BooleanScalarValues.Clear();
+        existingProject.BooleanScalarValues.AddRange(project.BooleanScalarValues);
+        
+        // // Remplacer les collections de séries temporelles
+        
+        existingProject.DecimalTimeSeriesValues.Clear();
+        existingProject.DecimalTimeSeriesValues.AddRange(project.DecimalTimeSeriesValues);
+        
+        existingProject.IntegerTimeSeriesValues.Clear();
+        existingProject.IntegerTimeSeriesValues.AddRange(project.IntegerTimeSeriesValues);
+        
+        existingProject.BooleanTimeSeriesValues.Clear();
+        existingProject.BooleanTimeSeriesValues.AddRange(project.BooleanTimeSeriesValues);
 
         await dbContext.SaveChangesAsync(cancellationToken);
     }

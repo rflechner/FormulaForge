@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 {
     [DbContext(typeof(FormulaForgeDbContext))]
-    [Migration("20260301140223_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260314162912_InitializeDatabase")]
+    partial class InitializeDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -234,6 +234,9 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()

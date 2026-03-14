@@ -91,5 +91,29 @@ public class FormulaForgeDbContext(DbContextOptions<FormulaForgeDbContext> optio
                 .HasForeignKey(e => e.TimeSeriesId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+        modelBuilder.Entity<DecimalTimeSeriesEntry>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Value).IsRequired();
+            entity.Property(e => e.Start).IsRequired();
+            entity.Property(e => e.End).IsRequired();
+        });
+
+        modelBuilder.Entity<IntegerTimeSeriesEntry>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Value).IsRequired();
+            entity.Property(e => e.Start).IsRequired();
+            entity.Property(e => e.End).IsRequired();
+        });
+
+        modelBuilder.Entity<BooleanTimeSeriesEntry>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Value).IsRequired();
+            entity.Property(e => e.Start).IsRequired();
+            entity.Property(e => e.End).IsRequired();
+        });
     }
 }
