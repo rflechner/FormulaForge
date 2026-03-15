@@ -1,6 +1,7 @@
 using FormulaForge.ApiService.Persistence;
 using FormulaForge.ApiService.Persistence.Postgres;
 using FormulaForge.Domain.Services;
+using FormulaForge.Domain.Services.Impl;
 using FormulaForge.Web;
 using FormulaForge.Web.Components;
 using Microsoft.AspNetCore.Authentication;

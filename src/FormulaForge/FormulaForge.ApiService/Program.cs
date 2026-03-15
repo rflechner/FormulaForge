@@ -1,6 +1,8 @@
+using FormulaForge.ApiService.Dto;
 using FormulaForge.ApiService.Persistence;
 using FormulaForge.ApiService.Persistence.Postgres;
 using FormulaForge.Domain.Entities;
+using FormulaForge.Engine.Time;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
@@ -99,9 +101,31 @@ app.MapDelete("/projects/{id:guid}", async (Guid id, IProjectRepository reposito
     return Results.NoContent();
 })
 .WithName("DeleteProject")
-.WithSummary("Supprime un projet")
+.WithSummary("Delete a project")
 .WithDescription("Supprime définitivement un projet de la base de données par son GUID.")
 .Produces(StatusCodes.Status204NoContent);
+
+
+var samples = app.MapGroup("samples");
+samples.MapGet("expenses", async (HttpContext context) =>
+    {
+        var random = new Random();
+        var start = DateTimeOffset.Now.AddYears(-1);
+        var end = DateTimeOffset.Now.AddYears(1);
+
+        var result = new List<TimeSeriesDecimalValueDto>();
+        
+        for (var date = start; date <= end; date = date.AddDays(1))
+        {
+            result.Add(new TimeSeriesDecimalValueDto(Period.OneDay(DateOnly.FromDateTime(date.DateTime)), (decimal)random.NextDouble()));
+        }
+        
+        return Results.Ok(result);
+    })
+    .WithName("GetExpenses")
+    .WithSummary("Generates sample of expenses dataset")
+    .WithDescription("Generates sample of expenses dataset.")
+    .Produces<TimeSeriesDecimalValueDto[]>();
 
 
 app.MapDefaultEndpoints();
