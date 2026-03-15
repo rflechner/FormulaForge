@@ -1,3 +1,4 @@
+using EasyParsing;
 using FormulaForge.Engine.DomainSpecificLanguage;
 using FormulaForge.Engine.DomainSpecificLanguage.Ast;
 
@@ -22,7 +23,7 @@ public class LiteralExpressionNodeParserTests
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
-        Assert.Equal(new LiteralExpressionNode.VariableValueExpressionNode(new VariableName(variableName)), result.Result);
+        Assert.Equal(new LiteralExpressionNode.VariableValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new VariableName(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), variableName)), result.Result);
     }
     
     [Theory]
@@ -37,7 +38,7 @@ public class LiteralExpressionNodeParserTests
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
-        Assert.Equal(new LiteralExpressionNode.VariableValueExpressionNode(new VariableName(variableName)), result.Result);
+        Assert.Equal(new LiteralExpressionNode.VariableValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new VariableName(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), variableName)), result.Result);
     }
     
     [Theory]
@@ -49,7 +50,7 @@ public class LiteralExpressionNodeParserTests
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.BooleanScalarValue(expectedValue)), result.Result);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.BooleanScalarValue(expectedValue)), result.Result);
     }
     
     [Theory]
@@ -61,7 +62,7 @@ public class LiteralExpressionNodeParserTests
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.DecimalScalarValue(expectedValue)), result.Result);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.DecimalScalarValue(expectedValue)), result.Result);
     }
     
     [Theory]
@@ -73,7 +74,7 @@ public class LiteralExpressionNodeParserTests
         
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(expectedValue)), result.Result);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(expectedValue)), result.Result);
     }
     
 }

@@ -42,27 +42,27 @@ public class ValueExpressionNodeParser
         | IntegerValueParser.Cast<ScalarValueNode.IntegerScalarValue, ScalarValueNode>();
     
     private static readonly IParser<VariableName> VariableNameContainingNumbersParser =
-        from start in Parse.ManySatisfy(c => c.IsLetterOrUnderscore)
-        from rest in Parse.ManySatisfy(c => c.IsLetterOrUnderscoreOrDigit)
-        select new VariableName($"{start}{rest}");
+        from start in Parse.ManySatisfy(c => c.IsLetterOrUnderscore).Track()
+        from rest in Parse.ManySatisfy(c => c.IsLetterOrUnderscoreOrDigit).Track()
+        select new VariableName(start.Range + rest.Range, $"{start}{rest}");
 
     /// <summary>
     /// Parses a variable value expression.
     /// </summary>
     public static readonly IParser<VariableName> VariableNameParser =
         VariableNameContainingNumbersParser 
-            | Parse.ManySatisfy(c => c.IsLetterOrUnderscore)
-                .Select(x => new VariableName(x));
+            | Parse.ManySatisfy(c => c.IsLetterOrUnderscore).Track()
+                .Select(x => new VariableName(x.Range, x.Value));
     
     public static readonly IParser<LiteralExpressionNode.VariableValueExpressionNode> VariableValueExpressionParser =
-        VariableNameParser
-                .Select(x => new LiteralExpressionNode.VariableValueExpressionNode(x));
+        VariableNameParser.Track()
+                .Select(x => new LiteralExpressionNode.VariableValueExpressionNode(x.Range, x.Value));
     
     /// <summary>
     /// Parses a constant value expression.
     /// </summary>
     public static readonly IParser<LiteralExpressionNode.ConstantValueExpressionNode> ConstantValueExpressionParser =
-        ScalarValueParser.Select(x => new LiteralExpressionNode.ConstantValueExpressionNode(x));
+        ScalarValueParser.Track().Select(x => new LiteralExpressionNode.ConstantValueExpressionNode(x.Range, x.Value));
     
     /// <summary>
     /// Parses a literal expression.
@@ -93,12 +93,12 @@ public class ValueExpressionNodeParser
                     new Operator<string>(OperatorKind.Infix, "-", 10),
                     new Operator<string>(OperatorKind.Infix, "*", 20),
                     new Operator<string>(OperatorKind.Infix, "/", 20),
-                ]).Select(o => new ComputedExpressionNode(o));            
+                ]).Track().Select(o => new ComputedExpressionNode(o.Range, o.Value));            
         }
     }
     
     public static readonly IParser<ValueExpressionNode> ValueAccessExpression = 
-        ScalarValueParser.Select(x => new LiteralExpressionNode.ConstantValueExpressionNode(x)) | 
+        ScalarValueParser.Track().Select(x => new LiteralExpressionNode.ConstantValueExpressionNode(x.Range, x.Value)) | 
         LiteralExpressionNodeParser.Cast<LiteralExpressionNode, ValueExpressionNode>();
     
     public static readonly IParser<ValueExpressionNode> ValueExpression = 

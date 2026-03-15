@@ -14,12 +14,12 @@ public class FunctionsNodesParser
         select $"{start}{rest.GetValueOrDefault(string.Empty)}";
 
     public static readonly IParser<FunctionCallExpressionNode> FunctionSignatureWithoutParameters =
-        from name in FunctionNameParser
+        from name in FunctionNameParser.Track()
         from sp1 in Parse.SkipSpaces()
         from p1 in Parse.OneChar('(')
         from sp2 in Parse.SkipSpaces()
-        from p2 in Parse.OneChar(')')
-        select new FunctionCallExpressionNode(name, []);
+        from p2 in Parse.OneChar(')').Track()
+        select new FunctionCallExpressionNode(name.Range + p2.Range, name.Value, []);
 
     private static readonly IParser<string> FunctionSignatureParameterSeparatorParser =
         from sp1 in Parse.SkipSpaces()
@@ -40,10 +40,10 @@ public class FunctionsNodesParser
         ValueAccessParser.Select(r => new[] { r });
     
     public static readonly IParser<FunctionCallExpressionNode> FunctionSignatureWithParameters =
-        from name in FunctionNameParser
+        from name in FunctionNameParser.Track()
         from sp1 in Parse.SkipSpaces()
-        from parameters in Parse.Between(Parse.OneChar('('), FunctionCallMultipleParametersParser | FunctionCallSingleParameterParser,  Parse.OneChar(')'))
-        select new FunctionCallExpressionNode(name, parameters.Item);
+        from parameters in Parse.Between(Parse.OneChar('('), FunctionCallMultipleParametersParser | FunctionCallSingleParameterParser,  Parse.OneChar(')')).Track()
+        select new FunctionCallExpressionNode(name.Range + parameters.Range, name.Value, parameters.Value.Item);
 
     public static readonly IParser<FunctionCallExpressionNode> FunctionCall =
         FunctionSignatureWithParameters | FunctionSignatureWithoutParameters;
@@ -55,9 +55,9 @@ public class FunctionsNodesParser
         select names;
 
     public static readonly IParser<FunctionSignatureExpressionNode> FunctionSignatureParser =
-        from name in FunctionNameParser
+        from name in FunctionNameParser.Track()
         from sp1 in Parse.SkipSpaces()
-        from parameters in Parse.Between(Parse.OneChar('('), FunctionSignatureMultipleParametersParser,  Parse.OneChar(')'))
-        select new FunctionSignatureExpressionNode(name, parameters.Item);
+        from parameters in Parse.Between(Parse.OneChar('('), FunctionSignatureMultipleParametersParser,  Parse.OneChar(')')).Track()
+        select new FunctionSignatureExpressionNode(name.Range + parameters.Range, name.Value, parameters.Value.Item);
     
 }
