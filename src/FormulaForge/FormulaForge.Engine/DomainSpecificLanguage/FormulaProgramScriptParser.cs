@@ -23,4 +23,3 @@ public static class FormulaProgramScriptParser
                 )
             .Select(statements => statements.ToArray());
 }
-

@@ -253,13 +253,28 @@ public partial class EditProject
         try
         {
             ClearContext();
+
             await LoadInputs();
-            // InitializeContext(Project);
             
             _interpreter = new ScriptInterpreter(_dslContext);
             
             var code = await _editor.GetValue();
-            ScriptRunResult = _interpreter.Run(code);
+            var nodes = _interpreter.ParseScriptCode(code);
+            var invalidLines = nodes.OfType<InvalidLine>().ToArray();
+
+            if (invalidLines.Any())
+            {
+                foreach (var invalidLine in invalidLines)
+                {
+                    await _editor.HighlightErrors(new [] { new MonacoEditor.ErrorMarker(invalidLine.PositionRange, "Invalid line") });
+                }
+            }
+            else
+            {
+                await _editor.ClearErrorHighlights();
+            }
+            
+            ScriptRunResult = _interpreter.Run(nodes);
 
             if (ScriptRunResult != null && ScriptRunResult != CodeRunResult.Success)
             {
