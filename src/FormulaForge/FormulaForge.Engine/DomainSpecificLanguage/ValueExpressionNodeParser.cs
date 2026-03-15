@@ -44,7 +44,7 @@ public class ValueExpressionNodeParser
     private static readonly IParser<VariableName> VariableNameContainingNumbersParser =
         from start in Parse.ManySatisfy(c => c.IsLetterOrUnderscore).Track()
         from rest in Parse.ManySatisfy(c => c.IsLetterOrUnderscoreOrDigit).Track()
-        select new VariableName(start.Range + rest.Range, $"{start}{rest}");
+        select new VariableName(start.Range + rest.Range, $"{start.Value}{rest.Value}");
 
     /// <summary>
     /// Parses a variable value expression.
