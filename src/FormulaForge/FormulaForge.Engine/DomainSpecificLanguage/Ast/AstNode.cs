@@ -39,3 +39,5 @@ public abstract record StatementNode(TextRange PositionRange) : AstNode(Position
 
     public sealed record FunctionDeclarationNode(TextRange PositionRange, string FunctionName, VariableName[] Parameters, ValueExpressionNode Body) : StatementNode(PositionRange);
 }
+
+public record InvalidLine(TextRange PositionRange, string Line) : AstNode(PositionRange);
