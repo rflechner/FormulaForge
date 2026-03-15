@@ -53,4 +53,25 @@ public class FormulaProgramScriptParserTests
         Assert.IsType<LiteralExpressionNode.ConstantValueExpressionNode>(funcCall2.Arguments[1]);
         Assert.Equal(new ScalarValueNode.IntegerScalarValue(3), ((LiteralExpressionNode.ConstantValueExpressionNode)funcCall2.Arguments[1]).Value);
     }
+
+    [Fact]
+    public void ParsingFailure_ShouldReturnFailure()
+    {
+        var code = """
+                   a = 1.2
+                   p = $$
+                   b = 1234
+                   """;
+        var parser = FormulaProgramScriptParser.ProgramParser;
+
+        var result = parser.Parse(code);
+
+        Assert.True(result.Success);
+        Assert.NotNull(result.Result);
+        
+        Assert.Equal(3, result.Result.Length);
+        Assert.IsType<StatementNode.VariableAssignmentExpressionNode>(result.Result[0]);
+        Assert.IsType<InvalidLine>(result.Result[1]);
+        Assert.IsType<StatementNode.VariableAssignmentExpressionNode>(result.Result[2]);
+    }
 }

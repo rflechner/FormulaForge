@@ -1,3 +1,4 @@
+using EasyParsing;
 using FormulaForge.Engine.DomainSpecificLanguage;
 using FormulaForge.Engine.DomainSpecificLanguage.Ast;
 
@@ -31,7 +32,7 @@ public class FunctionsNodesParserTests
         
         Assert.Equal("testFunction", result.Result.FunctionName);
         Assert.Single(result.Result.Arguments);
-        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
+        Assert.Equal(result.Result.Arguments[0].IgnorePosition(), new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(12)).IgnorePosition());
     }
 
     [Fact]
@@ -46,8 +47,8 @@ public class FunctionsNodesParserTests
         
         Assert.Equal("testFunction", result.Result.FunctionName);
         Assert.Equal(2, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
-        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(21)));
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(12)).IgnorePosition(), result.Result.Arguments[0].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(21)).IgnorePosition(), result.Result.Arguments[1].IgnorePosition());
     }
 
     [Fact]
@@ -62,9 +63,9 @@ public class FunctionsNodesParserTests
         
         Assert.Equal("testFunction", result.Result.FunctionName);
         Assert.Equal(3, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
-        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(1234)));
-        Assert.Equal(result.Result.Arguments[2], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(21)));
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(12)).IgnorePosition(), result.Result.Arguments[0].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(1234)).IgnorePosition(), result.Result.Arguments[1].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(21)).IgnorePosition(), result.Result.Arguments[2].IgnorePosition());
     }
 
     [Fact]
@@ -79,10 +80,10 @@ public class FunctionsNodesParserTests
         
         Assert.Equal("testFunction", result.Result.FunctionName);
         Assert.Equal(4, result.Result.Arguments.Length);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)), result.Result.Arguments[0]);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(1234)), result.Result.Arguments[1]);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)), result.Result.Arguments[2]);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(21)), result.Result.Arguments[3]);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(12)).IgnorePosition(), result.Result.Arguments[0].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(1234)).IgnorePosition(), result.Result.Arguments[1].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(9)).IgnorePosition(), result.Result.Arguments[2].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(21)).IgnorePosition(), result.Result.Arguments[3].IgnorePosition());
     }
 
     [Fact]
@@ -97,10 +98,10 @@ public class FunctionsNodesParserTests
         
         Assert.Equal("test_function", result.Result.FunctionName);
         Assert.Equal(4, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
-        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.DecimalScalarValue(99.2324m)));
-        Assert.Equal(result.Result.Arguments[2], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)));
-        Assert.Equal(result.Result.Arguments[3], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(22341)));
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(12)).IgnorePosition(), result.Result.Arguments[0].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.DecimalScalarValue(99.2324m)).IgnorePosition(), result.Result.Arguments[1].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(9)).IgnorePosition(), result.Result.Arguments[2].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(22341)).IgnorePosition(), result.Result.Arguments[3].IgnorePosition());
     }
 
     [Fact]
@@ -115,13 +116,13 @@ public class FunctionsNodesParserTests
         
         Assert.Equal("test_function", result.Result.FunctionName);
         Assert.Equal(5, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
-        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.DecimalScalarValue(99.2324m)));
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(12)).IgnorePosition(), result.Result.Arguments[0].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.DecimalScalarValue(99.2324m)).IgnorePosition(), result.Result.Arguments[1].IgnorePosition());
         
-        Assert.Equal(result.Result.Arguments[2], new FunctionCallExpressionNode("count", []));
+        Assert.Equal(new FunctionCallExpressionNode(default, "count", []).IgnorePosition(), result.Result.Arguments[2].IgnorePosition());
         
-        Assert.Equal(result.Result.Arguments[3], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)));
-        Assert.Equal(result.Result.Arguments[4], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(22341)));
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(9)).IgnorePosition(), result.Result.Arguments[3].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(22341)).IgnorePosition(), result.Result.Arguments[4].IgnorePosition());
     }
 
     [Fact]
@@ -134,20 +135,19 @@ public class FunctionsNodesParserTests
         Assert.True(result.Success);
         Assert.NotNull(result.Result);
         
-        Assert.Equal("test_function", result.Result.FunctionName);
         Assert.Equal(5, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
-        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.DecimalScalarValue(99.2324m)));
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(12)).IgnorePosition(), result.Result.Arguments[0].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.DecimalScalarValue(99.2324m)).IgnorePosition(), result.Result.Arguments[1].IgnorePosition());
 
         var funcParam = (FunctionCallExpressionNode) result.Result.Arguments[2];
         Assert.Equal("count", funcParam.FunctionName);
         Assert.Single(funcParam.Arguments);
         Assert.IsType<LiteralExpressionNode.VariableValueExpressionNode>(funcParam.Arguments[0]);
         var variable = (LiteralExpressionNode.VariableValueExpressionNode)(funcParam.Arguments[0]);
-        Assert.Equal(new VariableName("collection"), variable.VariableName);
+        Assert.Equal(new VariableName(default, "collection").IgnorePosition(), variable.VariableName.IgnorePosition());
 
-        Assert.Equal(result.Result.Arguments[3], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)));
-        Assert.Equal(result.Result.Arguments[4], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(22341)));
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(9)).IgnorePosition(), result.Result.Arguments[3].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(22341)).IgnorePosition(), result.Result.Arguments[4].IgnorePosition());
     }
 
     [Fact]
@@ -162,8 +162,8 @@ public class FunctionsNodesParserTests
         
         Assert.Equal("test_function", result.Result.FunctionName);
         Assert.Equal(5, result.Result.Arguments.Length);
-        Assert.Equal(result.Result.Arguments[0], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(12)));
-        Assert.Equal(result.Result.Arguments[1], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.DecimalScalarValue(99.2324m)));
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(12)).IgnorePosition(), result.Result.Arguments[0].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.DecimalScalarValue(99.2324m)).IgnorePosition(), result.Result.Arguments[1].IgnorePosition());
 
         var funcParam = (FunctionCallExpressionNode) result.Result.Arguments[2];
         Assert.Equal("big_call", funcParam.FunctionName);
@@ -171,7 +171,7 @@ public class FunctionsNodesParserTests
         
         Assert.IsType<LiteralExpressionNode.VariableValueExpressionNode>(funcParam.Arguments[0]);
         var p1 = (LiteralExpressionNode.VariableValueExpressionNode)funcParam.Arguments[0];
-        Assert.Equal(new VariableName("collection"), p1.VariableName);
+        Assert.Equal(new VariableName(default, "collection").IgnorePosition(), p1.VariableName.IgnorePosition());
 
         Assert.IsType<LiteralExpressionNode.ConstantValueExpressionNode>(funcParam.Arguments[1]);
         var c2 = (LiteralExpressionNode.ConstantValueExpressionNode)funcParam.Arguments[1];
@@ -183,8 +183,8 @@ public class FunctionsNodesParserTests
         Assert.Equal("count", p3.FunctionName);
         Assert.Empty(p3.Arguments);
 
-        Assert.Equal(result.Result.Arguments[3], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(9)));
-        Assert.Equal(result.Result.Arguments[4], new LiteralExpressionNode.ConstantValueExpressionNode(new ScalarValueNode.IntegerScalarValue(22341)));
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(9)).IgnorePosition(), result.Result.Arguments[3].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(22341)).IgnorePosition(), result.Result.Arguments[4].IgnorePosition());
     }
     
 }

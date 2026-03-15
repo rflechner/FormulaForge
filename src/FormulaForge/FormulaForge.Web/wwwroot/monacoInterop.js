@@ -44,6 +44,37 @@
             editor.setValue(value);
         }
     },
+
+    highlightError: function (id, markers) {
+        const editor = this.editors[id];
+        if (!editor) return;
+
+        const model = editor.getModel();
+        if (!model) return;
+
+        const monacoMarkers = markers.map(m => ({
+            severity: monaco.MarkerSeverity.Error,
+            message: m.message || 'Error',
+            startLineNumber: m.range.start.line + 1, // Monaco uses 1-based line numbers
+            startColumn: m.range.start.column + 1, // Monaco uses 1-based column numbers
+            endLineNumber: m.range.end.line + 1, // Monaco uses 1-based line numbers
+            endColumn: m.range.end.column + 1 // Monaco uses 1-based column numbers
+        }));
+
+        monaco.editor.setModelMarkers(model, 'formulaforge', monacoMarkers);
+    },
+
+    clearErrorHighlights: function (id) {
+        const editor = this.editors[id];
+        if (!editor) return;
+
+        const model = editor.getModel();
+        if (!model) return;
+
+        // Effacer tous les marqueurs
+        monaco.editor.setModelMarkers(model, 'formulaforge', []);
+    },
+
     dispose: function (id) {
         const editor = this.editors[id];
         if (editor) {

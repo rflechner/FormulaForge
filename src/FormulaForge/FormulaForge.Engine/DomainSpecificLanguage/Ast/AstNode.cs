@@ -1,12 +1,13 @@
+using EasyParsing;
 using EasyParsing.Parsers.Maths;
 
 namespace FormulaForge.Engine.DomainSpecificLanguage.Ast;
 
-public abstract record AstNode;
+public abstract record AstNode(TextRange PositionRange);
 
-public sealed record CommentNode(string Text) : AstNode;
+public sealed record CommentNode(TextRange PositionRange, string Text) : AstNode(PositionRange);
 
-public abstract record ValueExpressionNode : AstNode;
+public abstract record ValueExpressionNode(TextRange PositionRange) : AstNode(PositionRange);
 
 public abstract record ScalarValueNode
 {
@@ -17,24 +18,26 @@ public abstract record ScalarValueNode
     public sealed record BooleanScalarValue(bool Value) : ScalarValueNode;
 }
 
-public sealed record VariableName(string Name) : AstNode;
+public sealed record VariableName(TextRange PositionRange, string Name) : AstNode(PositionRange);
 
-public abstract record LiteralExpressionNode : ValueExpressionNode
+public abstract record LiteralExpressionNode(TextRange PositionRange) : ValueExpressionNode(PositionRange)
 {
-    public sealed record ConstantValueExpressionNode(ScalarValueNode Value) : LiteralExpressionNode;
+    public sealed record ConstantValueExpressionNode(TextRange PositionRange, ScalarValueNode Value) : LiteralExpressionNode(PositionRange);
     
-    public sealed record VariableValueExpressionNode(VariableName VariableName) : LiteralExpressionNode;
+    public sealed record VariableValueExpressionNode(TextRange PositionRange, VariableName VariableName) : LiteralExpressionNode(PositionRange);
 }
 
-public sealed record ComputedExpressionNode(BinaryOperationOperand<ValueExpressionNode> Expression) : ValueExpressionNode;
+public sealed record ComputedExpressionNode(TextRange PositionRange, BinaryOperationOperand<ValueExpressionNode> Expression) : ValueExpressionNode(PositionRange);
 
-public record FunctionSignatureExpressionNode(string FunctionName, VariableName[] Parameters) : AstNode;
+public record FunctionSignatureExpressionNode(TextRange PositionRange, string FunctionName, VariableName[] Parameters) : AstNode(PositionRange);
 
-public record FunctionCallExpressionNode(string FunctionName, ValueExpressionNode[] Arguments) : ValueExpressionNode;
+public record FunctionCallExpressionNode(TextRange PositionRange, string FunctionName, ValueExpressionNode[] Arguments) : ValueExpressionNode(PositionRange);
 
-public abstract record StatementNode : AstNode
+public abstract record StatementNode(TextRange PositionRange) : AstNode(PositionRange)
 {
-    public sealed record VariableAssignmentExpressionNode(VariableName Variable, ValueExpressionNode Value) : StatementNode;
+    public sealed record VariableAssignmentExpressionNode(TextRange PositionRange, VariableName Variable, ValueExpressionNode Value) : StatementNode(PositionRange);
 
-    public sealed record FunctionDeclarationNode(string FunctionName, VariableName[] Parameters, ValueExpressionNode Body) : StatementNode;
+    public sealed record FunctionDeclarationNode(TextRange PositionRange, string FunctionName, VariableName[] Parameters, ValueExpressionNode Body) : StatementNode(PositionRange);
 }
+
+public record InvalidLine(TextRange PositionRange, string Line) : AstNode(PositionRange);

@@ -1,3 +1,4 @@
+using EasyParsing;
 using EasyParsing.Parsers.Maths;
 using FormulaForge.Engine.Contexts;
 using FormulaForge.Engine.DomainSpecificLanguage;
@@ -12,20 +13,30 @@ public sealed class ScriptInterpreter(IDslContext context)
 {
     public CodeRunResult Run(string code)
     {
-        var parsingResult = FormulaProgramScriptParser.ProgramParser.Parse(code);
-        if (!parsingResult.Success) throw new Exception("Failed to parse script", new Exception(parsingResult.FailureMessage));
+        var nodes = ParseScriptCode(code);
 
-        var astNodes = parsingResult.Result!;
+        return Run(nodes);
+    }
 
-        foreach (var node in astNodes)
+    public CodeRunResult Run(AstNode[] nodes)
+    {
+        foreach (var node in nodes)
         {
             if (node is not StatementNode statement) continue;
             var result = ProcessStatement(statement);
             if (result != CodeRunResult.Success)
                 return result;
         }
-        
+
         return CodeRunResult.Success;
+    }
+
+    public AstNode[] ParseScriptCode(string code)
+    {
+        var parsingResult = FormulaProgramScriptParser.ProgramParser.Parse(code);
+        if (!parsingResult.Success) throw new Exception("Failed to parse script", new Exception(parsingResult.FailureMessage));
+        
+        return parsingResult.Result ?? [];
     }
 
     public CodeRunResult ProcessStatement(StatementNode statement)
