@@ -264,10 +264,10 @@ public partial class EditProject
 
             if (invalidLines.Any())
             {
-                foreach (var invalidLine in invalidLines)
-                {
-                    await _editor.HighlightErrors(new [] { new MonacoEditor.ErrorMarker(invalidLine.PositionRange, "Invalid line") });
-                }
+                var markers = invalidLines.Select(invalidLine =>
+                    new MonacoEditor.ErrorMarker(invalidLine.PositionRange, "Invalid line")).ToArray();
+
+                await _editor.HighlightErrors(markers);
             }
             else
             {

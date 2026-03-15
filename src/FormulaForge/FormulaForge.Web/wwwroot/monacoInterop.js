@@ -52,17 +52,15 @@
         const model = editor.getModel();
         if (!model) return;
 
-        // Convertir les marqueurs au format Monaco
         const monacoMarkers = markers.map(m => ({
             severity: monaco.MarkerSeverity.Error,
             message: m.message || 'Error',
-            startLineNumber: m.range.start.line,
-            startColumn: m.range.start.column,
-            endLineNumber: m.range.end.line,
-            endColumn: m.range.end.column
+            startLineNumber: m.range.start.line + 1, // Monaco uses 1-based line numbers
+            startColumn: m.range.start.column + 1, // Monaco uses 1-based column numbers
+            endLineNumber: m.range.end.line + 1, // Monaco uses 1-based line numbers
+            endColumn: m.range.end.column + 1 // Monaco uses 1-based column numbers
         }));
 
-        // Appliquer les marqueurs au modèle
         monaco.editor.setModelMarkers(model, 'formulaforge', monacoMarkers);
     },
 
