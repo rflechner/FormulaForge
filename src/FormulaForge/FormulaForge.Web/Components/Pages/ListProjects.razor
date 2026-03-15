@@ -1,6 +1,8 @@
 @page "/list-projects"
+@using System.Security.Claims
 @using FormulaForge.Domain.Entities
 @using FormulaForge.Domain.Services
+@using FormulaForge.Web.Extensions
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IProjectManagementService ProjectManagementService
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -36,11 +38,11 @@
     
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        var userId = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? user.Identity?.Name ?? "anonymous";
-        
-        Projects = await ProjectManagementService.GetProjectsAsync(userId).ToArrayAsync(_cts.Token);
+        var userId = await AuthenticationStateProvider.GetUserIdAsync();
+        if (userId == null)
+            Projects = [];
+        else
+            Projects = await ProjectManagementService.GetProjectsAsync(userId).ToArrayAsync(_cts.Token);
     }
 
     public void Dispose()

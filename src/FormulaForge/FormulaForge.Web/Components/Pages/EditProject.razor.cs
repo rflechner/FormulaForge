@@ -5,6 +5,7 @@ using FormulaForge.Engine.Runtime;
 using FormulaForge.Engine.Time;
 using FormulaForge.Web.Components.Shared;
 using FormulaForge.Web.Contexts;
+using FormulaForge.Web.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.FluentUI.AspNetCore.Components;
@@ -45,11 +46,9 @@ public partial class EditProject
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        var userId = user.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? user.Identity?.Name ?? "anonymous";
+        var userId = await AuthenticationStateProvider.GetUserIdAsync();
 
-        if (ProjectId.HasValue && await ProjectManagement.GetProjectAsync(ProjectId.Value, userId) is { } project)
+        if (userId != null && ProjectId.HasValue && await ProjectManagement.GetProjectAsync(ProjectId.Value, userId) is { } project)
         {
             Project = project;
 
@@ -82,7 +81,7 @@ public partial class EditProject
         
         Project = new Project
         {
-            UserId = userId,
+            UserId = userId ?? string.Empty,
             Name = "Untitled project"
         };
         
