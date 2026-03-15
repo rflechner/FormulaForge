@@ -8,6 +8,15 @@ namespace FormulaForge.ApiService.Persistence.Postgres;
 public class FormulaForgeDbContext(DbContextOptions<FormulaForgeDbContext> options) : DbContext(options)
 {
     public DbSet<Project> Projects => Set<Project>();
+    public DbSet<DecimalScalarValueEntity> DecimalScalarValues => Set<DecimalScalarValueEntity>();
+    public DbSet<IntegerScalarValueEntity> IntegerScalarValues => Set<IntegerScalarValueEntity>();
+    public DbSet<BooleanScalarValueEntity> BooleanScalarValues => Set<BooleanScalarValueEntity>();
+    public DbSet<DecimalTimeSeriesEntity> DecimalTimeSeriesValues => Set<DecimalTimeSeriesEntity>();
+    public DbSet<IntegerTimeSeriesEntity> IntegerTimeSeriesValues => Set<IntegerTimeSeriesEntity>();
+    public DbSet<BooleanTimeSeriesEntity> BooleanTimeSeriesValues => Set<BooleanTimeSeriesEntity>();
+    public DbSet<DecimalTimeSeriesEntry> DecimalTimeSeriesEntries => Set<DecimalTimeSeriesEntry>();
+    public DbSet<IntegerTimeSeriesEntry> IntegerTimeSeriesEntries => Set<IntegerTimeSeriesEntry>();
+    public DbSet<BooleanTimeSeriesEntry> BooleanTimeSeriesEntries => Set<BooleanTimeSeriesEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,6 +40,7 @@ public class FormulaForgeDbContext(DbContextOptions<FormulaForgeDbContext> optio
         modelBuilder.Entity<Project>(entity =>
         {
             entity.HasKey(e => e.Id);
+            entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.Name).IsRequired();
             entity.Property(e => e.Code).IsRequired(false);
 
@@ -90,6 +100,30 @@ public class FormulaForgeDbContext(DbContextOptions<FormulaForgeDbContext> optio
                 .WithOne()
                 .HasForeignKey(e => e.TimeSeriesId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<DecimalTimeSeriesEntry>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Value).IsRequired();
+            entity.Property(e => e.Start).IsRequired();
+            entity.Property(e => e.End).IsRequired();
+        });
+
+        modelBuilder.Entity<IntegerTimeSeriesEntry>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Value).IsRequired();
+            entity.Property(e => e.Start).IsRequired();
+            entity.Property(e => e.End).IsRequired();
+        });
+
+        modelBuilder.Entity<BooleanTimeSeriesEntry>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Value).IsRequired();
+            entity.Property(e => e.Start).IsRequired();
+            entity.Property(e => e.End).IsRequired();
         });
     }
 }

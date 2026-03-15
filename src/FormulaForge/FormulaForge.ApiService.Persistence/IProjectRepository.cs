@@ -4,9 +4,9 @@ namespace FormulaForge.ApiService.Persistence;
 
 public interface IProjectRepository
 {
-    Task<Project?> GetProjectAsync(Guid projectId, CancellationToken cancellationToken = default);
+    Task<Project?> GetProjectAsync(Guid projectId, string userId, CancellationToken cancellationToken = default);
     
-    IAsyncEnumerable<Project> GetProjectsAsync(CancellationToken cancellationToken = default);
+    IAsyncEnumerable<Project> GetProjectsAsync(string userId, CancellationToken cancellationToken = default);
 
     Task AddProjectAsync(Project project, CancellationToken cancellationToken = default);
     

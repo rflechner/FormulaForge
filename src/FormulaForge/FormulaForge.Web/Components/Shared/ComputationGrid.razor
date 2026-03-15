@@ -1,5 +1,18 @@
 @rendermode InteractiveServer
 
+@if (Scalars.Any())
+{
+    <div class="scalars-panel">
+        @foreach (var scalar in Scalars)
+        {
+            <div class="scalar-card">
+                <div class="scalar-name">@scalar.Name</div>
+                <div class="scalar-value">@FormatScalarValue(scalar.ScalarValue)</div>
+            </div>
+        }
+    </div>
+}
+
 <div class="excel-grid-container">
     <table class="excel-grid">
     <thead>
@@ -12,7 +25,7 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var row in Rows)
+        @foreach (var row in Series)
         {
             <tr>
                 <th class="sticky-col read-only">
@@ -50,51 +63,3 @@
 </table>
 </div>
 
-@code {
-    [Parameter] public List<DateTime> Months { get; set; } = new();
-    [Parameter] public List<RowData> Rows { get; set; } = new();
-
-    private string? _editingCellId;
-    private ElementReference _activeInput;
-
-    public class RowData {
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string Name { get; set; }
-        public Dictionary<int, decimal> Values { get; set; } = new();
-    }
-
-    private decimal GetValue(RowData row, DateTime month) => 
-        row.Values.GetValueOrDefault(month.Month, 0);
-
-    private void StartEdit(string cellId)
-    {
-        _editingCellId = cellId;
-
-        StateHasChanged();
-    }
-
-    private void StopEdit() => _editingCellId = null;
-
-    private void UpdateValue(RowData row, DateTime month, object? value)
-    {
-        if (decimal.TryParse(value?.ToString(), out decimal res))
-        {
-            row.Values[month.Month] = res;
-        }
-    }
-
-    private string FormatValue(decimal val) => val == 0 ? "-" : val.ToString("N2");
-
-    private void HandleKeyDown(KeyboardEventArgs e, RowData row, DateTime month)
-    {
-        if (e.Key == "Enter") StopEdit();
-    }
-    
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (_editingCellId != null && _activeInput.Context != null)
-        {
-            await _activeInput.FocusAsync();
-        }
-    }
-}

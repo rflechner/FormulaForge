@@ -5,23 +5,24 @@
 namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 {
     /// <inheritdoc />
-    public partial class AddProjectCode : Migration
+    public partial class AddUserIdToProject : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "Code",
+                name: "UserId",
                 table: "Projects",
                 type: "text",
-                nullable: true);
+                nullable: false,
+                defaultValue: "");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Code",
+                name: "UserId",
                 table: "Projects");
         }
     }

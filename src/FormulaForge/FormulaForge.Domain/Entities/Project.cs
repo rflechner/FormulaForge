@@ -7,6 +7,8 @@ public class Project
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();
     
+    public required string UserId { get; set; } = string.Empty;
+    
     public required string Name { get; set; } = string.Empty;
     
     public string Code { get; set; } = string.Empty;

@@ -47,18 +47,18 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/", () => "API service is running. Navigate to /weatherforecast to see sample data.");
 
-app.MapGet("/projects", (IProjectRepository repository) =>
+app.MapGet("/projects", (string userId, IProjectRepository repository) =>
 {
-    return repository.GetProjectsAsync();
+    return repository.GetProjectsAsync(userId);
 })
 .WithName("GetProjects")
 .WithSummary("Récupère la liste de tous les projets")
 .WithDescription("Renvoie une liste asynchrone de tous les projets enregistrés.")
 .Produces<IAsyncEnumerable<Project>>(StatusCodes.Status200OK);
 
-app.MapGet("/projects/{id:guid}", async (Guid id, IProjectRepository repository) =>
+app.MapGet("/projects/{id:guid}", async (Guid id, string userId, IProjectRepository repository) =>
 {
-    var project = await repository.GetProjectAsync(id);
+    var project = await repository.GetProjectAsync(id, userId);
     return project is not null ? Results.Ok(project) : Results.NotFound();
 })
 .WithName("GetProjectById")

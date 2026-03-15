@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 {
     [DbContext(typeof(FormulaForgeDbContext))]
-    [Migration("20260301144454_AddProjectCode")]
-    partial class AddProjectCode
+    [Migration("20260314211439_AddUserIdToProject")]
+    partial class AddUserIdToProject
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,7 +45,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("BooleanScalarValueEntity");
+                    b.ToTable("BooleanScalarValues");
                 });
 
             modelBuilder.Entity("FormulaForge.Domain.Entities.BooleanTimeSeriesEntity", b =>
@@ -65,7 +65,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("BooleanTimeSeriesEntity");
+                    b.ToTable("BooleanTimeSeriesValues");
                 });
 
             modelBuilder.Entity("FormulaForge.Domain.Entities.BooleanTimeSeriesEntry", b =>
@@ -90,7 +90,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 
                     b.HasIndex("TimeSeriesId");
 
-                    b.ToTable("BooleanTimeSeriesEntry");
+                    b.ToTable("BooleanTimeSeriesEntries");
                 });
 
             modelBuilder.Entity("FormulaForge.Domain.Entities.DecimalScalarValueEntity", b =>
@@ -113,7 +113,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("DecimalScalarValueEntity");
+                    b.ToTable("DecimalScalarValues");
                 });
 
             modelBuilder.Entity("FormulaForge.Domain.Entities.DecimalTimeSeriesEntity", b =>
@@ -133,7 +133,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("DecimalTimeSeriesEntity");
+                    b.ToTable("DecimalTimeSeriesValues");
                 });
 
             modelBuilder.Entity("FormulaForge.Domain.Entities.DecimalTimeSeriesEntry", b =>
@@ -158,7 +158,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 
                     b.HasIndex("TimeSeriesId");
 
-                    b.ToTable("DecimalTimeSeriesEntry");
+                    b.ToTable("DecimalTimeSeriesEntries");
                 });
 
             modelBuilder.Entity("FormulaForge.Domain.Entities.IntegerScalarValueEntity", b =>
@@ -181,7 +181,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("IntegerScalarValueEntity");
+                    b.ToTable("IntegerScalarValues");
                 });
 
             modelBuilder.Entity("FormulaForge.Domain.Entities.IntegerTimeSeriesEntity", b =>
@@ -201,7 +201,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("IntegerTimeSeriesEntity");
+                    b.ToTable("IntegerTimeSeriesValues");
                 });
 
             modelBuilder.Entity("FormulaForge.Domain.Entities.IntegerTimeSeriesEntry", b =>
@@ -226,7 +226,7 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
 
                     b.HasIndex("TimeSeriesId");
 
-                    b.ToTable("IntegerTimeSeriesEntry");
+                    b.ToTable("IntegerTimeSeriesEntries");
                 });
 
             modelBuilder.Entity("FormulaForge.Domain.Entities.Project", b =>
@@ -239,6 +239,10 @@ namespace FormulaForge.ApiService.Persistence.Postgres.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("text");
 
