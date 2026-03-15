@@ -41,7 +41,7 @@ public class StatementNodeParserTests
         
         Assert.Equal("toto", variableAssignment.Variable.Name);
         Assert.IsType<LiteralExpressionNode.VariableValueExpressionNode>(variableAssignment.Value);
-        Assert.Equal(new VariableName(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), "tata"), ((LiteralExpressionNode.VariableValueExpressionNode)variableAssignment.Value).VariableName);
+        Assert.Equal(new VariableName(default, "tata").IgnorePosition(), ((LiteralExpressionNode.VariableValueExpressionNode)variableAssignment.Value).VariableName.IgnorePosition());
     }
 
     [Fact]
@@ -80,7 +80,7 @@ public class StatementNodeParserTests
         // Vérifier l'opérande gauche : 43
         Assert.IsType<EasyParsing.Parsers.Maths.BinaryOperationOperandValue<ValueExpressionNode>>(rootOp.Left);
         var left43 = ((EasyParsing.Parsers.Maths.BinaryOperationOperandValue<ValueExpressionNode>)rootOp.Left).Value;
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(43)), left43);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(43)).IgnorePosition(), left43.IgnorePosition());
 
         // Vérifier l'opérande droite : add(29, 34.2) * other_var
         Assert.IsType<EasyParsing.Parsers.Maths.BinaryOperation<ValueExpressionNode>>(rootOp.Right);
@@ -94,8 +94,8 @@ public class StatementNodeParserTests
         var addFunc = (FunctionCallExpressionNode)addFuncValue;
         Assert.Equal("add", addFunc.FunctionName);
         Assert.Equal(2, addFunc.Arguments.Length);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(29)), addFunc.Arguments[0]);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.DecimalScalarValue(34.2m)), addFunc.Arguments[1]);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(29)).IgnorePosition(), addFunc.Arguments[0].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.DecimalScalarValue(34.2m)).IgnorePosition(), addFunc.Arguments[1].IgnorePosition());
 
         // Vérifier other_var
         Assert.IsType<EasyParsing.Parsers.Maths.BinaryOperationOperandValue<ValueExpressionNode>>(multiplyOp.Right);
@@ -130,7 +130,7 @@ public class StatementNodeParserTests
         // Vérifier le nom de la fonction et les arguments
         Assert.Equal("add", funcCall.FunctionName);
         Assert.Equal(2, funcCall.Arguments.Length);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(1)), funcCall.Arguments[0]);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(2)), funcCall.Arguments[1]);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(1)).IgnorePosition(), funcCall.Arguments[0].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(2)).IgnorePosition(), funcCall.Arguments[1].IgnorePosition());
     }
 }

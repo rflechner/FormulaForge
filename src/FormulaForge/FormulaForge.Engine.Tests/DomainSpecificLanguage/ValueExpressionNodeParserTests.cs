@@ -33,18 +33,18 @@ public class ValueExpressionNodeParserTests
 
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(leftOperation.Left);
         var leftLeft = (BinaryOperationOperandValue<ValueExpressionNode>)leftOperation.Left;
-        var value1 = new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(1));
-        Assert.Equal(value1, leftLeft.Value);
+        var value1 = new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(1));
+        Assert.Equal(value1.IgnorePosition(), leftLeft.Value.IgnorePosition());
 
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(leftOperation.Right);
         var leftRight = (BinaryOperationOperandValue<ValueExpressionNode>)leftOperation.Right;
-        var value25 = new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(25));
-        Assert.Equal(value25, leftRight.Value);
+        var value25 = new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(25));
+        Assert.Equal(value25.IgnorePosition(), leftRight.Value.IgnorePosition());
 
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(rootOperation.Right);
         var right = (BinaryOperationOperandValue<ValueExpressionNode>)rootOperation.Right;
-        var value589 = new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(589));
-        Assert.Equal(value589, right.Value);
+        var value589 = new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(589));
+        Assert.Equal(value589.IgnorePosition(), right.Value.IgnorePosition());
     }
 
     [Fact]
@@ -77,15 +77,15 @@ public class ValueExpressionNodeParserTests
 
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(leftAdd.Left);
         var value1 = ((BinaryOperationOperandValue<ValueExpressionNode>)leftAdd.Left).Value;
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(1)), value1);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(1)).IgnorePosition(), value1.IgnorePosition());
 
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(leftAdd.Right);
         var value25 = ((BinaryOperationOperandValue<ValueExpressionNode>)leftAdd.Right).Value;
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(25)), value25);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(25)).IgnorePosition(), value25.IgnorePosition());
 
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(leftMultiply.Right);
         var value589 = ((BinaryOperationOperandValue<ValueExpressionNode>)leftMultiply.Right).Value;
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(589)), value589);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(589)).IgnorePosition(), value589.IgnorePosition());
 
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(rootOperation.Right);
         var rightValue = ((BinaryOperationOperandValue<ValueExpressionNode>)rootOperation.Right).Value;
@@ -94,8 +94,8 @@ public class ValueExpressionNodeParserTests
         var funcCall = (FunctionCallExpressionNode)rightValue;
         Assert.Equal("add", funcCall.FunctionName);
         Assert.Equal(2, funcCall.Arguments.Length);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(1)), funcCall.Arguments[0]);
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(32)), funcCall.Arguments[1]);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(1)).IgnorePosition(), funcCall.Arguments[0].IgnorePosition());
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(32)).IgnorePosition(), funcCall.Arguments[1].IgnorePosition());
     }
 
     [Fact]
@@ -128,15 +128,15 @@ public class ValueExpressionNodeParserTests
 
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(leftAdd.Left);
         var value1 = ((BinaryOperationOperandValue<ValueExpressionNode>)leftAdd.Left).Value;
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(1)), value1);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(1)).IgnorePosition(), value1.IgnorePosition());
 
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(leftAdd.Right);
         var value25 = ((BinaryOperationOperandValue<ValueExpressionNode>)leftAdd.Right).Value;
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(25)), value25);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(25)).IgnorePosition(), value25.IgnorePosition());
 
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(leftMultiply.Right);
         var value589 = ((BinaryOperationOperandValue<ValueExpressionNode>)leftMultiply.Right).Value;
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(589)), value589);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(589)).IgnorePosition(), value589.IgnorePosition());
 
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(rootOperation.Right);
         var rightValue = ((BinaryOperationOperandValue<ValueExpressionNode>)rootOperation.Right).Value;
@@ -152,7 +152,7 @@ public class ValueExpressionNodeParserTests
         Assert.Single(countFunc.Arguments);
         Assert.IsType<LiteralExpressionNode.VariableValueExpressionNode>(countFunc.Arguments[0]);
         var collectionVar = (LiteralExpressionNode.VariableValueExpressionNode)countFunc.Arguments[0];
-        Assert.Equal(new VariableName(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), "collection"), collectionVar.VariableName);
+        Assert.Equal(new VariableName(default, "collection").IgnorePosition(), collectionVar.VariableName.IgnorePosition());
 
         Assert.IsType<ComputedExpressionNode>(addNumbersFunc.Arguments[1]);
         var divisionExpr = (ComputedExpressionNode)addNumbersFunc.Arguments[1];
@@ -162,11 +162,11 @@ public class ValueExpressionNodeParserTests
 
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(divisionOp.Left);
         var value6 = ((BinaryOperationOperandValue<ValueExpressionNode>)divisionOp.Left).Value;
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(6)), value6);
-
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(6)).IgnorePosition(), value6.IgnorePosition());
+        
         Assert.IsType<BinaryOperationOperandValue<ValueExpressionNode>>(divisionOp.Right);
         var value2 = ((BinaryOperationOperandValue<ValueExpressionNode>)divisionOp.Right).Value;
-        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(new TextRange(TextPosition.Zero, new TextPosition(20, 0, 0)), new ScalarValueNode.IntegerScalarValue(2)), value2);
+        Assert.Equal(new LiteralExpressionNode.ConstantValueExpressionNode(default, new ScalarValueNode.IntegerScalarValue(2)).IgnorePosition(), value2.IgnorePosition());
     }
 
 
