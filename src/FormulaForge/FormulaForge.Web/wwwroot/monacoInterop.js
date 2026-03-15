@@ -9,6 +9,54 @@
         require.config({ paths: { 'vs': '/lib/monaco-editor/vs' } });
 
         require(['vs/editor/editor.main'], () => {
+            // Register FormulaForge language
+            monaco.languages.register({ id: 'formulaforge' });
+
+            // Define syntax highlighting rules
+            monaco.languages.setMonarchTokensProvider('formulaforge', {
+                tokenizer: {
+                    root: [
+                        // Comments
+                        [/#.*$/, 'comment'],
+
+                        // Keywords (booleans)
+                        [/\b(true|false)\b/, 'keyword'],
+
+                        // Numbers (decimals and integers)
+                        [/\d+\.\d+/, 'number.float'],
+                        [/\d+/, 'number'],
+
+                        // Identifiers (variables and functions)
+                        [/[a-zA-Z_]\w*/, 'identifier'],
+
+                        // Operators
+                        [/[+\-*\/%=]/, 'operator'],
+
+                        // Delimiters
+                        [/[(),]/, 'delimiter'],
+
+                        // Whitespace
+                        [/\s+/, 'white']
+                    ]
+                }
+            });
+
+            // Define language configuration (auto-closing, comments, etc.)
+            monaco.languages.setLanguageConfiguration('formulaforge', {
+                comments: {
+                    lineComment: '#'
+                },
+                brackets: [
+                    ['(', ')']
+                ],
+                autoClosingPairs: [
+                    { open: '(', close: ')' }
+                ],
+                surroundingPairs: [
+                    { open: '(', close: ')' }
+                ]
+            });
+
             // Load language contributions for highlighting
             require(['vs/basic-languages/monaco.contribution', 'vs/language/typescript/monaco.contribution'], () => {
                 const container = document.getElementById(id);
