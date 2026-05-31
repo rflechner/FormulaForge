@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FormulaForge — Connecteurs</title>
+<script>(function(){try{var t=localStorage.getItem('ff-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/theme.js"></script>
+<link rel="stylesheet" href="assets/app.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="h-full bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans antialiased">
+<div class="flex h-full">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="hidden md:flex w-[230px] shrink-0 flex-col border-r border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900">
+    <div class="flex items-center gap-2.5 px-5 h-16 border-b border-stone-200 dark:border-stone-800">
+      <div class="grid h-8 w-8 place-items-center rounded-lg bg-orange-600 text-white shadow-sm shadow-orange-600/30"><i data-lucide="square-function" class="h-5 w-5"></i></div>
+      <div class="leading-tight">
+        <div class="text-[15px] font-semibold tracking-tight">FormulaForge</div>
+        <div class="text-[10px] uppercase tracking-widest text-stone-400">Forge de calculs</div>
+      </div>
+    </div>
+    <nav class="flex-1 px-3 py-4 space-y-0.5 text-sm">
+      <a href="Projects.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors"><i data-lucide="layout-dashboard" class="h-[18px] w-[18px]"></i> Tableau de bord</a>
+      <a href="Projects.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors"><i data-lucide="folder-kanban" class="h-[18px] w-[18px]"></i> Projets</a>
+      <a href="Editor.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors"><i data-lucide="square-pen" class="h-[18px] w-[18px]"></i> Éditeur</a>
+      <a href="Connectors.html" class="flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 ring-1 ring-inset ring-orange-600/15 dark:ring-orange-400/20"><i data-lucide="plug-zap" class="h-[18px] w-[18px]"></i> Connecteurs</a>
+    </nav>
+    <div class="px-4 py-3 border-t border-stone-200 dark:border-stone-800">
+      <a href="#" class="flex items-center gap-2 text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 transition-colors"><i data-lucide="git-branch" class="h-4 w-4"></i> Open source · v0.9.2</a>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header class="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-stone-200 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur px-5">
+      <div class="text-sm font-medium">Connecteurs</div>
+      <div class="flex items-center gap-1.5">
+        <button onclick="ffToggleTheme()" class="grid h-9 w-9 place-items-center rounded-lg text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-800 dark:hover:text-stone-200 transition-colors ff-focus" title="Basculer le thème"><i data-theme-icon="1" data-lucide="moon" class="h-[18px] w-[18px]"></i></button>
+        <div class="mx-1 h-6 w-px bg-stone-200 dark:bg-stone-700"></div>
+        <button class="flex items-center gap-2 rounded-lg pl-1 pr-2 py-1 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+          <span class="grid h-7 w-7 place-items-center rounded-full bg-stone-800 dark:bg-stone-700 text-[11px] font-semibold text-white">RT</span>
+          <span class="hidden sm:block text-sm font-medium">test1 romain</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="ff-scroll flex-1 overflow-y-auto px-5 md:px-8 py-7">
+      <div class="mx-auto max-w-[1100px] space-y-8">
+
+        <div>
+          <h1 class="text-2xl font-semibold tracking-tight">Connecteurs de données</h1>
+          <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">Branchez vos sources : tirez d'une API ou d'une base, importez un fichier, ou laissez une app pousser ses données vers FormulaForge.</p>
+        </div>
+
+        <!-- ADD: 3 source types -->
+        <section>
+          <h2 class="mb-3 text-[11px] font-semibold uppercase tracking-widest text-stone-400">Ajouter une source</h2>
+          <div class="grid sm:grid-cols-3 gap-3">
+            <button class="group text-left rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 hover:border-orange-300 dark:hover:border-orange-500/40 hover:shadow-md hover:shadow-orange-600/5 transition-all">
+              <div class="grid h-10 w-10 place-items-center rounded-lg bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-300 ring-1 ring-inset ring-sky-600/15"><i data-lucide="cable" class="h-5 w-5"></i></div>
+              <div class="mt-3 font-medium">Connexion API / Base</div>
+              <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">REST, GraphQL, PostgreSQL, MySQL… FormulaForge tire les données à chaque run.</p>
+              <span class="mt-3 inline-flex items-center gap-1 text-xs font-medium text-orange-600 dark:text-orange-400">Configurer <i data-lucide="arrow-right" class="h-3.5 w-3.5"></i></span>
+            </button>
+            <button class="group text-left rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 hover:border-orange-300 dark:hover:border-orange-500/40 hover:shadow-md hover:shadow-orange-600/5 transition-all">
+              <div class="grid h-10 w-10 place-items-center rounded-lg bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 ring-1 ring-inset ring-emerald-600/15"><i data-lucide="file-up" class="h-5 w-5"></i></div>
+              <div class="mt-3 font-medium">Import XLS / CSV</div>
+              <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">Déposez un fichier. Colonnes mappées en scalaires ou time series.</p>
+              <span class="mt-3 inline-flex items-center gap-1 text-xs font-medium text-orange-600 dark:text-orange-400">Importer <i data-lucide="arrow-right" class="h-3.5 w-3.5"></i></span>
+            </button>
+            <button class="group text-left rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 hover:border-orange-300 dark:hover:border-orange-500/40 hover:shadow-md hover:shadow-orange-600/5 transition-all">
+              <div class="grid h-10 w-10 place-items-center rounded-lg bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-300 ring-1 ring-inset ring-amber-600/15"><i data-lucide="radio" class="h-5 w-5"></i></div>
+              <div class="mt-3 font-medium">Endpoint Push</div>
+              <p class="mt-1 text-xs text-stone-500 dark:text-stone-400">Une app externe envoie ses données vers une API que FormulaForge fournit.</p>
+              <span class="mt-3 inline-flex items-center gap-1 text-xs font-medium text-orange-600 dark:text-orange-400">Créer l'endpoint <i data-lucide="arrow-right" class="h-3.5 w-3.5"></i></span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Push endpoint detail -->
+        <section>
+          <h2 class="mb-3 text-[11px] font-semibold uppercase tracking-widest text-stone-400">Endpoint d'ingestion · « Flux SAP »</h2>
+          <div class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm overflow-hidden">
+            <div class="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-stone-200 dark:border-stone-800">
+              <div class="flex items-center gap-2 text-sm">
+                <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset text-emerald-700 bg-emerald-50 ring-emerald-600/20 dark:text-emerald-300 dark:bg-emerald-500/10 dark:ring-emerald-400/20"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Actif</span>
+                <span class="text-stone-500">·  dernier push il y a 12 min · 318 enregistrements</span>
+              </div>
+              <span class="font-mono text-[11px] text-stone-400">POST · JSON</span>
+            </div>
+            <div class="p-5 space-y-4">
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-stone-500 dark:text-stone-400">URL d'ingestion</label>
+                <div class="flex items-stretch gap-2">
+                  <code id="url" class="flex-1 truncate rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950/60 px-3 py-2 font-mono text-[12.5px] text-stone-700 dark:text-stone-300">https://api.formulaforge.io/v1/ingest/8f3a9c21-budget-frontalier</code>
+                  <button onclick="ffCopy('url', this)" class="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 text-sm font-medium hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><i data-lucide="copy" class="h-4 w-4"></i> Copier</button>
+                </div>
+              </div>
+              <div>
+                <label class="mb-1.5 block text-xs font-medium text-stone-500 dark:text-stone-400">Clé d'API</label>
+                <div class="flex items-stretch gap-2">
+                  <code id="key" class="flex-1 truncate rounded-lg border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950/60 px-3 py-2 font-mono text-[12.5px] text-stone-700 dark:text-stone-300">ff_live_••••••••••••••••••••••9d4f</code>
+                  <button onclick="ffReveal(this)" class="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 text-sm font-medium hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><i data-lucide="eye" class="h-4 w-4"></i> Révéler</button>
+                  <button class="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 text-sm font-medium hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><i data-lucide="refresh-cw" class="h-4 w-4"></i></button>
+                </div>
+              </div>
+              <div class="rounded-lg bg-stone-900 dark:bg-stone-950 border border-stone-800 p-3 overflow-x-auto ff-scroll">
+                <pre class="font-mono text-[12px] leading-relaxed text-stone-300"><span class="text-stone-500"># Exemple</span>
+curl -X POST <span class="text-sky-400">$URL</span> \
+  -H <span class="text-emerald-400">"Authorization: Bearer $KEY"</span> \
+  -d <span class="text-emerald-400">'{ "variable": "balance", "ts": "2026-01", "value": 100 }'</span></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Configured connectors list -->
+        <section>
+          <h2 class="mb-3 text-[11px] font-semibold uppercase tracking-widest text-stone-400">Connecteurs configurés</h2>
+          <div id="connList" class="space-y-2"></div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script>
+  const conns = [
+    { name: 'API Banque Cantonale', kind: 'api', detail: 'GET /accounts/balances · OAuth2', status: 'ok', statusLbl: 'Connecté', meta: 'sync il y a 5 min · 2 séries' },
+    { name: 'prod_finance', kind: 'db', detail: 'PostgreSQL · schéma reporting', status: 'ok', statusLbl: 'Connecté', meta: 'sync il y a 1 h · 6 tables' },
+    { name: 'balances_2024.csv', kind: 'csv', detail: '1 200 lignes · 14 colonnes', status: 'ok', statusLbl: 'Importé', meta: 'il y a 2 j' },
+    { name: 'Flux SAP', kind: 'push', detail: 'Endpoint d\'ingestion · 318 enr.', status: 'ok', statusLbl: 'Actif', meta: 'dernier push il y a 12 min' },
+    { name: 'CRM Salesforce', kind: 'api', detail: 'REST v58 · rate-limit atteint', status: 'err', statusLbl: 'Erreur', meta: 'échec il y a 20 min' },
+  ];
+  const stCls = {
+    ok:  'text-emerald-700 bg-emerald-50 ring-emerald-600/20 dark:text-emerald-300 dark:bg-emerald-500/10 dark:ring-emerald-400/20',
+    err: 'text-red-700 bg-red-50 ring-red-600/20 dark:text-red-300 dark:bg-red-500/10 dark:ring-red-400/20',
+  };
+  const stDot = { ok: 'bg-emerald-500', err: 'bg-red-500' };
+  document.getElementById('connList').innerHTML = conns.map((c) => `
+    <div class="flex items-center gap-4 rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 py-3.5 hover:border-stone-300 dark:hover:border-stone-700 transition-colors">
+      <div class="shrink-0">${ffChip(c.kind)}</div>
+      <div class="min-w-0 flex-1">
+        <div class="font-medium truncate">${c.name}</div>
+        <div class="text-xs text-stone-500 dark:text-stone-400 truncate">${c.detail}</div>
+      </div>
+      <div class="hidden sm:block text-xs text-stone-400 whitespace-nowrap">${c.meta}</div>
+      <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${stCls[c.status]}"><span class="h-1.5 w-1.5 rounded-full ${stDot[c.status]}"></span>${c.statusLbl}</span>
+      <button class="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"><i data-lucide="settings-2" class="h-4 w-4"></i></button>
+    </div>`).join('');
+
+  function ffCopy(id, btn) {
+    const txt = document.getElementById(id).textContent;
+    navigator.clipboard && navigator.clipboard.writeText(txt);
+    const html = btn.innerHTML;
+    btn.innerHTML = '<i data-lucide="check" class="h-4 w-4"></i> Copié';
+    lucide.createIcons();
+    setTimeout(() => { btn.innerHTML = html; lucide.createIcons(); }, 1400);
+  }
+  function ffReveal(btn) {
+    const el = document.getElementById('key');
+    const masked = el.textContent.includes('•');
+    el.textContent = masked ? 'ff_live_2c7b41ae90f5d83a16ee9d4f' : 'ff_live_••••••••••••••••••••••9d4f';
+    btn.innerHTML = masked ? '<i data-lucide="eye-off" class="h-4 w-4"></i> Masquer' : '<i data-lucide="eye" class="h-4 w-4"></i> Révéler';
+    lucide.createIcons();
+  }
+  window.ffCopy = ffCopy; window.ffReveal = ffReveal;
+  lucide.createIcons();
+</script>
+</body>
+</html>

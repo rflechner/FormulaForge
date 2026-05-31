@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FormulaForge — Time series</title>
+<script>(function(){try{var t=localStorage.getItem('ff-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/theme.js"></script>
+<link rel="stylesheet" href="assets/app.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="h-full bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans antialiased">
+<div class="flex h-full">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="hidden md:flex w-[230px] shrink-0 flex-col border-r border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900">
+    <div class="flex items-center gap-2.5 px-5 h-16 border-b border-stone-200 dark:border-stone-800">
+      <div class="grid h-8 w-8 place-items-center rounded-lg bg-orange-600 text-white shadow-sm shadow-orange-600/30"><i data-lucide="square-function" class="h-5 w-5"></i></div>
+      <div class="leading-tight">
+        <div class="text-[15px] font-semibold tracking-tight">FormulaForge</div>
+        <div class="text-[10px] uppercase tracking-widest text-stone-400">Forge de calculs</div>
+      </div>
+    </div>
+    <nav class="flex-1 px-3 py-4 space-y-0.5 text-sm">
+      <a href="Projects.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors"><i data-lucide="layout-dashboard" class="h-[18px] w-[18px]"></i> Tableau de bord</a>
+      <a href="Projects.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors"><i data-lucide="folder-kanban" class="h-[18px] w-[18px]"></i> Projets</a>
+      <a href="Editor.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors"><i data-lucide="square-pen" class="h-[18px] w-[18px]"></i> Éditeur</a>
+      <a href="Connectors.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors"><i data-lucide="plug-zap" class="h-[18px] w-[18px]"></i> Connecteurs</a>
+      <div class="pt-4 pb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-stone-400">budget frontalier 2026</div>
+      <a href="TimeSeries.html" class="flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 ring-1 ring-inset ring-orange-600/15 dark:ring-orange-400/20"><i data-lucide="line-chart" class="h-[18px] w-[18px]"></i> Time series</a>
+      <a href="Editor.html#code" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors"><i data-lucide="braces" class="h-[18px] w-[18px]"></i> Script</a>
+    </nav>
+    <div class="px-4 py-3 border-t border-stone-200 dark:border-stone-800">
+      <a href="#" class="flex items-center gap-2 text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 transition-colors"><i data-lucide="git-branch" class="h-4 w-4"></i> Open source · v0.9.2</a>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header class="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-stone-200 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur px-5">
+      <div class="flex items-center gap-2 text-sm min-w-0">
+        <a href="Editor.html" class="text-stone-500 hover:text-stone-800 dark:hover:text-stone-200">budget frontalier 2026</a>
+        <i data-lucide="chevron-right" class="h-4 w-4 text-stone-300 dark:text-stone-600"></i>
+        <span class="font-medium">Time series</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button onclick="ffToggleTheme()" class="grid h-9 w-9 place-items-center rounded-lg text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-800 dark:hover:text-stone-200 transition-colors ff-focus" title="Basculer le thème"><i data-theme-icon="1" data-lucide="moon" class="h-[18px] w-[18px]"></i></button>
+        <div class="mx-1 h-6 w-px bg-stone-200 dark:bg-stone-700"></div>
+        <button class="flex items-center gap-2 rounded-lg pl-1 pr-2 py-1 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+          <span class="grid h-7 w-7 place-items-center rounded-full bg-stone-800 dark:bg-stone-700 text-[11px] font-semibold text-white">RT</span>
+          <span class="hidden sm:block text-sm font-medium">test1 romain</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="ff-scroll flex-1 overflow-y-auto px-5 md:px-8 py-7">
+      <div class="mx-auto max-w-[1200px] space-y-6">
+
+        <!-- header -->
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div class="grid h-11 w-11 place-items-center rounded-xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-inset ring-orange-600/15"><i data-lucide="line-chart" class="h-5 w-5"></i></div>
+            <div>
+              <h1 id="tsName" class="font-mono text-xl font-semibold tracking-tight">balance_euro</h1>
+              <p class="text-sm text-stone-500 dark:text-stone-400 flex items-center gap-2">Time series mensuelle · 24 points · janv. 2024 → déc. 2025</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="tsChip"></span>
+            <button class="inline-flex items-center gap-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><i data-lucide="download" class="h-4 w-4"></i> Exporter CSV</button>
+          </div>
+        </div>
+
+        <!-- series picker -->
+        <div id="picker" class="flex flex-wrap gap-2"></div>
+
+        <!-- stats -->
+        <div id="stats" class="grid grid-cols-2 lg:grid-cols-5 gap-3"></div>
+
+        <!-- chart card -->
+        <div class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm">
+          <div class="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-stone-200 dark:border-stone-800">
+            <div class="text-sm font-medium">Évolution</div>
+            <div class="flex items-center gap-1 rounded-lg border border-stone-200 dark:border-stone-800 p-0.5 text-xs">
+              <button class="rounded-md px-2.5 py-1 font-medium bg-stone-100 dark:bg-stone-800">24M</button>
+              <button class="rounded-md px-2.5 py-1 text-stone-500 hover:text-stone-800 dark:hover:text-stone-200">12M</button>
+              <button class="rounded-md px-2.5 py-1 text-stone-500 hover:text-stone-800 dark:hover:text-stone-200">2024</button>
+              <button class="rounded-md px-2.5 py-1 text-stone-500 hover:text-stone-800 dark:hover:text-stone-200">2025</button>
+            </div>
+          </div>
+          <div id="chart" class="p-4"></div>
+        </div>
+
+        <!-- data table -->
+        <div class="overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm">
+          <div class="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-stone-200 dark:border-stone-800">
+            <div class="text-sm font-medium">Valeurs mensuelles</div>
+            <div class="text-xs text-stone-400">source du calcul : <code class="font-mono">balance * change_rate</code></div>
+          </div>
+          <div class="p-4"><div id="tsTable"></div></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script>
+  const SERIES = {
+    balance_euro: { values: FF.balance_euro, source: 'calc', unit: 'EUR' },
+    balance:      { values: FF.balance,      source: 'csv',  unit: 'CHF' },
+    change_rate:  { values: FF.change_rate,  source: 'api',  unit: '' },
+    balance_ma3:  { values: FF.balance_ma3,  source: 'calc', unit: 'EUR' },
+  };
+  let current = 'balance_euro';
+
+  function chartSVG(values, labels) {
+    const W = 1000, H = 320, pl = 58, pr = 18, pt = 16, pb = 30;
+    const iw = W - pl - pr, ih = H - pt - pb;
+    let min = Math.min(...values), max = Math.max(...values);
+    if (min === max) { min -= 1; max += 1; }
+    const lo = min - (max - min) * 0.10, hi = max + (max - min) * 0.10;
+    const X = (i) => pl + (i / (values.length - 1)) * iw;
+    const Y = (v) => pt + (1 - (v - lo) / (hi - lo)) * ih;
+    let grid = '';
+    for (let g = 0; g <= 4; g++) {
+      const val = hi - (g / 4) * (hi - lo), yy = pt + (g / 4) * ih;
+      grid += `<line x1="${pl}" x2="${pl + iw}" y1="${yy.toFixed(1)}" y2="${yy.toFixed(1)}" class="chart-grid"/>`;
+      grid += `<text x="${pl - 12}" y="${(yy + 4).toFixed(1)}" class="chart-axis" text-anchor="end">${ffNum(val, 0)}</text>`;
+    }
+    let xl = '';
+    labels.forEach((l, i) => { if (i % 3 === 0) xl += `<text x="${X(i).toFixed(1)}" y="${H - 8}" class="chart-axis" text-anchor="middle">${l}</text>`; });
+    const line = values.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' ');
+    const area = `M ${pl},${pt + ih} L ` + values.map((v, i) => `${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(' L ') + ` L ${pl + iw},${pt + ih} Z`;
+    const dots = values.map((v, i) => `<circle cx="${X(i).toFixed(1)}" cy="${Y(v).toFixed(1)}" r="2.4" class="chart-dot"/>`).join('');
+    const li = values.length - 1, lx = X(li).toFixed(1), ly = Y(values[li]).toFixed(1);
+    return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" preserveAspectRatio="xMidYMid meet" font-family="Geist Mono">
+      ${grid}<path d="${area}" class="chart-area"/><polyline points="${line}" class="chart-line"/>${dots}
+      <circle cx="${lx}" cy="${ly}" r="8" class="chart-lastring"/><circle cx="${lx}" cy="${ly}" r="3.5" class="chart-last"/>
+      ${xl}</svg>`;
+  }
+
+  function statCard(label, value, sub) {
+    return `<div class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4">
+      <div class="text-[11px] uppercase tracking-wider text-stone-400">${label}</div>
+      <div class="mt-1 tnum text-xl font-semibold">${value}</div>
+      ${sub ? `<div class="text-xs text-stone-400 mt-0.5">${sub}</div>` : ''}</div>`;
+  }
+
+  function render() {
+    const s = SERIES[current];
+    const v = s.values;
+    const sum = v.reduce((a, b) => a + b, 0);
+    const avg = sum / v.length, mn = Math.min(...v), mx = Math.max(...v), last = v[v.length - 1];
+    document.getElementById('tsName').textContent = current;
+    document.getElementById('tsChip').innerHTML = ffChip(s.source);
+    document.getElementById('chart').innerHTML = chartSVG(v, FF_MONTHS);
+    const u = s.unit ? ' ' + s.unit : '';
+    document.getElementById('stats').innerHTML =
+      statCard('Dernière valeur', ffNum(last, 2) + u, FF_MONTHS[v.length - 1]) +
+      statCard('Moyenne', ffNum(avg, 2) + u) +
+      statCard('Minimum', ffNum(mn, 2) + u) +
+      statCard('Maximum', ffNum(mx, 2) + u) +
+      statCard('Total', ffNum(sum, 2) + u, '24 mois');
+    document.getElementById('tsTable').innerHTML = ffSeriesTable([{ name: current, source: s.source, values: v, dec: 2 }]);
+    document.querySelectorAll('[data-series]').forEach((b) => {
+      const on = b.dataset.series === current;
+      b.className = 'data-pill rounded-lg px-3 py-1.5 text-sm font-mono transition-colors ' + (on
+        ? 'bg-orange-600 text-white'
+        : 'border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800');
+    });
+    lucide.createIcons();
+  }
+
+  document.getElementById('picker').innerHTML = Object.keys(SERIES).map((k) =>
+    `<button data-series="${k}" onclick="ffSelect('${k}')">${k}</button>`).join('');
+  window.ffSelect = (k) => { current = k; render(); };
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FormulaForge — Éditeur</title>
+<script>(function(){try{var t=localStorage.getItem('ff-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/theme.js"></script>
+<link rel="stylesheet" href="assets/app.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="h-full bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans antialiased">
+<div class="flex h-full">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="hidden md:flex w-[230px] shrink-0 flex-col border-r border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900">
+    <div class="flex items-center gap-2.5 px-5 h-16 border-b border-stone-200 dark:border-stone-800">
+      <div class="grid h-8 w-8 place-items-center rounded-lg bg-orange-600 text-white shadow-sm shadow-orange-600/30">
+        <i data-lucide="square-function" class="h-5 w-5"></i>
+      </div>
+      <div class="leading-tight">
+        <div class="text-[15px] font-semibold tracking-tight">FormulaForge</div>
+        <div class="text-[10px] uppercase tracking-widest text-stone-400">Forge de calculs</div>
+      </div>
+    </div>
+    <nav class="flex-1 px-3 py-4 space-y-0.5 text-sm">
+      <a href="Projects.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors">
+        <i data-lucide="layout-dashboard" class="h-[18px] w-[18px]"></i> Tableau de bord</a>
+      <a href="Projects.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors">
+        <i data-lucide="folder-kanban" class="h-[18px] w-[18px]"></i> Projets</a>
+      <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 ring-1 ring-inset ring-orange-600/15 dark:ring-orange-400/20">
+        <i data-lucide="square-pen" class="h-[18px] w-[18px]"></i> Éditeur</a>
+      <a href="Connectors.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors">
+        <i data-lucide="plug-zap" class="h-[18px] w-[18px]"></i> Connecteurs</a>
+      <div class="pt-4 pb-1 px-3 text-[10px] font-semibold uppercase tracking-widest text-stone-400">Ce projet</div>
+      <a href="TimeSeries.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors">
+        <i data-lucide="line-chart" class="h-[18px] w-[18px]"></i> Time series</a>
+      <a href="#code" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors">
+        <i data-lucide="braces" class="h-[18px] w-[18px]"></i> Script</a>
+    </nav>
+    <div class="px-4 py-3 border-t border-stone-200 dark:border-stone-800">
+      <a href="#" class="flex items-center gap-2 text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 transition-colors">
+        <i data-lucide="git-branch" class="h-4 w-4"></i> Open source · v0.9.2</a>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN COLUMN ============ -->
+  <div class="flex min-w-0 flex-1 flex-col">
+
+    <!-- top bar -->
+    <header class="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-stone-200 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur px-5">
+      <div class="flex items-center gap-2 text-sm min-w-0">
+        <a href="Projects.html" class="text-stone-500 hover:text-stone-800 dark:hover:text-stone-200">Projets</a>
+        <i data-lucide="chevron-right" class="h-4 w-4 text-stone-300 dark:text-stone-600"></i>
+        <span class="font-medium truncate">budget frontalier 2026</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <button onclick="ffToggleTheme()" class="grid h-9 w-9 place-items-center rounded-lg text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-800 dark:hover:text-stone-200 transition-colors ff-focus" title="Basculer le thème">
+          <i data-theme-icon="1" data-lucide="moon" class="h-[18px] w-[18px]"></i>
+        </button>
+        <button class="grid h-9 w-9 place-items-center rounded-lg text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-800 dark:hover:text-stone-200 transition-colors" title="Aide">
+          <i data-lucide="circle-help" class="h-[18px] w-[18px]"></i>
+        </button>
+        <div class="mx-1 h-6 w-px bg-stone-200 dark:bg-stone-700"></div>
+        <button class="flex items-center gap-2 rounded-lg pl-1 pr-2 py-1 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+          <span class="grid h-7 w-7 place-items-center rounded-full bg-stone-800 dark:bg-stone-700 text-[11px] font-semibold text-white">RT</span>
+          <span class="hidden sm:block text-sm font-medium">test1 romain</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- editor toolbar -->
+    <div class="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 dark:border-stone-800 bg-stone-50/90 dark:bg-stone-950/90 backdrop-blur px-5 md:px-8 py-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <label class="sr-only" for="pname">Nom du projet</label>
+        <input id="pname" value="budget frontalier 2026"
+          class="ff-focus w-[260px] max-w-[55vw] rounded-lg border border-transparent hover:border-stone-300 dark:hover:border-stone-700 focus:border-orange-500 bg-transparent px-2.5 py-1.5 text-[17px] font-semibold tracking-tight transition-colors" />
+        <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-stone-400">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> Enregistré il y a 2 min
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="inline-flex items-center gap-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+          <i data-lucide="save" class="h-4 w-4"></i> Enregistrer
+        </button>
+        <button id="runBtn" onclick="ffRun()" class="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm shadow-orange-600/30 hover:bg-orange-700 active:bg-orange-800 transition-colors ff-focus">
+          <i id="runIcon" data-lucide="play" class="h-4 w-4"></i> <span id="runLabel">Exécuter</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- scroll body -->
+    <main class="ff-scroll flex-1 overflow-y-auto px-5 md:px-8 py-7">
+      <div class="mx-auto max-w-[1400px] space-y-7">
+
+        <!-- ===== INPUTS ===== -->
+        <section class="overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-stone-200 dark:border-stone-800">
+            <div class="flex items-center gap-3">
+              <div class="grid h-9 w-9 place-items-center rounded-lg bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-300 ring-1 ring-inset ring-sky-600/15">
+                <i data-lucide="import" class="h-[18px] w-[18px]"></i>
+              </div>
+              <div>
+                <h2 class="text-[15px] font-semibold tracking-tight">Inputs</h2>
+                <p class="text-xs text-stone-500 dark:text-stone-400">Données sourcées — <span class="tnum">3</span> scalaires · <span class="tnum">2</span> time series</p>
+              </div>
+            </div>
+            <a href="Connectors.html" class="inline-flex items-center gap-2 rounded-lg border border-stone-300 dark:border-stone-700 px-3 py-1.5 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+              <i data-lucide="plug-zap" class="h-4 w-4"></i> Gérer les sources
+            </a>
+          </div>
+          <div class="p-5 space-y-4">
+            <div id="inScalars" class="ff-scroll flex gap-3 overflow-x-auto pb-1"></div>
+            <div id="inSeries"></div>
+          </div>
+        </section>
+
+        <!-- ===== CODE ===== -->
+        <section id="code" class="overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-stone-200 dark:border-stone-800">
+            <div class="flex items-center gap-3">
+              <div class="grid h-9 w-9 place-items-center rounded-lg bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-inset ring-orange-600/15">
+                <i data-lucide="braces" class="h-[18px] w-[18px]"></i>
+              </div>
+              <div>
+                <h2 class="text-[15px] font-semibold tracking-tight flex items-center gap-2">Code
+                  <span class="rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 ring-1 ring-inset ring-stone-200 dark:ring-stone-700">FormulaScript</span>
+                </h2>
+                <p class="text-xs text-stone-500 dark:text-stone-400">Éditeur Monaco · coloration du langage maison</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button class="grid h-8 w-8 place-items-center rounded-lg text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-800 dark:hover:text-stone-200 transition-colors" title="Formater"><i data-lucide="wand-sparkles" class="h-4 w-4"></i></button>
+              <button class="grid h-8 w-8 place-items-center rounded-lg text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-800 dark:hover:text-stone-200 transition-colors" title="Documentation des fonctions"><i data-lucide="book-open" class="h-4 w-4"></i></button>
+              <button class="grid h-8 w-8 place-items-center rounded-lg text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-800 dark:hover:text-stone-200 transition-colors" title="Plein écran"><i data-lucide="maximize-2" class="h-4 w-4"></i></button>
+            </div>
+          </div>
+
+          <!-- code mock (Monaco in the real app) -->
+          <div id="codeHost" class="relative bg-stone-50/60 dark:bg-stone-950/40 font-mono text-[13px] leading-[1.7]">
+            <div class="flex">
+              <div data-gutter="1" class="shrink-0 py-3 border-r border-stone-200 dark:border-stone-800 bg-stone-100/60 dark:bg-stone-900/60"></div>
+              <div data-code="1" class="flex-1 py-3 overflow-x-auto ff-scroll text-stone-800 dark:text-stone-200"></div>
+            </div>
+          </div>
+
+          <!-- run console / problems -->
+          <div class="border-t border-stone-200 dark:border-stone-800">
+            <div class="flex items-center justify-between gap-2 px-3 pt-2 border-b border-stone-200 dark:border-stone-800">
+              <div class="flex items-center gap-1 text-[13px]">
+                <button onclick="ffTab('console')" data-tab="console" class="ff-tab relative px-3 py-2 font-medium">Console</button>
+                <button onclick="ffTab('problems')" data-tab="problems" class="ff-tab relative px-3 py-2 font-medium text-stone-500">
+                  Problèmes <span class="ml-1 rounded-full bg-amber-100 dark:bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">1</span>
+                </button>
+                <button onclick="ffTab('vars')" data-tab="vars" class="ff-tab relative px-3 py-2 font-medium text-stone-500">
+                  Variables <span class="ml-1 rounded-full bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 text-[10px] font-semibold text-stone-500">5</span>
+                </button>
+              </div>
+              <div id="runStatus" class="flex items-center gap-1.5 pr-1 text-xs text-emerald-600 dark:text-emerald-400">
+                <i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i> Exécuté en <span class="tnum">42</span> ms
+              </div>
+            </div>
+
+            <div class="ff-scroll max-h-52 overflow-y-auto px-4 py-3 font-mono text-[12.5px] leading-relaxed">
+              <!-- console -->
+              <div data-panel="console" class="space-y-1">
+                <div class="text-stone-400">› run — 31/05/2026 14:08:22</div>
+                <div class="text-stone-500 dark:text-stone-400"><span class="text-sky-600 dark:text-sky-400">[info]</span> Chargement des sources… 2 time series, 3 scalaires</div>
+                <div class="text-stone-500 dark:text-stone-400"><span class="text-sky-600 dark:text-sky-400">[info]</span> Compilation FormulaScript — 5 instructions</div>
+                <div class="text-stone-500 dark:text-stone-400"><span class="text-amber-600 dark:text-amber-400">[warn]</span> ligne 9 — <span class="text-stone-700 dark:text-stone-300">change_rate</span> contient 0 valeur nulle, OK</div>
+                <div class="text-stone-500 dark:text-stone-400"><span class="text-emerald-600 dark:text-emerald-400">[ok]</span> 3 variables produites · 24 points chacune</div>
+                <div class="text-emerald-600 dark:text-emerald-400">✓ Terminé en 42 ms</div>
+              </div>
+              <!-- problems -->
+              <div data-panel="problems" class="hidden space-y-2">
+                <div class="flex items-start gap-3 rounded-lg border border-amber-200 dark:border-amber-500/20 bg-amber-50/60 dark:bg-amber-500/5 px-3 py-2.5">
+                  <i data-lucide="alert-triangle" class="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400"></i>
+                  <div class="font-sans text-[13px]">
+                    <div class="font-medium text-amber-800 dark:text-amber-300">Avertissement — ligne 9, col 14</div>
+                    <div class="text-stone-600 dark:text-stone-400">Le résultat <span class="font-mono text-[12px]">taux_moyen</span> n'est référencé par aucune sortie. <a href="#" class="text-orange-600 dark:text-orange-400 hover:underline">Aller à la ligne</a></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 px-1 pt-1 text-[13px] font-sans text-stone-400">
+                  <i data-lucide="check" class="h-4 w-4 text-emerald-500"></i> Aucune erreur bloquante.
+                </div>
+              </div>
+              <!-- variables -->
+              <div data-panel="vars" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-1.5 font-sans text-[13px]">
+                <div class="flex items-center justify-between rounded-md bg-stone-50 dark:bg-stone-800/50 px-2.5 py-1.5"><span class="font-mono text-[12px]">balance_euro</span><span class="text-stone-400 text-xs">series · 24</span></div>
+                <div class="flex items-center justify-between rounded-md bg-stone-50 dark:bg-stone-800/50 px-2.5 py-1.5"><span class="font-mono text-[12px]">balance_ma3</span><span class="text-stone-400 text-xs">series · 24</span></div>
+                <div class="flex items-center justify-between rounded-md bg-stone-50 dark:bg-stone-800/50 px-2.5 py-1.5"><span class="font-mono text-[12px]">total_2024</span><span class="text-stone-400 text-xs">scalar</span></div>
+                <div class="flex items-center justify-between rounded-md bg-stone-50 dark:bg-stone-800/50 px-2.5 py-1.5"><span class="font-mono text-[12px]">taux_moyen</span><span class="text-stone-400 text-xs">scalar</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== OUTPUTS ===== -->
+        <section class="overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-stone-200 dark:border-stone-800">
+            <div class="flex items-center gap-3">
+              <div class="grid h-9 w-9 place-items-center rounded-lg bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-inset ring-orange-600/15">
+                <i data-lucide="sigma" class="h-[18px] w-[18px]"></i>
+              </div>
+              <div>
+                <h2 class="text-[15px] font-semibold tracking-tight">Outputs</h2>
+                <p class="text-xs text-stone-500 dark:text-stone-400">Variables calculées par le script — <span class="tnum">2</span> scalaires · <span class="tnum">2</span> time series</p>
+              </div>
+            </div>
+            <button class="inline-flex items-center gap-2 rounded-lg border border-stone-300 dark:border-stone-700 px-3 py-1.5 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+              <i data-lucide="download" class="h-4 w-4"></i> Exporter
+            </button>
+          </div>
+          <div class="p-5 space-y-4">
+            <div id="outScalars" class="ff-scroll flex gap-3 overflow-x-auto pb-1"></div>
+            <div id="outSeries"></div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script>
+  // ----- inputs
+  document.getElementById('inScalars').innerHTML = ffScalars([
+    { name: 'X', value: '10', source: 'api' },
+    { name: 'taux_tva', value: '0,077', source: 'db' },
+    { name: 'capital_initial', value: '25 000', source: 'csv', unit: 'CHF' },
+  ]);
+  document.getElementById('inSeries').innerHTML = ffSeriesTable([
+    { name: 'balance', source: 'csv', values: FF.balance, dec: 2 },
+    { name: 'change_rate', source: 'api', values: FF.change_rate, dec: 2 },
+  ]);
+
+  // ----- outputs
+  document.getElementById('outScalars').innerHTML = ffScalars([
+    { name: 'total_2024', value: '4 309,40', source: 'calc', unit: 'EUR' },
+    { name: 'taux_moyen', value: '0,496', source: 'calc' },
+  ]);
+  document.getElementById('outSeries').innerHTML = ffSeriesTable([
+    { name: 'balance_euro', source: 'calc', values: FF.balance_euro, dec: 2 },
+    { name: 'balance_ma3', source: 'calc', values: FF.balance_ma3, dec: 2 },
+  ]);
+
+  // ----- code
+  ffRenderCode('#codeHost', [
+    '# Conversion du solde en euros',
+    'balance_euro = balance * change_rate',
+    '',
+    '# Moyenne glissante 3 mois sur le montant converti',
+    'balance_ma3 = mean(balance_euro, window: 3)',
+    '',
+    '# Indicateurs annuels',
+    'total_2024 = sum(balance_euro["2024"])',
+    'taux_moyen = mean(change_rate)',
+  ].join('\n'));
+
+  // ----- console tabs
+  function ffTab(name) {
+    document.querySelectorAll('[data-panel]').forEach(p => p.classList.toggle('hidden', p.dataset.panel !== name));
+    document.querySelectorAll('.ff-tab').forEach(t => {
+      const on = t.dataset.tab === name;
+      t.classList.toggle('is-active', on);
+      t.classList.toggle('text-stone-500', !on);
+    });
+  }
+  window.ffTab = ffTab; ffTab('console');
+
+  // ----- run animation
+  function ffRun() {
+    const icon = document.getElementById('runIcon');
+    const label = document.getElementById('runLabel');
+    const status = document.getElementById('runStatus');
+    label.textContent = 'Exécution…';
+    icon.setAttribute('data-lucide', 'loader-2'); icon.classList.add('ff-spin'); lucide.createIcons();
+    status.innerHTML = '<i data-lucide="loader-2" class="h-3.5 w-3.5 ff-spin"></i> En cours…';
+    status.className = 'flex items-center gap-1.5 pr-1 text-xs text-stone-500';
+    lucide.createIcons();
+    setTimeout(() => {
+      label.textContent = 'Exécuter';
+      icon.classList.remove('ff-spin'); icon.setAttribute('data-lucide', 'play');
+      const ms = 38 + Math.floor(Math.random() * 12);
+      status.innerHTML = `<i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i> Exécuté en <span class="tnum">${ms}</span> ms`;
+      status.className = 'flex items-center gap-1.5 pr-1 text-xs text-emerald-600 dark:text-emerald-400';
+      lucide.createIcons();
+    }, 750);
+  }
+  window.ffRun = ffRun;
+
+  lucide.createIcons();
+</script>
+</body>
+</html>

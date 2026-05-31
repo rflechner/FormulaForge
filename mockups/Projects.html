@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FormulaForge — Projets</title>
+<script>(function(){try{var t=localStorage.getItem('ff-theme');if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/theme.js"></script>
+<link rel="stylesheet" href="assets/app.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="h-full bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans antialiased">
+<div class="flex h-full">
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="hidden md:flex w-[230px] shrink-0 flex-col border-r border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900">
+    <div class="flex items-center gap-2.5 px-5 h-16 border-b border-stone-200 dark:border-stone-800">
+      <div class="grid h-8 w-8 place-items-center rounded-lg bg-orange-600 text-white shadow-sm shadow-orange-600/30"><i data-lucide="square-function" class="h-5 w-5"></i></div>
+      <div class="leading-tight">
+        <div class="text-[15px] font-semibold tracking-tight">FormulaForge</div>
+        <div class="text-[10px] uppercase tracking-widest text-stone-400">Forge de calculs</div>
+      </div>
+    </div>
+    <nav class="flex-1 px-3 py-4 space-y-0.5 text-sm">
+      <a href="Projects.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors"><i data-lucide="layout-dashboard" class="h-[18px] w-[18px]"></i> Tableau de bord</a>
+      <a href="Projects.html" class="flex items-center gap-3 rounded-lg px-3 py-2 font-medium text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-500/10 ring-1 ring-inset ring-orange-600/15 dark:ring-orange-400/20"><i data-lucide="folder-kanban" class="h-[18px] w-[18px]"></i> Projets</a>
+      <a href="Editor.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors"><i data-lucide="square-pen" class="h-[18px] w-[18px]"></i> Éditeur</a>
+      <a href="Connectors.html" class="flex items-center gap-3 rounded-lg px-3 py-2 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800/70 transition-colors"><i data-lucide="plug-zap" class="h-[18px] w-[18px]"></i> Connecteurs</a>
+    </nav>
+    <div class="px-4 py-3 border-t border-stone-200 dark:border-stone-800">
+      <a href="#" class="flex items-center gap-2 text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 transition-colors"><i data-lucide="git-branch" class="h-4 w-4"></i> Open source · v0.9.2</a>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <div class="flex min-w-0 flex-1 flex-col">
+    <header class="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-stone-200 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur px-5">
+      <div class="text-sm font-medium">Projets</div>
+      <div class="flex items-center gap-1.5">
+        <button onclick="ffToggleTheme()" class="grid h-9 w-9 place-items-center rounded-lg text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-800 dark:hover:text-stone-200 transition-colors ff-focus" title="Basculer le thème"><i data-theme-icon="1" data-lucide="moon" class="h-[18px] w-[18px]"></i></button>
+        <div class="mx-1 h-6 w-px bg-stone-200 dark:bg-stone-700"></div>
+        <button class="flex items-center gap-2 rounded-lg pl-1 pr-2 py-1 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+          <span class="grid h-7 w-7 place-items-center rounded-full bg-stone-800 dark:bg-stone-700 text-[11px] font-semibold text-white">RT</span>
+          <span class="hidden sm:block text-sm font-medium">test1 romain</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="ff-scroll flex-1 overflow-y-auto px-5 md:px-8 py-7">
+      <div class="mx-auto max-w-[1200px] space-y-6">
+
+        <!-- title row -->
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 class="text-2xl font-semibold tracking-tight">Projets</h1>
+            <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">Vos feuilles de calcul et leurs scripts FormulaScript.</p>
+          </div>
+          <a href="Editor.html" class="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-orange-600/30 hover:bg-orange-700 transition-colors ff-focus"><i data-lucide="plus" class="h-4 w-4"></i> Nouveau projet</a>
+        </div>
+
+        <!-- stat strip -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4">
+            <div class="flex items-center gap-2 text-xs text-stone-500"><i data-lucide="folder" class="h-4 w-4"></i> Projets</div>
+            <div class="mt-1 tnum text-2xl font-semibold">6</div>
+          </div>
+          <div class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4">
+            <div class="flex items-center gap-2 text-xs text-stone-500"><i data-lucide="plug-zap" class="h-4 w-4"></i> Sources actives</div>
+            <div class="mt-1 tnum text-2xl font-semibold">4</div>
+          </div>
+          <div class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4">
+            <div class="flex items-center gap-2 text-xs text-stone-500"><i data-lucide="play" class="h-4 w-4"></i> Runs aujourd'hui</div>
+            <div class="mt-1 tnum text-2xl font-semibold">23</div>
+          </div>
+          <div class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4">
+            <div class="flex items-center gap-2 text-xs text-stone-500"><i data-lucide="timer" class="h-4 w-4"></i> Temps moyen</div>
+            <div class="mt-1 tnum text-2xl font-semibold">48 <span class="text-base font-normal text-stone-400">ms</span></div>
+          </div>
+        </div>
+
+        <!-- toolbar -->
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="relative flex-1 min-w-[220px]">
+            <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400"></i>
+            <input placeholder="Rechercher un projet…" class="ff-focus w-full rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 pl-9 pr-3 py-2 text-sm placeholder:text-stone-400" />
+          </div>
+          <button class="inline-flex items-center gap-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><i data-lucide="list-filter" class="h-4 w-4"></i> Filtrer</button>
+          <button class="inline-flex items-center gap-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"><i data-lucide="arrow-up-down" class="h-4 w-4"></i> Récents</button>
+        </div>
+
+        <!-- projects table -->
+        <div class="overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm">
+          <div class="ff-scroll overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-left text-[11px] uppercase tracking-wider text-stone-500 dark:text-stone-400 border-b border-stone-200 dark:border-stone-800">
+                  <th class="px-5 py-3 font-medium">Projet</th>
+                  <th class="px-4 py-3 font-medium">Sources</th>
+                  <th class="px-4 py-3 font-medium text-right">In / Out</th>
+                  <th class="px-4 py-3 font-medium">Dernier run</th>
+                  <th class="px-4 py-3 font-medium">Modifié</th>
+                  <th class="px-4 py-3 font-medium"></th>
+                </tr>
+              </thead>
+              <tbody id="rows" class="divide-y divide-stone-100 dark:divide-stone-800/70"></tbody>
+            </table>
+          </div>
+        </div>
+        <p class="text-xs text-stone-400">6 projets · stockés localement (démo)</p>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script>
+  const projects = [
+    { name: 'budget frontalier 2026', desc: 'Conversion CHF→EUR, moyennes glissantes', sources: ['csv','api'], io: '5 / 4', run: 'ok', runlbl: 'OK · 42 ms', mod: 'il y a 2 min', active: true },
+    { name: 'prévision trésorerie Q3', desc: 'Projection de flux sur 90 jours', sources: ['db','push'], io: '8 / 6', run: 'ok', runlbl: 'OK · 71 ms', mod: 'il y a 1 h' },
+    { name: 'consolidation filiales', desc: 'Agrégation multi-entités', sources: ['csv'], io: '12 / 9', run: 'err', runlbl: 'Erreur ligne 14', mod: 'hier' },
+    { name: 'simulation taux 2027', desc: 'Scénarios de taux directeur', sources: ['api'], io: '3 / 5', run: 'ok', runlbl: 'OK · 19 ms', mod: 'il y a 3 j' },
+    { name: 'reporting paie', desc: 'Charges sociales mensuelles', sources: ['push'], io: '6 / 4', run: 'idle', runlbl: 'Jamais exécuté', mod: 'il y a 1 sem' },
+    { name: 'inventaire stock', desc: 'Rotation et valorisation', sources: ['csv','db'], io: '20 / 14', run: 'ok', runlbl: 'OK · 128 ms', mod: 'il y a 2 sem' },
+  ];
+  const runStyle = {
+    ok:  'text-emerald-700 bg-emerald-50 ring-emerald-600/20 dark:text-emerald-300 dark:bg-emerald-500/10 dark:ring-emerald-400/20',
+    err: 'text-red-700 bg-red-50 ring-red-600/20 dark:text-red-300 dark:bg-red-500/10 dark:ring-red-400/20',
+    idle:'text-stone-500 bg-stone-100 ring-stone-300/60 dark:text-stone-400 dark:bg-stone-800 dark:ring-stone-700',
+  };
+  const runDot = { ok: 'bg-emerald-500', err: 'bg-red-500', idle: 'bg-stone-400' };
+  document.getElementById('rows').innerHTML = projects.map((p) => `
+    <tr class="group hover:bg-orange-50/40 dark:hover:bg-stone-800/40 transition-colors cursor-pointer" onclick="location.href='Editor.html'">
+      <td class="px-5 py-3.5">
+        <div class="flex items-center gap-3">
+          <div class="grid h-9 w-9 place-items-center rounded-lg bg-stone-100 dark:bg-stone-800 text-stone-500 group-hover:bg-orange-100 dark:group-hover:bg-orange-500/15 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors"><i data-lucide="table-2" class="h-[18px] w-[18px]"></i></div>
+          <div class="min-w-0">
+            <div class="font-medium truncate flex items-center gap-2">${p.name} ${p.active ? '<span class="rounded px-1.5 py-0.5 text-[10px] font-semibold bg-orange-100 dark:bg-orange-500/15 text-orange-700 dark:text-orange-300">ouvert</span>' : ''}</div>
+            <div class="text-xs text-stone-500 dark:text-stone-400 truncate">${p.desc}</div>
+          </div>
+        </div>
+      </td>
+      <td class="px-4 py-3.5"><div class="flex gap-1">${p.sources.map(ffChip).join('')}</div></td>
+      <td class="px-4 py-3.5 text-right tnum text-stone-600 dark:text-stone-300">${p.io}</td>
+      <td class="px-4 py-3.5"><span class="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${runStyle[p.run]}"><span class="h-1.5 w-1.5 rounded-full ${runDot[p.run]}"></span>${p.runlbl}</span></td>
+      <td class="px-4 py-3.5 text-stone-500 dark:text-stone-400 text-sm whitespace-nowrap">${p.mod}</td>
+      <td class="px-4 py-3.5 text-right"><button onclick="event.stopPropagation()" class="grid h-8 w-8 place-items-center rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:hover:text-stone-200 transition-colors"><i data-lucide="ellipsis" class="h-4 w-4"></i></button></td>
+    </tr>`).join('');
+  lucide.createIcons();
+</script>
+</body>
+</html>
