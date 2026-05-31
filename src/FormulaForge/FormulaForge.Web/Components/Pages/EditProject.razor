@@ -1,45 +1,266 @@
-﻿@page "/edit-project/{projectId:guid?}"
+@page "/edit-project/{projectId:guid?}"
 
-<PageTitle>Computation script</PageTitle>
+<PageTitle>@Project.Name — FormulaForge</PageTitle>
 
-<FluentAppBar PopoverShowSearch="false" Orientation="Orientation.Horizontal">
-    
-    <FluentAppBarItem OnClick="@RunScript"
-                      Style="cursor: pointer;"
-                      Match="NavLinkMatch.All"
-                      IconRest="PlayIcon()"
-                      IconActive="PlayIcon(active: true)"
-                      Text="Run script" />
-    
-    <FluentAppBarItem OnClick="@SaveProject"
-                      Style="cursor: pointer;"
-                      Match="NavLinkMatch.All"
-                      IconRest="SaveIcon()"
-                      IconActive="SaveIcon(active: true)"
-                      Text="Save" />
-    
-</FluentAppBar>
+<div class="flex flex-col min-h-full">
 
-<FluentCard>
-    <FluentTextField @bind-Value="Project.Name" Label="Project name"></FluentTextField>
-</FluentCard>
+    <!-- ===== TOOLBAR ===== -->
+    <div class="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 dark:border-stone-800 bg-stone-50/90 dark:bg-stone-950/90 backdrop-blur px-5 md:px-8 py-3">
+        <div class="flex items-center gap-3 min-w-0">
+            <input @bind="Project.Name"
+                   class="ff-focus w-[260px] max-w-[55vw] rounded-lg border border-transparent hover:border-stone-300 dark:hover:border-stone-700 focus:border-orange-500 bg-transparent px-2.5 py-1.5 text-[17px] font-semibold tracking-tight transition-colors focus:outline-none dark:text-stone-100"
+                   placeholder="Nom du projet"/>
+            @if (_savedAt.HasValue)
+            {
+                <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-stone-400">
+                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                    Enregistré @_savedAt.Value.ToString("HH:mm")
+                </span>
+            }
+        </div>
+        <div class="flex items-center gap-2">
+            <button @onclick="SaveProject"
+                    class="inline-flex items-center gap-2 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-3 py-2 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                <i data-lucide="save" class="h-4 w-4"></i> Enregistrer
+            </button>
+            <button @onclick="RunScript"
+                    disabled="@_isRunning"
+                    class="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-3.5 py-2 text-sm font-semibold text-white shadow-sm shadow-orange-600/30 hover:bg-orange-700 active:bg-orange-800 disabled:opacity-60 transition-colors ff-focus">
+                @if (_isRunning)
+                {
+                    <i data-lucide="loader-2" class="h-4 w-4 ff-spin"></i>
+                    <span>Exécution…</span>
+                }
+                else
+                {
+                    <i data-lucide="play" class="h-4 w-4"></i>
+                    <span>Exécuter</span>
+                }
+            </button>
+        </div>
+    </div>
 
-<FluentCard>
-    <h3>Inputs</h3>
-    <ComputationGrid Months="@_months" Series="@_inputsSeries" Scalars="@_inputsScalars" />
-</FluentCard>
+    <!-- ===== ERROR BANNER ===== -->
+    @if (_errorMessage != null)
+    {
+        <div class="mx-5 md:mx-8 mt-4 flex items-start gap-3 rounded-lg border border-red-200 dark:border-red-500/20 bg-red-50 dark:bg-red-500/5 px-4 py-3">
+            <i data-lucide="alert-circle" class="mt-0.5 h-4 w-4 shrink-0 text-red-500"></i>
+            <p class="text-sm text-red-700 dark:text-red-300 flex-1">@_errorMessage</p>
+            <button @onclick="() => _errorMessage = null" class="text-red-400 hover:text-red-600">
+                <i data-lucide="x" class="h-4 w-4"></i>
+            </button>
+        </div>
+    }
 
-<FluentCard>
-    <h3>Code</h3>
-    <MonacoEditor Id="my-editor-id" CssClass="my-editor-class"
-                  @ref="_editor"
-                  OnInitialized="@OnEditorDidInit"
-                  Language="formulaforge"
-                  Theme="vs"
-                  Value="@Project.Code" />
-</FluentCard>
+    <div class="px-5 md:px-8 py-7 space-y-7 max-w-[1400px] w-full mx-auto">
 
-<FluentCard>
-    <h3>Outputs</h3>
-    <ComputationGrid Months="@_months" Series="@_outputsSeries" Scalars="@_outputsScalars"/>
-</FluentCard>
+        <!-- ===== INPUTS ===== -->
+        <section id="inputs" class="overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-stone-200 dark:border-stone-800">
+                <div class="flex items-center gap-3">
+                    <div class="grid h-9 w-9 place-items-center rounded-lg bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-300 ring-1 ring-inset ring-sky-600/15">
+                        <i data-lucide="import" class="h-[18px] w-[18px]"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-[15px] font-semibold tracking-tight">Inputs</h2>
+                        <p class="text-xs text-stone-500 dark:text-stone-400">
+                            Données sourcées —
+                            <span class="tnum">@_inputsScalars.Count</span> scalaire@(_inputsScalars.Count > 1 ? "s" : "") ·
+                            <span class="tnum">@_inputsSeries.Count</span> time serie@(_inputsSeries.Count > 1 ? "s" : "")
+                        </p>
+                    </div>
+                </div>
+                <a href="/connectors"
+                   class="inline-flex items-center gap-2 rounded-lg border border-stone-300 dark:border-stone-700 px-3 py-1.5 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                    <i data-lucide="plug-zap" class="h-4 w-4"></i> Gérer les sources
+                </a>
+            </div>
+            <div class="p-5 space-y-4">
+                <ComputationGrid Months="@_months" Series="@_inputsSeries" Scalars="@_inputsScalars" />
+            </div>
+        </section>
+
+        <!-- ===== CODE ===== -->
+        <section id="code" class="overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-stone-200 dark:border-stone-800">
+                <div class="flex items-center gap-3">
+                    <div class="grid h-9 w-9 place-items-center rounded-lg bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-inset ring-orange-600/15">
+                        <i data-lucide="braces" class="h-[18px] w-[18px]"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-[15px] font-semibold tracking-tight flex items-center gap-2">
+                            Code
+                            <span class="rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 ring-1 ring-inset ring-stone-200 dark:ring-stone-700">FormulaScript</span>
+                        </h2>
+                        <p class="text-xs text-stone-500 dark:text-stone-400">Éditeur Monaco · coloration du langage maison</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="grid h-8 w-8 place-items-center rounded-lg text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-800 dark:hover:text-stone-200 transition-colors" title="Plein écran">
+                        <i data-lucide="maximize-2" class="h-4 w-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Monaco editor -->
+            <div class="border-b border-stone-200 dark:border-stone-800">
+                <MonacoEditor Id="monaco-editor-container"
+                              @ref="_editor"
+                              OnInitialized="@OnEditorDidInit"
+                              Language="formulaforge"
+                              Theme="@(_isDark ? "vs-dark" : "vs")"
+                              Value="@Project.Code" />
+            </div>
+
+            <!-- Console / Problems / Variables tabs -->
+            <div>
+                <div class="flex items-center justify-between gap-2 px-3 pt-2 border-b border-stone-200 dark:border-stone-800">
+                    <div class="flex items-center gap-1 text-[13px]">
+                        <button @onclick='() => _activeTab = "console"'
+                                class="ff-tab relative px-3 py-2 font-medium @(_activeTab == "console" ? "is-active" : "text-stone-500")">
+                            Console
+                        </button>
+                        <button @onclick='() => _activeTab = "problems"'
+                                class="ff-tab relative px-3 py-2 font-medium @(_activeTab == "problems" ? "is-active" : "text-stone-500")">
+                            Problèmes
+                            @if (_invalidLineCount > 0)
+                            {
+                                <span class="ml-1 rounded-full bg-amber-100 dark:bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">@_invalidLineCount</span>
+                            }
+                        </button>
+                        <button @onclick='() => _activeTab = "variables"'
+                                class="ff-tab relative px-3 py-2 font-medium @(_activeTab == "variables" ? "is-active" : "text-stone-500")">
+                            Variables
+                            @if (_outputsSeries.Count + _outputsScalars.Count > 0)
+                            {
+                                <span class="ml-1 rounded-full bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 text-[10px] font-semibold text-stone-500">@(_outputsSeries.Count + _outputsScalars.Count)</span>
+                            }
+                        </button>
+                    </div>
+                    @if (_lastRunMs.HasValue)
+                    {
+                        <div class="flex items-center gap-1.5 pr-1 text-xs text-emerald-600 dark:text-emerald-400">
+                            <i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i>
+                            Exécuté en <span class="tnum ml-0.5">@_lastRunMs</span> ms
+                        </div>
+                    }
+                    else if (_isRunning)
+                    {
+                        <div class="flex items-center gap-1.5 pr-1 text-xs text-stone-400">
+                            <i data-lucide="loader-2" class="h-3.5 w-3.5 ff-spin"></i> En cours…
+                        </div>
+                    }
+                </div>
+
+                <div class="ff-scroll max-h-52 overflow-y-auto px-4 py-3 font-mono text-[12.5px] leading-relaxed">
+
+                    @if (_activeTab == "console")
+                    {
+                        <div class="space-y-1">
+                            @foreach (var log in _consoleLogs)
+                            {
+                                <div class="text-stone-500 dark:text-stone-400">
+                                    @if (log.Level == "info")
+                                    {
+                                        <span class="text-sky-600 dark:text-sky-400">[info]</span>
+                                    }
+                                    else if (log.Level == "warn")
+                                    {
+                                        <span class="text-amber-600 dark:text-amber-400">[warn]</span>
+                                    }
+                                    else if (log.Level == "ok")
+                                    {
+                                        <span class="text-emerald-600 dark:text-emerald-400">[ok]</span>
+                                    }
+                                    else if (log.Level == "err")
+                                    {
+                                        <span class="text-red-600 dark:text-red-400">[err]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-stone-400">›</span>
+                                    }
+                                    @(" " + log.Message)
+                                </div>
+                            }
+                            @if (!_consoleLogs.Any())
+                            {
+                                <div class="text-stone-400">En attente d'exécution…</div>
+                            }
+                        </div>
+                    }
+                    else if (_activeTab == "problems")
+                    {
+                        <div class="space-y-2 font-sans text-[13px]">
+                            @if (_invalidLineCount == 0)
+                            {
+                                <div class="flex items-center gap-2 px-1 text-stone-400">
+                                    <i data-lucide="check" class="h-4 w-4 text-emerald-500"></i> Aucune erreur détectée.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="flex items-start gap-3 rounded-lg border border-red-200 dark:border-red-500/20 bg-red-50/60 dark:bg-red-500/5 px-3 py-2.5">
+                                    <i data-lucide="alert-circle" class="mt-0.5 h-4 w-4 shrink-0 text-red-500"></i>
+                                    <div>
+                                        <div class="font-medium text-red-800 dark:text-red-300">@_invalidLineCount ligne@(_invalidLineCount > 1 ? "s" : "") non reconnue@(_invalidLineCount > 1 ? "s" : "")</div>
+                                        <div class="text-stone-600 dark:text-stone-400">Vérifiez la syntaxe FormulaScript.</div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else if (_activeTab == "variables")
+                    {
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 font-sans text-[13px]">
+                            @foreach (var s in _outputsSeries)
+                            {
+                                <div class="flex items-center justify-between rounded-md bg-stone-50 dark:bg-stone-800/50 px-2.5 py-1.5">
+                                    <span class="font-mono text-[12px]">@s.Name</span>
+                                    <span class="text-stone-400 text-xs">series · @s.Values.Count</span>
+                                </div>
+                            }
+                            @foreach (var s in _outputsScalars)
+                            {
+                                <div class="flex items-center justify-between rounded-md bg-stone-50 dark:bg-stone-800/50 px-2.5 py-1.5">
+                                    <span class="font-mono text-[12px]">@s.Name</span>
+                                    <span class="text-stone-400 text-xs">scalar</span>
+                                </div>
+                            }
+                            @if (!_outputsSeries.Any() && !_outputsScalars.Any())
+                            {
+                                <div class="col-span-2 text-stone-400">Exécutez le script pour voir les variables.</div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== OUTPUTS ===== -->
+        <section id="outputs" class="overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 border-b border-stone-200 dark:border-stone-800">
+                <div class="flex items-center gap-3">
+                    <div class="grid h-9 w-9 place-items-center rounded-lg bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-1 ring-inset ring-orange-600/15">
+                        <i data-lucide="sigma" class="h-[18px] w-[18px]"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-[15px] font-semibold tracking-tight">Outputs</h2>
+                        <p class="text-xs text-stone-500 dark:text-stone-400">
+                            Variables calculées par le script —
+                            <span class="tnum">@_outputsScalars.Count</span> scalaire@(_outputsScalars.Count > 1 ? "s" : "") ·
+                            <span class="tnum">@_outputsSeries.Count</span> time serie@(_outputsSeries.Count > 1 ? "s" : "")
+                        </p>
+                    </div>
+                </div>
+                <button class="inline-flex items-center gap-2 rounded-lg border border-stone-300 dark:border-stone-700 px-3 py-1.5 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors">
+                    <i data-lucide="download" class="h-4 w-4"></i> Exporter
+                </button>
+            </div>
+            <div class="p-5 space-y-4">
+                <ComputationGrid Months="@_months" Series="@_outputsSeries" Scalars="@_outputsScalars" />
+            </div>
+        </section>
+
+    </div>
+</div>

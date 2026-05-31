@@ -8,132 +8,138 @@ using FormulaForge.Web.Contexts;
 using FormulaForge.Web.Extensions;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.FluentUI.AspNetCore.Components;
-using Microsoft.FluentUI.AspNetCore.Components.Icons.Regular;
-using Icons = Microsoft.FluentUI.AspNetCore.Components.Icons;
+using Microsoft.JSInterop;
 
 namespace FormulaForge.Web.Components.Pages;
 
 public partial class EditProject
 {
     private List<DateTime> _months = new();
-    
+
     private readonly List<ComputationGrid.RowSeriesData> _inputsSeries = new();
     private readonly List<ComputationGrid.RowSeriesData> _outputsSeries = new();
-    
+
     private readonly List<ComputationGrid.RowScalarData> _outputsScalars = new();
     private readonly List<ComputationGrid.RowScalarData> _inputsScalars = new();
-    
+
     private readonly DynamicDslContext _dslContext = new(new DynamicDataContext());
     private ScriptInterpreter? _interpreter;
     private MonacoEditor? _editor;
-    private bool _ideInitialized = false;
+    private bool _ideInitialized;
+
+    private string? _errorMessage;
+    private bool _isRunning;
+    private int? _lastRunMs;
+    private string _activeTab = "console";
+    private int _invalidLineCount;
+    private bool _isDark;
+    private DateTime? _savedAt;
+
+    private readonly List<(string Level, string Message)> _consoleLogs = new();
+
     public CodeRunResult? ScriptRunResult { get; set; }
-    
+
     public Project Project { get; set; } = new Project
     {
-        Name = "Untitled project",
+        Name = "Nouveau projet",
         UserId = string.Empty,
     };
-    
-    [Inject] public required IDialogService DialogService { get; init; }
-    
+
     [Inject] public required IProjectManagementService ProjectManagement { get; init; }
-    
     [Inject] public required AuthenticationStateProvider AuthenticationStateProvider { get; init; }
-    
+    [Inject] public required IJSRuntime JS { get; init; }
+
     [Parameter] public Guid? ProjectId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         var userId = await AuthenticationStateProvider.GetUserIdAsync();
 
-        if (userId != null && ProjectId.HasValue && await ProjectManagement.GetProjectAsync(ProjectId.Value, userId) is { } project)
+        if (userId != null && ProjectId.HasValue &&
+            await ProjectManagement.GetProjectAsync(ProjectId.Value, userId) is { } project)
         {
             Project = project;
 
             if (_ideInitialized && _editor != null)
-            {
-                try
-                {
-                    await _editor.SetValue(project.Code);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-            }
+                await TrySetEditorValue(project.Code);
 
             InitializeContext(project);
 
-            _months = 
+            _months =
                 project.IntegerTimeSeriesValues.SelectMany(m => m.Entries.Select(e => e.Start.DateTime))
                     .Concat(project.DecimalTimeSeriesValues.SelectMany(m => m.Entries.Select(e => e.Start.DateTime)))
                     .Concat(project.BooleanTimeSeriesValues.SelectMany(m => m.Entries.Select(e => e.Start.DateTime)))
                     .Distinct()
                     .OrderBy(m => m)
                     .ToList();
-            
+
             await DisplayRows(clear: false);
-            
             return;
         }
-        
+
         Project = new Project
         {
             UserId = userId ?? string.Empty,
-            Name = "Untitled project"
+            Name = "Nouveau projet"
         };
-        
+
         await LoadInputs();
+        await DisplayRows();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        _isDark = await JS.InvokeAsync<bool>("eval", "document.documentElement.classList.contains('dark')");
+
+        if (ProjectId.HasValue && _editor != null)
+            await TrySetEditorValue(Project.Code);
 
         await DisplayRows();
+    }
+
+    private async Task TrySetEditorValue(string code)
+    {
+        try { await _editor!.SetValue(code); }
+        catch (Exception e) { Console.WriteLine(e); }
     }
 
     private void InitializeContext(Project project)
     {
         ClearContext();
 
-        foreach (var scalarValue in project.BooleanScalarValues)
-        {
-            _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.BooleanScalarValue(scalarValue.Value)));
-        }
+        foreach (var s in project.BooleanScalarValues)
+            _dslContext.GlobalScope.Variables.TryAdd(s.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.BooleanScalarValue(s.Value)));
 
-        foreach (var scalarValue in project.IntegerScalarValues)
-        {
-            _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(scalarValue.Value)));
-        }
+        foreach (var s in project.IntegerScalarValues)
+            _dslContext.GlobalScope.Variables.TryAdd(s.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(s.Value)));
 
-        foreach (var scalarValue in project.DecimalScalarValues)
-        {
-            _dslContext.GlobalScope.Variables.Add(scalarValue.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.DecimalScalarValue(scalarValue.Value)));
-        }
-            
+        foreach (var s in project.DecimalScalarValues)
+            _dslContext.GlobalScope.Variables.TryAdd(s.Key, new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.DecimalScalarValue(s.Value)));
+
         foreach (var ts in project.IntegerTimeSeriesValues)
         {
-            var timeSerie = ts.Entries.Select(e => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.IntegerScalarValue(e.Value)))
-                .CreateTimeSeries()
-                .Cast<ScalarValueNode, ScalarValueNode.IntegerScalarValue>()
-                .CreateTimeSeries();
-            _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
+            var serie = ts.Entries
+                .Select(e => new TimeSeriesValue<ScalarValueNode.IntegerScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.IntegerScalarValue(e.Value)))
+                .CreateTimeSeries().Cast<ScalarValueNode, ScalarValueNode.IntegerScalarValue>().CreateTimeSeries();
+            _dslContext.GlobalScope.Variables.TryAdd(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(serie));
         }
 
         foreach (var ts in project.DecimalTimeSeriesValues)
         {
-            var timeSerie = ts.Entries.Select(e => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.DecimalScalarValue(e.Value)))
-                .CreateTimeSeries()
-                .Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>()
-                .CreateTimeSeries();
-            _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
+            var serie = ts.Entries
+                .Select(e => new TimeSeriesValue<ScalarValueNode.DecimalScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.DecimalScalarValue(e.Value)))
+                .CreateTimeSeries().Cast<ScalarValueNode, ScalarValueNode.DecimalScalarValue>().CreateTimeSeries();
+            _dslContext.GlobalScope.Variables.TryAdd(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(serie));
         }
 
         foreach (var ts in project.BooleanTimeSeriesValues)
         {
-            var timeSerie = ts.Entries.Select(e => new TimeSeriesValue<ScalarValueNode.BooleanScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.BooleanScalarValue(e.Value)))
-                .CreateTimeSeries()
-                .Cast<ScalarValueNode, ScalarValueNode.BooleanScalarValue>()
-                .CreateTimeSeries();
-            _dslContext.GlobalScope.Variables.Add(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(timeSerie));
+            var serie = ts.Entries
+                .Select(e => new TimeSeriesValue<ScalarValueNode.BooleanScalarValue>(new Period(e.Start, e.End), new ScalarValueNode.BooleanScalarValue(e.Value)))
+                .CreateTimeSeries().Cast<ScalarValueNode, ScalarValueNode.BooleanScalarValue>().CreateTimeSeries();
+            _dslContext.GlobalScope.Variables.TryAdd(ts.Key, new RuntimeVariableValue.RuntimeTimeSeriesValue(serie));
         }
     }
 
@@ -149,66 +155,32 @@ public partial class EditProject
         _inputsSeries.Clear();
         _inputsScalars.Clear();
 
-        var period = new Period(new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), new DateTime(2027, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+        var period = new Period(new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Utc), new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
         var months = period.GetMonths().ToArray();
         _months = months.Select(m => m.InclusiveStart.DateTime).ToList();
 
         _dslContext.GlobalScope.Variables.TryAdd("x",
             new RuntimeVariableValue.RuntimeScalarValue(new ScalarValueNode.IntegerScalarValue(10)));
-        _inputsScalars.Add(new ComputationGrid.RowScalarData
-        {
-            Name = "x",
-            ScalarValue = new ScalarValueNode.IntegerScalarValue(10)
-        });
-        
+        _inputsScalars.Add(new ComputationGrid.RowScalarData { Name = "x", ScalarValue = new ScalarValueNode.IntegerScalarValue(10) });
+
         var random = new Random();
         var balance = new TimeSeries<ScalarValueNode>();
         var changeRate = new TimeSeries<ScalarValueNode>();
 
-        for (var index = 0; index < months.Length; index++)
+        for (var i = 0; i < months.Length; i++)
         {
-            var month = months[index];
-            balance.Add(month, new ScalarValueNode.IntegerScalarValue(index * 100), (a, b) => a.Value);
-            changeRate.Add(month, new ScalarValueNode.DecimalScalarValue((decimal)random.NextDouble()),
-                (a, b) => a.Value);
+            balance.Add(months[i], new ScalarValueNode.IntegerScalarValue(i * 100), (a, _) => a.Value);
+            changeRate.Add(months[i], new ScalarValueNode.DecimalScalarValue((decimal)random.NextDouble()), (a, _) => a.Value);
         }
 
         _dslContext.GlobalScope.Variables.TryAdd("balance", new RuntimeVariableValue.RuntimeTimeSeriesValue(balance));
         _dslContext.GlobalScope.Variables.TryAdd("change_rate", new RuntimeVariableValue.RuntimeTimeSeriesValue(changeRate));
-        
-        _inputsSeries.Add(new ComputationGrid.RowSeriesData
-        {
-            Name = "balance",
-            Values = Map(new RuntimeVariableValue.RuntimeTimeSeriesValue(balance))
-        });
-        _inputsSeries.Add(new ComputationGrid.RowSeriesData()
-        {
-            Name = "change_rate",
-            Values = Map(new RuntimeVariableValue.RuntimeTimeSeriesValue(changeRate))
-        });
-        
+
+        _inputsSeries.Add(new ComputationGrid.RowSeriesData { Name = "balance", Values = MapSeries(new RuntimeVariableValue.RuntimeTimeSeriesValue(balance)) });
+        _inputsSeries.Add(new ComputationGrid.RowSeriesData { Name = "change_rate", Values = MapSeries(new RuntimeVariableValue.RuntimeTimeSeriesValue(changeRate)) });
+
         StateHasChanged();
-        
         return Task.CompletedTask;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender) return;
-
-        if (ProjectId.HasValue && _editor != null)
-        {
-            try
-            {
-                await _editor.SetValue(Project.Code);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-        }
-
-        await DisplayRows();
     }
 
     private async Task DisplayRows(bool clear = true)
@@ -219,24 +191,12 @@ public partial class EditProject
             _outputsScalars.Clear();
         }
 
-        foreach (var (variableName, variableValue) in _dslContext.GlobalScope.Variables)
+        foreach (var (name, value) in _dslContext.GlobalScope.Variables)
         {
-            if (variableValue is RuntimeVariableValue.RuntimeTimeSeriesValue timeSeriesValue)
-            {
-                _outputsSeries.Add(new ComputationGrid.RowSeriesData
-                {
-                    Name = variableName,
-                    Values = Map(timeSeriesValue)
-                });
-            }
-            if (variableValue is RuntimeVariableValue.RuntimeScalarValue scalarValue)
-            {
-                _outputsScalars.Add(new ComputationGrid.RowScalarData
-                {
-                    Name = variableName,
-                    ScalarValue = scalarValue.Value
-                });
-            }
+            if (value is RuntimeVariableValue.RuntimeTimeSeriesValue ts)
+                _outputsSeries.Add(new ComputationGrid.RowSeriesData { Name = name, Values = MapSeries(ts) });
+            if (value is RuntimeVariableValue.RuntimeScalarValue sc)
+                _outputsScalars.Add(new ComputationGrid.RowScalarData { Name = name, ScalarValue = sc.Value });
         }
 
         StateHasChanged();
@@ -244,98 +204,88 @@ public partial class EditProject
 
     private async Task RunScript()
     {
-        if (_editor == null)
-        {
-            StateHasChanged();
-            return;
-        }
+        if (_editor == null) return;
+
+        _isRunning = true;
+        _consoleLogs.Clear();
+        _lastRunMs = null;
+        _invalidLineCount = 0;
+        _errorMessage = null;
+        StateHasChanged();
+
+        var sw = System.Diagnostics.Stopwatch.StartNew();
 
         try
         {
             ClearContext();
-
             await LoadInputs();
-            
+
+            AddLog("info", $"Chargement des sources… {_inputsSeries.Count} time series, {_inputsScalars.Count} scalaires");
+
             _interpreter = new ScriptInterpreter(_dslContext);
-            
             var code = await _editor.GetValue();
             var nodes = _interpreter.ParseScriptCode(code);
+
             var invalidLines = nodes.OfType<InvalidLine>().ToArray();
+            _invalidLineCount = invalidLines.Length;
 
             if (invalidLines.Any())
             {
-                var markers = invalidLines
-                    .Select(l => new MonacoEditor.ErrorMarker(l.PositionRange, "Invalid line"))
-                    .ToArray();
-
+                var markers = invalidLines.Select(l => new MonacoEditor.ErrorMarker(l.PositionRange, "Syntaxe non reconnue")).ToArray();
                 await _editor.HighlightErrors(markers);
+                AddLog("warn", $"{invalidLines.Length} ligne(s) non reconnue(s) ignorée(s)");
             }
             else
             {
                 await _editor.ClearErrorHighlights();
             }
-            
+
+            AddLog("info", $"Compilation FormulaScript — {nodes.Length - invalidLines.Length} instruction(s)");
+
             ScriptRunResult = _interpreter.Run(nodes);
 
-            if (ScriptRunResult != null && ScriptRunResult != CodeRunResult.Success)
+            if (ScriptRunResult != CodeRunResult.Success)
             {
-                await DialogService.ShowErrorAsync(ScriptRunResult?.ToString() ?? "", "Error running script");
-                StateHasChanged();
+                AddLog("err", ScriptRunResult?.ToString() ?? "Erreur inconnue");
+                _errorMessage = $"Erreur d'exécution : {ScriptRunResult}";
+            }
+            else
+            {
+                AddLog("ok", $"{_dslContext.GlobalScope.Variables.Count} variable(s) produite(s)");
+                _activeTab = "variables";
             }
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            AddLog("err", e.Message);
+            _errorMessage = e.Message;
+        }
+        finally
+        {
+            sw.Stop();
+            _lastRunMs = (int)sw.ElapsedMilliseconds;
+            _isRunning = false;
         }
 
         await DisplayRows();
     }
 
-    private Dictionary<int, decimal> Map(RuntimeVariableValue.RuntimeTimeSeriesValue runtimeTimeSeriesValue)
-    {
-        return runtimeTimeSeriesValue.Value
-            .Select((v, i) => new
-            {
-                Value = Map(v.Value),
-                Index = i
-            })
-            .ToDictionary(v => v.Index, v => v.Value);
-    }
-
-    private static decimal Map(ScalarValueNode scalarValue) =>
-        scalarValue switch
-        {
-            ScalarValueNode.BooleanScalarValue booleanScalarValue => booleanScalarValue.Value ? 1 : 0,
-            ScalarValueNode.DecimalScalarValue decimalScalarValue => decimalScalarValue.Value,
-            ScalarValueNode.IntegerScalarValue integerScalarValue => integerScalarValue.Value,
-            _ => throw new ArgumentOutOfRangeException()
-        };
-    
-    private static Icon PlayIcon(bool active = false) =>
-        active ? new Size20.PlaySettings()
-            : new Icons.Regular.Size20.PlaySettings();
-    
-    private static Icon SaveIcon(bool active = false) =>
-        active ? new Size20.Save()
-            : new Icons.Regular.Size20.Save();
+    private void AddLog(string level, string message) => _consoleLogs.Add((level, message));
 
     private async Task SaveProject()
     {
         if (string.IsNullOrWhiteSpace(Project.Name))
         {
-            await DialogService.ShowErrorAsync("Project name cannot be empty", "Error saving project");
+            _errorMessage = "Le nom du projet ne peut pas être vide.";
             return;
         }
 
         if (_editor != null)
-        {
             Project.Code = await _editor.GetValue();
-        }
 
         Project.BooleanScalarValues.Clear();
         Project.IntegerScalarValues.Clear();
         Project.DecimalScalarValues.Clear();
-        
         Project.DecimalTimeSeriesValues.Clear();
         Project.BooleanTimeSeriesValues.Clear();
         Project.IntegerTimeSeriesValues.Clear();
@@ -344,36 +294,25 @@ public partial class EditProject
         {
             switch (value)
             {
-                case RuntimeVariableValue.RuntimeScalarValue scalarValue:
-
-                    switch (scalarValue.Value)
-                    {
-                        case ScalarValueNode.BooleanScalarValue booleanScalarValue:
-                            Project.BooleanScalarValues.Add(new BooleanScalarValueEntity { Key = key, Value = booleanScalarValue.Value });
-                            break;
-                        case ScalarValueNode.DecimalScalarValue decimalScalarValue:
-                            Project.DecimalScalarValues.Add(new DecimalScalarValueEntity { Key = key, Value = decimalScalarValue.Value });
-                            break;
-                        case ScalarValueNode.IntegerScalarValue integerScalarValue:
-                            Project.IntegerScalarValues.Add(new IntegerScalarValueEntity { Key = key, Value = integerScalarValue.Value });
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
+                case RuntimeVariableValue.RuntimeScalarValue { Value: ScalarValueNode.BooleanScalarValue bv }:
+                    Project.BooleanScalarValues.Add(new BooleanScalarValueEntity { Key = key, Value = bv.Value });
                     break;
-                
-                case RuntimeVariableValue.RuntimeTimeSeriesValue timeSeriesValue:
-                    
-                    var firstValue = timeSeriesValue.Value.FirstOrDefault()?.Value;
-                    if (firstValue == null) break;
-
-                    switch (firstValue)
+                case RuntimeVariableValue.RuntimeScalarValue { Value: ScalarValueNode.DecimalScalarValue dv }:
+                    Project.DecimalScalarValues.Add(new DecimalScalarValueEntity { Key = key, Value = dv.Value });
+                    break;
+                case RuntimeVariableValue.RuntimeScalarValue { Value: ScalarValueNode.IntegerScalarValue iv }:
+                    Project.IntegerScalarValues.Add(new IntegerScalarValueEntity { Key = key, Value = iv.Value });
+                    break;
+                case RuntimeVariableValue.RuntimeTimeSeriesValue tsv:
+                    var first = tsv.Value.FirstOrDefault()?.Value;
+                    if (first == null) break;
+                    switch (first)
                     {
                         case ScalarValueNode.BooleanScalarValue:
                             Project.BooleanTimeSeriesValues.Add(new BooleanTimeSeriesEntity
                             {
                                 Key = key,
-                                Entries = timeSeriesValue.Value.Select(v => new BooleanTimeSeriesEntry
+                                Entries = tsv.Value.Select(v => new BooleanTimeSeriesEntry
                                 {
                                     Value = ((ScalarValueNode.BooleanScalarValue)v.Value).Value,
                                     Start = v.Period.InclusiveStart,
@@ -385,7 +324,7 @@ public partial class EditProject
                             Project.DecimalTimeSeriesValues.Add(new DecimalTimeSeriesEntity
                             {
                                 Key = key,
-                                Entries = timeSeriesValue.Value.Select(v => new DecimalTimeSeriesEntry
+                                Entries = tsv.Value.Select(v => new DecimalTimeSeriesEntry
                                 {
                                     Value = ((ScalarValueNode.DecimalScalarValue)v.Value).Value,
                                     Start = v.Period.InclusiveStart,
@@ -397,7 +336,7 @@ public partial class EditProject
                             Project.IntegerTimeSeriesValues.Add(new IntegerTimeSeriesEntity
                             {
                                 Key = key,
-                                Entries = timeSeriesValue.Value.Select(v => new IntegerTimeSeriesEntry
+                                Entries = tsv.Value.Select(v => new IntegerTimeSeriesEntry
                                 {
                                     Value = ((ScalarValueNode.IntegerScalarValue)v.Value).Value,
                                     Start = v.Period.InclusiveStart,
@@ -405,30 +344,42 @@ public partial class EditProject
                                 }).ToList()
                             });
                             break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
                     }
-                    
                     break;
-                
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(value));
             }
         }
-        
+
         if (ProjectId == null)
         {
             ProjectId = Project.Id = Guid.NewGuid();
             await ProjectManagement.CreateProjectAsync(Project);
         }
         else
+        {
             await ProjectManagement.UpdateProjectAsync(Project);
+        }
+
+        _savedAt = DateTime.Now;
+        StateHasChanged();
     }
 
-    private async Task OnEditorDidInit(object arg)
+    private async Task OnEditorDidInit(object _)
     {
         if (_editor == null) return;
         _ideInitialized = true;
-        await _editor.SetValue(Project.Code);
+        await TrySetEditorValue(Project.Code);
     }
+
+    private Dictionary<int, decimal> MapSeries(RuntimeVariableValue.RuntimeTimeSeriesValue ts) =>
+        ts.Value
+            .Select((v, i) => (Index: i, Value: MapScalar(v.Value)))
+            .ToDictionary(x => x.Index, x => x.Value);
+
+    private static decimal MapScalar(ScalarValueNode n) => n switch
+    {
+        ScalarValueNode.BooleanScalarValue b => b.Value ? 1 : 0,
+        ScalarValueNode.DecimalScalarValue d => d.Value,
+        ScalarValueNode.IntegerScalarValue i => i.Value,
+        _ => throw new ArgumentOutOfRangeException()
+    };
 }

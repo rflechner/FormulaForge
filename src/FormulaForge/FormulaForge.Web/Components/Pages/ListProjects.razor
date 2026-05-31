@@ -6,61 +6,155 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @inject IProjectManagementService ProjectManagementService
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
 @implements IDisposable
 
-<PageTitle>Projects list</PageTitle>
+<PageTitle>Projets — FormulaForge</PageTitle>
 
-<FluentCard>
-    
-    <FluentListbox Items="@ProjectsItems" 
-                   TOption="Option<Project>"
-                   OptionText="@(i => i.Value?.Name)" 
-                   SelectedOptionChanged="@OnProjectSelected" />
-    
-</FluentCard>
+<div class="px-5 md:px-8 py-7">
+    <div class="mx-auto max-w-[1200px] space-y-6">
+
+        <!-- Title row -->
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-semibold tracking-tight">Projets</h1>
+                <p class="mt-1 text-sm text-stone-500 dark:text-stone-400">Vos feuilles de calcul et leurs scripts FormulaScript.</p>
+            </div>
+            <a href="/edit-project"
+               class="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-orange-600/30 hover:bg-orange-700 transition-colors ff-focus">
+                <i data-lucide="plus" class="h-4 w-4"></i> Nouveau projet
+            </a>
+        </div>
+
+        <!-- Stat strip -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4">
+                <div class="flex items-center gap-2 text-xs text-stone-500"><i data-lucide="folder" class="h-4 w-4"></i> Projets</div>
+                <div class="mt-1 tnum text-2xl font-semibold">@Projects.Length</div>
+            </div>
+            <div class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4">
+                <div class="flex items-center gap-2 text-xs text-stone-500"><i data-lucide="plug-zap" class="h-4 w-4"></i> Sources actives</div>
+                <div class="mt-1 tnum text-2xl font-semibold">—</div>
+            </div>
+            <div class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4">
+                <div class="flex items-center gap-2 text-xs text-stone-500"><i data-lucide="play" class="h-4 w-4"></i> Runs aujourd'hui</div>
+                <div class="mt-1 tnum text-2xl font-semibold">—</div>
+            </div>
+            <div class="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4">
+                <div class="flex items-center gap-2 text-xs text-stone-500"><i data-lucide="timer" class="h-4 w-4"></i> Temps moyen</div>
+                <div class="mt-1 tnum text-2xl font-semibold">—</div>
+            </div>
+        </div>
+
+        <!-- Search / filter toolbar -->
+        <div class="flex flex-wrap items-center gap-2">
+            <div class="relative flex-1 min-w-[220px]">
+                <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400"></i>
+                <input @bind="_search" @bind:event="oninput"
+                       placeholder="Rechercher un projet…"
+                       class="ff-focus w-full rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 pl-9 pr-3 py-2 text-sm placeholder:text-stone-400 dark:placeholder:text-stone-500 focus:outline-none focus:border-orange-500"/>
+            </div>
+        </div>
+
+        <!-- Projects table -->
+        <div class="overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm">
+            @if (_loading)
+            {
+                <div class="flex items-center justify-center gap-3 py-16 text-stone-400">
+                    <i data-lucide="loader-2" class="h-5 w-5 ff-spin"></i>
+                    <span class="text-sm">Chargement…</span>
+                </div>
+            }
+            else if (!FilteredProjects.Any())
+            {
+                <div class="flex flex-col items-center justify-center gap-3 py-16 text-stone-400">
+                    <i data-lucide="folder-open" class="h-10 w-10"></i>
+                    <p class="text-sm">Aucun projet trouvé.</p>
+                    <a href="/edit-project"
+                       class="inline-flex items-center gap-2 rounded-lg bg-orange-600 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-700 transition-colors">
+                        <i data-lucide="plus" class="h-4 w-4"></i> Créer le premier projet
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div class="ff-scroll overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-left text-[11px] uppercase tracking-wider text-stone-500 dark:text-stone-400 border-b border-stone-200 dark:border-stone-800">
+                                <th class="px-5 py-3 font-medium">Projet</th>
+                                <th class="px-4 py-3 font-medium text-right">In / Out</th>
+                                <th class="px-4 py-3 font-medium">Modifié</th>
+                                <th class="px-4 py-3 font-medium"></th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-stone-100 dark:divide-stone-800/70">
+                            @foreach (var project in FilteredProjects)
+                            {
+                                <tr class="group hover:bg-orange-50/40 dark:hover:bg-stone-800/40 transition-colors cursor-pointer"
+                                    @onclick="() => OpenProject(project.Id)">
+                                    <td class="px-5 py-3.5">
+                                        <div class="flex items-center gap-3">
+                                            <div class="grid h-9 w-9 place-items-center rounded-lg bg-stone-100 dark:bg-stone-800 text-stone-500 group-hover:bg-orange-100 dark:group-hover:bg-orange-500/15 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
+                                                <i data-lucide="table-2" class="h-[18px] w-[18px]"></i>
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="font-medium truncate">@project.Name</div>
+                                                <div class="text-xs text-stone-500 dark:text-stone-400 font-mono truncate">
+                                                    @(project.DecimalTimeSeriesValues.Count + project.IntegerTimeSeriesValues.Count + project.BooleanTimeSeriesValues.Count) séries
+                                                    · @(project.DecimalScalarValues.Count + project.IntegerScalarValues.Count + project.BooleanScalarValues.Count) scalaires
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-4 py-3.5 text-right tnum text-stone-600 dark:text-stone-300">
+                                        @(project.DecimalTimeSeriesValues.Count + project.IntegerTimeSeriesValues.Count + project.BooleanTimeSeriesValues.Count + project.DecimalScalarValues.Count + project.IntegerScalarValues.Count + project.BooleanScalarValues.Count) / —
+                                    </td>
+                                    <td class="px-4 py-3.5 text-stone-500 dark:text-stone-400 text-sm whitespace-nowrap">—</td>
+                                    <td class="px-4 py-3.5 text-right">
+                                        <button @onclick:stopPropagation="true"
+                                                class="grid h-8 w-8 place-items-center rounded-lg text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 hover:text-stone-700 dark:hover:text-stone-200 transition-colors">
+                                            <i data-lucide="ellipsis" class="h-4 w-4"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <p class="px-5 py-3 text-xs text-stone-400 border-t border-stone-100 dark:border-stone-800/70">
+                    @Projects.Length projet@(Projects.Length > 1 ? "s" : "") · stockés localement
+                </p>
+            }
+        </div>
+
+    </div>
+</div>
 
 @code {
-    
     private readonly CancellationTokenSource _cts = new();
+    private bool _loading = true;
+    private string _search = "";
 
     public Project[] Projects { get; set; } = [];
 
-    public Option<Project>[] ProjectsItems => Projects
-        .Select(p => new Option<Project>
-        {
-            Value = p,
-            Text = p.Name,
-        }).ToArray();
+    private IEnumerable<Project> FilteredProjects => string.IsNullOrWhiteSpace(_search)
+        ? Projects
+        : Projects.Where(p => p.Name.Contains(_search, StringComparison.OrdinalIgnoreCase));
 
-    public Option<Project>? SelectedProject { get; set; }
-
-    [Inject] public required NavigationManager NavigationManager { get; set; }
-    
     protected override async Task OnInitializedAsync()
     {
         var userId = await AuthenticationStateProvider.GetUserIdAsync();
-        if (userId == null)
-            Projects = [];
-        else
+        if (userId != null)
             Projects = await ProjectManagementService.GetProjectsAsync(userId).ToArrayAsync(_cts.Token);
+        _loading = false;
     }
+
+    private void OpenProject(Guid id) => NavigationManager.NavigateTo("/edit-project/" + id);
 
     public void Dispose()
     {
-        _cts?.Cancel();
-        _cts?.Dispose();
+        _cts.Cancel();
+        _cts.Dispose();
     }
-
-    private Task OnProjectSelected(Option<Project>? arg)
-    {
-        SelectedProject = arg;
-        
-        var project = arg?.Value;
-        
-        if (project == null) return Task.CompletedTask;
-        
-        NavigationManager.NavigateTo($"edit-project/{project.Id}", forceLoad: true);
-        return Task.CompletedTask;
-    }
-
 }

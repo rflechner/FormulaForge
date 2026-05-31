@@ -1,65 +1,70 @@
-@rendermode InteractiveServer
-
 @if (Scalars.Any())
 {
-    <div class="scalars-panel">
+    <div class="ff-scroll flex gap-3 overflow-x-auto pb-1">
         @foreach (var scalar in Scalars)
         {
-            <div class="scalar-card">
-                <div class="scalar-name">@scalar.Name</div>
-                <div class="scalar-value">@FormatScalarValue(scalar.ScalarValue)</div>
+            <div class="group relative min-w-[150px] rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-3.5 py-3">
+                <div class="flex items-center justify-between gap-2">
+                    <span class="font-mono text-xs text-stone-500 dark:text-stone-400 truncate">@scalar.Name</span>
+                    <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide ring-1 ring-inset text-orange-700 bg-orange-50 ring-orange-600/20 dark:text-orange-300 dark:bg-orange-500/10 dark:ring-orange-400/20">
+                        <i data-lucide="function-square" class="h-3 w-3"></i>CALC
+                    </span>
+                </div>
+                <div class="mt-1 flex items-baseline gap-1">
+                    <span class="tnum text-[22px] font-semibold leading-none text-stone-900 dark:text-stone-100">@FormatScalarValue(scalar.ScalarValue)</span>
+                </div>
             </div>
         }
     </div>
 }
 
-<div class="excel-grid-container">
-    <table class="excel-grid">
-    <thead>
-        <tr>
-            <th class="sticky-col">Variable</th>
-            @foreach (var month in Months)
-            {
-                <th>@month.ToString("MMM yyyy")</th>
-            }
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var row in Series)
-        {
-            <tr>
-                <th class="sticky-col read-only">
-                    <div class="cell-content">@row.Name</div>
-                </th>
-
-                @foreach (var month in Months)
+@if (Series.Any())
+{
+    <div class="ff-scroll overflow-x-auto rounded-lg border border-stone-200 dark:border-stone-800">
+        <table class="ff-table w-full text-[13px]">
+            <thead>
+                <tr>
+                    <th class="stick-l px-3 py-2 text-left font-semibold text-stone-500 dark:text-stone-400 bg-stone-50 dark:bg-stone-900/80 border-b border-stone-200 dark:border-stone-800 border-r border-r-stone-200 dark:border-r-stone-800">
+                        Variable
+                    </th>
+                    @foreach (var month in Months)
+                    {
+                        <th class="px-3 py-2 text-right font-medium text-stone-500 dark:text-stone-400 bg-stone-50 dark:bg-stone-900/80 border-b border-stone-200 dark:border-stone-800">
+                            @month.ToString("MMM yyyy")
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var row in Series)
                 {
-                    var cellId = $"{row.Id}-{month.Ticks}";
-                    var isEditing = _editingCellId == cellId;
-
-                    <td class="@(isEditing ? "editing" : "")">
-                        @if (isEditing)
-                        {
-                            <input @ref="_activeInput"
-                                   type="number"
-                                   value="@GetValue(row, month)"
-                                   @oninput="(e) => UpdateValue(row, month, e.Value)"
-                                   @onblur="StopEdit"
-                                   @onkeydown="(e) => HandleKeyDown(e, row, month)"
-                                   @onclick:stopPropagation="true"
-                                   autofocus />
-                        }
-                        else
-                        {
-                            <div class="cell-content" @onclick="() => StartEdit(cellId)">
-                                @FormatValue(GetValue(row, month))
+                    <tr class="group hover:bg-orange-50/40 dark:hover:bg-stone-800/40">
+                        <th class="stick-l px-3 py-2 text-left bg-white dark:bg-stone-900 group-hover:bg-orange-50/40 dark:group-hover:bg-stone-800/40 border-b border-stone-100 dark:border-stone-800/70 border-r border-r-stone-200 dark:border-r-stone-800 font-normal">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-semibold tracking-wide ring-1 ring-inset text-orange-700 bg-orange-50 ring-orange-600/20 dark:text-orange-300 dark:bg-orange-500/10 dark:ring-orange-400/20">
+                                    <i data-lucide="function-square" class="h-3 w-3"></i>CALC
+                                </span>
+                                <span class="font-mono text-[13px] text-stone-800 dark:text-stone-200">@row.Name</span>
                             </div>
+                        </th>
+                        @for (int i = 0; i < Months.Count; i++)
+                        {
+                            var val = GetValue(row, i);
+                            <td class="px-3 py-2 text-right tnum text-stone-700 dark:text-stone-300 border-b border-stone-100 dark:border-stone-800/70">
+                                @FormatValue(val)
+                            </td>
                         }
-                    </td>
+                    </tr>
                 }
-            </tr>
-        }
-    </tbody>
-</table>
-</div>
+            </tbody>
+        </table>
+    </div>
+}
 
+@if (!Scalars.Any() && !Series.Any())
+{
+    <div class="flex items-center justify-center py-8 text-stone-400 text-sm">
+        <i data-lucide="table-2" class="h-5 w-5 mr-2"></i>
+        Aucune donnée à afficher.
+    </div>
+}
