@@ -1,0 +1,13 @@
+version: 1
+projectName: FormulaForge
+analyzers:
+  - dotnet-csharp
+semanticIndexing:
+  language: fr
+  llm:
+    enabled: true
+    baseUrl: http://127.0.0.1:8888/v1
+    apiKeyEnvironmentVariable: CODESEMANTIC4LLM_LLM_API_KEY
+    model: Bonsai-8B-gguf:Q1_0
+exclude: 
+  - "**/externals/**"
