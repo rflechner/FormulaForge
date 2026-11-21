@@ -1,7 +1,32 @@
 version: 1
 projectName: FormulaForge
+
 analyzers:
   - dotnet-csharp
+
+sharedSummaries: true
+
+# MCP tools advertised for this repository. Comment out a line to hide that tool.
+# Removing the whole section advertises every tool. Writing tools also require
+# serve --allow-write, and indexing tools require serve --expose-indexing.
+tools:
+  - get_server_info
+  - find_symbols
+  - search_code
+  - get_type_members
+  - find_usages
+  - get_method_body
+  - get_method
+  - validate_method_body
+  - get_method_diagnostics
+  - get_file_diagnostics
+  - get_type_diagnostics
+  - replace_method_body
+  - replace_method
+  - get_repository_configuration
+  - preview_repository_index
+  - get_repository_index_status
+
 semanticIndexing:
   language: fr
   llm:
@@ -9,5 +34,6 @@ semanticIndexing:
     baseUrl: http://127.0.0.1:8888/v1
     apiKeyEnvironmentVariable: CODESEMANTIC4LLM_LLM_API_KEY
     model: Bonsai-8B-gguf:Q1_0
+
 exclude: 
   - "**/externals/**"
